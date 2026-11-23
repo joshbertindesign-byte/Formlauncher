@@ -39,8 +39,10 @@ fi
 if [ ! -f dummies/snapPilot.json ]; then (cd dummies && node ../pilot/mkpack.js >/dev/null); run p1 dummies node p1.js; fi
 if [ ! -f pilot2/snapQC.json ]; then (cd pilot2 && node mkpack.js >/dev/null); for q in q1 q2 q3 q4; do run $q pilot2 node $q.js; done; fi
 
-for t in l42 l43 l44 l51 l54 l56 l57 l58 l59 l60 l61 l62 l63 l64 l64b l65 l66 l67 l68 l69 l70 l71 l72 l73 l74 l75 l76 l77 l78 l79 l80 l81 l82 l83 l84 l85 l86 l87 l88 l89 l90 l91 l92 l93; do
-  [ -f $t.js ] && wanted $t && run $t . node $t.js
+# Every lNN.js from l42 on, in number order (a new test is picked up by being added; nothing to register).
+for f in $(ls l[0-9]*.js | sort -V); do
+  t="${f%.js}"; n="${t#l}"; n="${n%%[!0-9]*}"
+  [ "$n" -ge 42 ] && wanted "$t" && run "$t" . node "$f"
 done
 echo; note "$(grep -c '^PASS' out/results.txt) passed, $(grep -c '^KNOWN-FAIL' out/results.txt) known failing, $(grep -c '^FAIL' out/results.txt) failed"
 exit $UNEXPECTED
