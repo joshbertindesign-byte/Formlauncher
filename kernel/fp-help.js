@@ -20,6 +20,36 @@
   const TYPE_TEXT = { text: 'text', name: 'a name (letters, digits, _)', number: 'a number', integer: 'a whole number', boolean: 'yes or no', choice: 'one of a list', formula: 'a formula', texts: 'a list of words', target: 'source.value', list: 'a list', map: 'names and values', any: 'see the note', control: 'a kind of field', form: 'a form\'s name', options: 'a list of options' };
 
   /* ---------- The chapters, as plain data ---------- */
+  /* What changed (0.66): short, plain, and who each change is for. Newest first. */
+  function changedChapter() {
+    return {
+      id: 'changed', title: 'What changed',
+      intro: 'What is different in the last three releases, in plain words. Each says who it is for: builders make the forms in the editor; operators fill them in on a terminal.',
+      blocks: [
+        { h: '0.66 · The new look', who: 'Builders and operators', list: [
+          'Colour shows the kind of data: green is Runs, amber is Inventory, blue is Records, red is Cases, violet is Orders, grey is Lists. A form takes the colour of the structure it mainly saves to.',
+          'Shape shows the kind of thing: a rounded square is a form, a hexagon is a structure, a circle is a function. Terminals and sites stay plain.',
+          'A field shows whether it writes or only shows: a filled tile writes data, a dashed tile only shows it, and an arrow chip names the structure it writes to or reads from.',
+          'In the editor, checks go quiet when everything is right and turn red, with the fix underneath, when something is wrong. Show all checks brings back a tick on every row.',
+          'On the operator screens the targets are larger (48 to 56 px), what you type is bigger, and Save says clearly what was saved. Admin and Help look the same as the editor now.',
+        ] },
+        { h: '0.65 · Retiring definitions', who: 'Builders and admins; operators only see a replaced form open its replacement', list: [
+          'Retire takes a form, a structure or a function out of use without deleting it: its history, old records and Restore all keep working. Retire stays off while anything active still uses it, and says what.',
+          'Replaced by (on a form) names the form that takes over: a terminal or shortcut that opens the retired form opens the new one instead, with a one-line note.',
+          'Reinstate (admins) brings a retired definition back, after the usual publish checks.',
+          'Show retired, on the map, in Find and in every picker, brings retired definitions back into view; they are hidden otherwise.',
+          'Duplicate as new form copies a form under a new name; for each structure and function you choose Share (the default) or Copy.',
+          'The Unused finder, in Admin › Clean-up, lists what nothing uses and offers a Retire button for each.',
+        ] },
+        { h: '0.64 · Night mode', who: 'Builders and operators', list: [
+          'The Night button in the header of the launcher and the editor makes the screen dark; it then reads Day, and a tap goes back.',
+          'The choice is saved on that terminal, because the lighting belongs to the place, not the person. The launcher and the editor on it share the choice.',
+          'Printing and Save as PDF always use day colours, so a printed record is the same in both modes. The drawing pad keeps a white surface, so signatures stay clear.',
+        ] },
+      ],
+    };
+  }
+
   function mediaChapter() {
     return {
       id: 'media', title: 'Media',
@@ -59,8 +89,8 @@
   function formChapter() {
     return {
       id: 'form', title: 'Form settings',
-      intro: 'The settings of a form itself (the first row of its map).',
-      blocks: [{ table: FP.forms.formSettings().filter(s => !['fields', 'comments', 'lists'].includes(s.name)).map(s => [s.name + (s.required ? ' *' : ''), [s.label, s.help].filter(Boolean).join(' · ')]) }],
+      intro: 'The settings of a form itself (the first row of its map). A form that is no longer wanted is retired, never deleted: Retire in its editor, and Replaced by names the form that takes over (0.65).',
+      blocks: [{ names: true, table: FP.forms.formSettings().filter(s => !['fields', 'comments', 'lists'].includes(s.name)).map(s => [s.name + (s.required ? ' *' : ''), [s.label, s.help].filter(Boolean).join(' · ')]) }],
     };
   }
 
@@ -114,6 +144,7 @@
         { h: 'The launcher', list: [
           'launch.html, at the top of the data folder, is the one launcher every terminal opens. It knows which terminal it is; whoever signs in decides what its home screen shows.',
           'Publishers and admins get an Editor button. The editor is always the terminal Editor, on any computer, and works on every site.',
+          'Day or Night (0.64): the Day / Night button in the header of the launcher and the editor sets how that terminal looks. It is saved on the terminal, not per person; printing is always day.',
         ] },
         { h: 'Approvals', list: [
           'A form with "Needs a supervisor\'s approval" doesn\'t save what a user fills in: it waits, unsaved, until a supervisor approves it.',
@@ -142,7 +173,7 @@
       id: 'checks', title: 'What publish checks',
       intro: 'Every definition is checked as you edit, with the same checks publish runs. Nothing with a problem can be published; each problem is marked ✗ on its row of the map.',
       blocks: [
-        { h: 'Every definition', list: ['Its sites are named, and exist.', 'Whatever it uses (a structure, a function, a form it opens) is used at all of its sites.', 'Whatever uses it still covers all of its sites.', 'It is the version you opened: if someone published since, reload first.'] },
+        { h: 'Every definition', list: ['Its sites are named, and exist.', 'Retiring (0.65): a definition is retired, never deleted; Retire is refused while anything active uses it, and nothing new can use a retired one.', 'Whatever it uses (a structure, a function, a form it opens) is used at all of its sites.', 'Whatever uses it still covers all of its sites.', 'It is the version you opened: if someone published since, reload first.'] },
         { h: 'Forms', list: ['Every field has a name (letters, digits, _), used once, and a kind of field that exists; every setting is one that kind has, of the right type.',
           'Formulas read without errors, call functions that exist with the right number of inputs, and name only fields and sources of this form (item inside FILTER, EACH and SORT).',
           'A field saves to a source of this form, to a value ticked write on it; nothing saves to a value a structure works out itself.',
@@ -162,29 +193,50 @@
     };
   }
 
-  const chapters = () => [fieldsChapter(), formChapter(), subformsChapter(), placesChapter(), mediaChapter(), formulasChapter(), checksChapter()];
+  const chapters = () => [fieldsChapter(), changedChapter(), formChapter(), subformsChapter(), placesChapter(), mediaChapter(), formulasChapter(), checksChapter()];
 
   /* ---------- Drawing ---------- */
   const CSS = `
-  .fph{display:grid;grid-template-columns:220px minmax(0,1fr);gap:16px;align-items:start}
+  /* The new look (UI Release B, step 10): readable at a glance. A chapter list in a panel with the selected chapter marked like the map's,
+   * a clear heading scale, a long line height, reference tables with mono name chips and muted descriptions, code in the mono face on a
+   * tinted ground. On the semantic palette, so day, night and print follow the theme. */
+  .fph-root{color:var(--fg);font-family:var(--font-sans)}
+  .fph-head{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-3) var(--sp-4);margin:0 0 var(--sp-4)}
+  .fph-head h2{margin:0;font-size:var(--fs-xl);font-weight:650}
+  .fph-root input{font:inherit;font-size:var(--fs-md);min-height:44px;padding:8px 12px;border:1px solid var(--line-2);border-radius:10px;background:var(--surface-2);color:var(--fg)}
+  .fph-root input::placeholder{color:var(--muted)}
+  .fph-root button.small{font:inherit;font-size:var(--fs-md);font-weight:600;min-height:44px;padding:8px 14px;border:1px solid var(--line-2);border-radius:10px;background:var(--surface);color:var(--fg);cursor:pointer}
+  .fph-root button.small:hover{background:var(--surface-2)}
+  .fph-root button:focus-visible,.fph-root input:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+  .fph{display:grid;grid-template-columns:240px minmax(0,1fr);gap:var(--sp-5);align-items:start}
   @media (max-width:900px){.fph{grid-template-columns:1fr}}
-  .fph-nav{position:sticky;top:52px;display:flex;flex-direction:column;gap:4px}
-  .fph-nav button{font:inherit;text-align:left;padding:8px 10px;border:1px solid var(--l-n-88);border-radius:8px;background:var(--s-n-100);cursor:pointer}
-  .fph-nav button.on{border-color:var(--l-blue-42);background:var(--s-blue-93);font-weight:600}
-  .fph-body{min-width:0;font-size:14px;line-height:1.5}
-  .fph-body h2{margin:0 0 6px;font-size:20px}
-  .fph-body h3{margin:18px 0 6px;font-size:15px;text-transform:uppercase;letter-spacing:.04em;color:var(--t-n-42)}
-  .fph-body p.intro{color:var(--t-n-29);margin:0 0 10px}
-  .fph-body pre{background:var(--s-n-100);border:1px solid var(--l-n-88);border-radius:8px;padding:10px 12px;font:13px/1.45 Consolas,"Cascadia Mono",monospace;overflow-x:auto}
-  .fph-body table{border-collapse:collapse;width:100%;margin:4px 0 8px}
-  .fph-body td{border-top:1px solid var(--l-n-95);padding:5px 8px;vertical-align:top}
-  .fph-body td:first-child{font-family:Consolas,"Cascadia Mono",monospace;font-size:13px;white-space:nowrap;color:var(--t-blue-42);width:1%}
-  .fph-item{border:1px solid var(--l-n-88);border-radius:8px;padding:8px 12px;margin:0 0 8px;background:var(--s-n-100)}
-  .fph-item b{font-family:Consolas,"Cascadia Mono",monospace}
-  .fph-item .t{color:var(--t-n-29)}
-  .fph-item code{display:block;margin-top:4px;color:var(--t-violet-31);font:12px Consolas,monospace;white-space:pre-wrap}
-  .fph-item table td:first-child{color:var(--t-teal-30)}
-  .fph mark{background:var(--s-yellow-95)}`;
+  .fph-nav{position:sticky;top:52px;display:flex;flex-direction:column;gap:2px;padding:var(--sp-2);background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg)}
+  .fph-nav-h{padding:var(--sp-2) 10px var(--sp-1);font-size:11px;font-weight:650;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+  .fph-nav button{font:inherit;font-size:var(--fs-base);font-weight:550;line-height:1.3;text-align:left;min-height:44px;padding:var(--sp-2) 10px;border:0;border-radius:var(--r);background:none;color:var(--fg);cursor:pointer}
+  .fph-nav button:hover{background:var(--surface-2)}
+  .fph-nav button.on{background:var(--accent-t);box-shadow:inset 3px 0 0 var(--accent);font-weight:650}
+  .fph-body{min-width:0;font-size:var(--fs-base);line-height:1.65;max-width:900px}
+  .fph-body h2{margin:0 0 var(--sp-2);font-size:26px;line-height:1.25;font-weight:650}
+  .fph-body h3{margin:var(--sp-6) 0 var(--sp-3);padding-top:var(--sp-4);border-top:1px solid var(--line);font-size:18px;line-height:1.3;font-weight:650;color:var(--fg)}
+  .fph-body h2+p.intro+h3,.fph-body h2+h3{border-top:0;padding-top:0}
+  .fph-body p.intro{color:var(--muted);margin:0 0 var(--sp-3);font-size:var(--fs-base)}
+  .fph-body ul{margin:0 0 var(--sp-3);padding-left:22px}.fph-body li{margin:0 0 var(--sp-2)}
+  .fph-who{margin:-4px 0 var(--sp-3)}
+  .fph-chip{display:inline-flex;align-items:center;padding:2px 10px;border-radius:var(--r-pill);font-size:var(--fs-sm);font-weight:600;background:var(--accent-t);color:var(--accent)}
+  .fph-body pre{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-lg);padding:var(--sp-3) var(--sp-4);font:var(--fs-sm)/1.55 var(--font-mono);color:var(--fg);overflow-x:auto}
+  .fph-body table{border-collapse:collapse;width:100%;margin:var(--sp-1) 0 var(--sp-3);font-variant-numeric:tabular-nums}
+  .fph-body td{border-top:1px solid var(--line);padding:10px 12px;vertical-align:top;color:var(--muted);font-size:var(--fs-md);line-height:1.55}
+  .fph-body tr:first-child td{border-top:0}
+  .fph-body td:first-child{white-space:nowrap;width:1%;color:var(--fg)}
+  .fph-body td.k{font-weight:650;white-space:normal;width:24%}
+  .fph-n,.fph-item .fpe-hint{display:inline-block;font:var(--fs-sm)/1.5 var(--font-mono);padding:1px 8px;border-radius:var(--r-sm);background:var(--surface-2);border:1px solid var(--line);color:var(--fg)}
+  .fph-item{border:1px solid var(--line);border-radius:var(--r-lg);padding:var(--sp-4);margin:0 0 var(--sp-3);background:var(--surface)}
+  .fph-item>b{font-size:var(--fs-lg);font-weight:650;margin-right:var(--sp-2)}
+  .fph-item>b.fph-fn{font:650 var(--fs-base)/1.4 var(--font-mono)}
+  .fph-item .t{color:var(--muted);margin-top:2px}
+  .fph-item code{display:block;margin-top:var(--sp-2);padding:var(--sp-2) var(--sp-3);background:var(--surface-2);border-radius:var(--r);color:var(--fg);font:var(--fs-sm)/1.55 var(--font-mono);white-space:pre-wrap}
+  .fph-item table{margin:var(--sp-2) 0 0}
+  .fph mark{background:var(--k-inv-t);color:var(--fg)}`;
   function injectCss() { if (document.getElementById('fp-help-css')) return; const s = el('style'); s.id = 'fp-help-css'; s.textContent = CSS; document.head.appendChild(s); }
 
   const hit = (q, ...parts) => !q || parts.some(x => String(x || '').toLowerCase().includes(q));
@@ -196,12 +248,13 @@
     const code = b.code && hit(q, b.code) ? b.code : null;
     if (!items.length && !table.length && !list.length && !code) return '';
     if (b.h) h += `<h3>${esc(b.h)}</h3>`;
+    if (b.who) h += `<p class="fph-who"><span class="fph-chip">${esc(b.who)}</span></p>`;
     if (list.length) h += `<ul>${list.map(x => `<li>${esc(x)}</li>`).join('')}</ul>`;
     if (code) h += `<pre>${esc(code)}</pre>`;
-    if (table.length) h += `<table>${table.map(r => `<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td></tr>`).join('')}</table>`;
+    if (table.length) h += `<table>${table.map(r => `<tr>${b.names ? `<td><span class="fph-n">${esc(r[0])}</span></td>` : `<td class="k">${esc(r[0])}</td>`}<td>${esc(r[1])}</td></tr>`).join('')}</table>`;
     items.forEach(it => {
-      h += `<div class="fph-item"><b>${esc(it.title)}</b>${it.name && it.title !== it.name && !/\(/.test(it.title) ? ` <span class="fpe-hint">${esc(it.name)}</span>` : ''}${it.text ? `<div class="t">${esc(it.text)}</div>` : ''}${it.example ? `<code>${esc(it.example)}</code>` : ''}`
-        + (it.rows && it.rows.length ? `<table>${it.rows.map(r => `<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td></tr>`).join('')}</table>` : '') + '</div>';
+      h += `<div class="fph-item"><b${/\(/.test(it.title) ? ' class="fph-fn"' : ''}>${esc(it.title)}</b>${it.name && it.title !== it.name && !/\(/.test(it.title) ? ` <span class="fpe-hint">${esc(it.name)}</span>` : ''}${it.text ? `<div class="t">${esc(it.text)}</div>` : ''}${it.example ? `<code>${esc(it.example)}</code>` : ''}`
+        + (it.rows && it.rows.length ? `<table>${it.rows.map(r => `<tr><td><span class="fph-n">${esc(r[0])}</span></td><td>${esc(r[1])}</td></tr>`).join('')}</table>` : '') + '</div>';
     });
     return h;
   }
@@ -218,12 +271,15 @@
     const list = chapters().filter(c => !want || want.includes(c.id));
     const body = list.map(c => chapterHtml(c, '')).join('');
     return `<!doctype html><html><head><meta charset="utf-8"><title>Form Platform reference ${esc(FP.version)}</title><style>
-body{font:14px/1.5 var(--font-sans,system-ui,"Segoe UI",sans-serif);color:var(--t-blue-15);max-width:900px;margin:24px auto;padding:0 16px}
-h1{font-size:24px}h2{font-size:20px;border-bottom:2px solid var(--l-n-88);padding-bottom:4px;margin-top:28px}h3{font-size:14px;text-transform:uppercase;letter-spacing:.04em;color:var(--t-n-42)}
-pre{background:var(--s-n-100);border:1px solid var(--l-n-88);border-radius:6px;padding:10px;font:12px/1.45 Consolas,monospace}
-table{border-collapse:collapse;width:100%}td{border-top:1px solid var(--l-n-95);padding:4px 8px;vertical-align:top}td:first-child{font-family:Consolas,monospace;white-space:nowrap;color:var(--t-blue-42);width:1%}
-.fph-item{border:1px solid var(--l-n-88);border-radius:6px;padding:6px 10px;margin:0 0 6px;break-inside:avoid}.fph-item b{font-family:Consolas,monospace}.fph-item code{display:block;color:var(--t-violet-31);font:12px Consolas,monospace;white-space:pre-wrap}
-.fpe-hint{color:var(--t-n-42);font-size:12px}
+/* A standalone page: it has no theme, so it uses plain colour names (dark on white, the way it prints). */
+body{font:15px/1.6 var(--font-sans,system-ui,"Segoe UI",sans-serif);color:black;max-width:900px;margin:24px auto;padding:0 16px}
+h1{font-size:26px}h2{font-size:22px;border-bottom:2px solid silver;padding-bottom:4px;margin-top:32px}h3{font-size:16px;margin:22px 0 8px}
+pre{background:whitesmoke;border:1px solid silver;border-radius:6px;padding:10px;font:12px/1.45 Consolas,monospace}
+p.intro{color:dimgray}ul{padding-left:22px}li{margin:0 0 4px}
+table{border-collapse:collapse;width:100%}td{border-top:1px solid gainsboro;padding:6px 8px;vertical-align:top;color:dimgray}td:first-child{white-space:nowrap;width:1%;color:black}td.k{font-weight:700;white-space:normal;width:24%}
+.fph-n,.fpe-hint{font:12px Consolas,monospace;padding:1px 6px;border-radius:4px;background:whitesmoke;border:1px solid gainsboro;color:black}
+.fph-item{border:1px solid silver;border-radius:6px;padding:8px 12px;margin:0 0 8px;break-inside:avoid}.fph-item>b{margin-right:8px}.fph-item>b.fph-fn{font-family:Consolas,monospace}.fph-item .t{color:dimgray}.fph-item code{display:block;margin-top:4px;padding:4px 8px;background:whitesmoke;font:12px Consolas,monospace;white-space:pre-wrap}
+.fph-chip{padding:1px 8px;border:1px solid silver;border-radius:999px;font-size:13px}
 @media print{body{margin:0;max-width:none;font-size:11px;line-height:1.35}h2{margin-top:10px}pre{font-size:10px;padding:6px}td{padding:2px 6px}}
 </style></head><body><h1>${want && list.length === 1 ? esc(list[0].title) : 'Form Platform reference'}</h1><p>Kernel ${esc(FP.version)} · made ${esc(new Date().toLocaleString())} from the platform itself.</p>${body}</body></html>`;
   }
@@ -232,11 +288,10 @@ table{border-collapse:collapse;width:100%}td{border-top:1px solid var(--l-n-95);
     opts = opts || {};
     injectCss();
     host.replaceChildren();
-    const page = el('div', 'fpe');
+    const page = el('div', 'fpe fph-root');
     host.appendChild(page);
-    const head = el('div', 'fpa-head');
-    head.style.cssText = 'display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin:0 0 12px';
-    const h2 = el('h2', null, 'Help'); h2.style.margin = '0';
+    const head = el('div', 'fph-head fpa-head');
+    const h2 = el('h2', null, 'Help');
     const q = input('', { placeholder: 'Find in the reference: a setting, a function, a keyword…' });
     q.style.flex = '1 1 260px';
     const save = btn('Save as a page', 'small', () => {
@@ -262,7 +317,7 @@ table{border-collapse:collapse;width:100%}td{border-top:1px solid var(--l-n-95);
     let at = opts.chapter && all.some(c => c.id === opts.chapter) ? opts.chapter : 'fields';
     function paint() {
       const query = q.value.trim().toLowerCase();
-      nav.replaceChildren(...all.map(c => { const b = btn(c.title, c.id === at && !query ? 'on' : '', () => { at = c.id; q.value = ''; paint(); }); return b; }));
+      nav.replaceChildren(el('div', 'fph-nav-h', 'Chapters'), ...all.map(c => { const b = btn(c.title, c.id === at && !query ? 'on' : '', () => { at = c.id; q.value = ''; paint(); }); return b; }));
       body.innerHTML = query ? (all.map(c => chapterHtml(c, query)).join('') || '<p class="intro">Nothing matches.</p>') : chapterHtml(all.find(c => c.id === at), '');
       if (opts.onChapter) opts.onChapter(at);
     }
