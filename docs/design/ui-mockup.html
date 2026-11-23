@@ -1,0 +1,499 @@
+<title>Form Platform UI Direction</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Concept: colour comes from the data, shape from the kind of thing. Neutral chrome, warm greys, one blue accent.
+   Palette: ink, warm grey ground, white surfaces, one blue accent, six data-kind colours (never decoration).
+   Type: Inter for everything, a mono face only for IDs. */
+:root{
+  --bg:#f2f2ef; --surface:#ffffff; --surface2:#f7f7f5; --line:#e1e0db; --line2:#cfcdc6;
+  --fg:#1c2128; --muted:#5d6570; --accent:#1f5fbf; --accent-t:#e4edfb; --accent-fg:#ffffff;
+  --head:#1a212b; --head-fg:#f1f3f5; --head-line:#323c49;
+  --runs:#1f7a4d; --runs-t:#e1f2e8;
+  --inv:#9a5600;  --inv-t:#fbedd6;
+  --rec:#1f5fbf;  --rec-t:#e4edfb;
+  --case:#b3261e; --case-t:#fbe5e3;
+  --ord:#6b3fc0;  --ord-t:#ece5fa;
+  --list:#4b5663; --list-t:#e8e9ec;
+  --sans:Inter,system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"JetBrains Mono",Consolas,monospace;
+  --shadow:0 1px 2px rgba(20,25,30,.06),0 4px 14px rgba(20,25,30,.06);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#13171c; --surface:#1c2229; --surface2:#222930; --line:#303943; --line2:#415060;
+  --fg:#e8ebef; --muted:#9aa5b1; --accent:#6fa3ff; --accent-t:#172a47; --accent-fg:#0d1624;
+  --head:#0e1217; --head-fg:#e8ebef; --head-line:#2a323c;
+  --runs:#5fd199; --runs-t:#17331f; --inv:#f0b45a; --inv-t:#3a2a10; --rec:#7fb0ff; --rec-t:#172a47;
+  --case:#ff8f86; --case-t:#47201d; --ord:#b79cff; --ord-t:#2a2050; --list:#aeb8c4; --list-t:#2a313a;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.35); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#13171c; --surface:#1c2229; --surface2:#222930; --line:#303943; --line2:#415060;
+  --fg:#e8ebef; --muted:#9aa5b1; --accent:#6fa3ff; --accent-t:#172a47; --accent-fg:#0d1624;
+  --head:#0e1217; --head-fg:#e8ebef; --head-line:#2a323c;
+  --runs:#5fd199; --runs-t:#17331f; --inv:#f0b45a; --inv-t:#3a2a10; --rec:#7fb0ff; --rec-t:#172a47;
+  --case:#ff8f86; --case-t:#47201d; --ord:#b79cff; --ord-t:#2a2050; --list:#aeb8c4; --list-t:#2a313a;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.35); color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:14px;line-height:1.45;margin:0}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+svg.i{width:1em;height:1em;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.wrap{max-width:1500px;margin:0 auto;padding-block:20px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.top{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between;margin-bottom:16px}
+.top h1{font-size:20px;margin:0;font-weight:650;text-wrap:balance}
+.top p{margin:2px 0 0;color:var(--muted);max-width:60ch}
+.tabs{display:flex;gap:4px;background:var(--surface);border:1px solid var(--line);padding:4px;border-radius:12px}
+.tabs button{border:0;background:none;padding:8px 14px;border-radius:9px;font-weight:550;color:var(--muted)}
+.tabs button[aria-selected="true"]{background:var(--fg);color:var(--bg)}
+.themebtn{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 12px;color:var(--muted)}
+
+/* data kinds */
+.k-runs{--kc:var(--runs);--kt:var(--runs-t)} .k-inv{--kc:var(--inv);--kt:var(--inv-t)}
+.k-rec{--kc:var(--rec);--kt:var(--rec-t)} .k-case{--kc:var(--case);--kt:var(--case-t)}
+.k-ord{--kc:var(--ord);--kt:var(--ord-t)} .k-list{--kc:var(--list);--kt:var(--list-t)}
+.tile{--s:30px;width:var(--s);height:var(--s);display:grid;place-items:center;background:var(--kt);color:var(--kc);border-radius:9px;flex:none;font-size:calc(var(--s)*.55)}
+.tile.hex{clip-path:polygon(25% 6%,75% 6%,100% 50%,75% 94%,25% 94%,0 50%);border-radius:0}
+.tile.round{border-radius:50%}
+.tile.plain{background:var(--surface2);color:var(--muted);border:1px solid var(--line)}
+.tile.outline{background:none;border:1.5px dashed var(--line2);color:var(--muted)}
+.tile.solid{background:var(--kc);color:var(--surface)}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:550;background:var(--kt,var(--surface2));color:var(--kc,var(--muted))}
+.chip.mono{font-family:var(--mono);font-size:11px}
+.ghost{background:var(--surface2);color:var(--muted)}
+
+/* ===== editor ===== */
+.app{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow)}
+.bar{background:var(--head);color:var(--head-fg);display:flex;align-items:center;gap:12px;padding:10px 16px;flex-wrap:wrap}
+.bar b{font-size:16px;font-weight:650}
+.bar .sp{flex:1}
+.bar .pill{border:1px solid var(--head-line);border-radius:10px;padding:5px 11px;background:none;color:var(--head-fg);display:inline-flex;gap:6px;align-items:center}
+.bar small{opacity:.6}
+.ed{display:grid;gap:12px;padding:12px;background:var(--bg);grid-template-columns:1fr}
+@media (min-width:1100px){.ed{grid-template-columns:250px 280px minmax(0,1fr) 250px}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;min-width:0}
+.panel h3{margin:0 0 8px;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:650}
+.search{display:flex;gap:6px;margin-bottom:10px}
+.search input{flex:1;min-width:0;border:1px solid var(--line);background:var(--surface2);border-radius:10px;padding:8px 10px}
+.btn{border:1px solid var(--line2);background:var(--surface);border-radius:10px;padding:8px 14px;font-weight:600}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.btn[disabled]{opacity:.5;cursor:default}
+.tree{display:flex;flex-direction:column;gap:2px}
+.row{display:flex;align-items:center;gap:9px;padding:6px 8px;border-radius:9px;min-width:0}
+.row .nm{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .v{color:var(--muted);font-size:12px}
+.row.sel{background:var(--accent-t);box-shadow:inset 3px 0 0 var(--accent)}
+.row.sel .nm{font-weight:650}
+.row.group{color:var(--muted);font-size:12px;font-weight:650;text-transform:uppercase;letter-spacing:.06em;padding-top:12px}
+.i1{margin-left:14px}.i2{margin-left:28px}.i3{margin-left:42px}
+
+.frow{display:flex;align-items:center;gap:10px;padding:8px;border:1px solid var(--line);border-radius:10px;margin-bottom:6px;background:var(--surface);min-width:0}
+.frow .tx{flex:1;min-width:0}
+.frow .tx b{display:block;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.frow .tx span{font-size:12px;color:var(--muted)}
+.frow.sel{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.frow.bad{border-color:var(--case)}
+.req{color:var(--case);font-weight:700}
+.addf{border:1.5px dashed var(--line2);border-radius:10px;padding:8px;color:var(--muted);text-align:center}
+
+.vtabs{display:flex;background:var(--surface2);border-radius:10px;padding:3px;margin-bottom:10px}
+.vtabs span{flex:1;text-align:center;padding:6px;border-radius:8px;font-weight:550;color:var(--muted)}
+.vtabs .on{background:var(--surface);color:var(--fg);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+
+.canvasbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
+.seg{display:inline-flex;border:1px solid var(--line2);border-radius:10px;overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 13px;font-weight:600;color:var(--muted);border-right:1px solid var(--line);white-space:nowrap}
+.seg button:last-child{border-right:0}
+.seg button.on{background:var(--fg);color:var(--bg)}
+.fit{background:var(--runs-t);color:var(--runs);border-radius:10px;padding:6px 10px;font-weight:550;font-size:13px}
+.stage{background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:16px;overflow-x:auto}
+.screen{min-width:520px;max-width:760px;margin:0 auto;background:var(--surface);border:1px solid var(--line2);border-radius:10px;overflow:hidden;box-shadow:var(--shadow)}
+.screen .sh{background:var(--head);color:var(--head-fg);padding:10px 16px;font-weight:650}
+.screen .sb{padding:16px;display:grid;gap:26px}
+.fld{display:grid;gap:5px;position:relative;border-radius:8px}
+.fld>label{font-size:13px;font-weight:600}
+.fld .hint{font-size:12px;color:var(--muted)}
+.inp{border:1px solid var(--line2);background:var(--surface);border-radius:9px;padding:9px 11px;min-height:40px;color:var(--muted)}
+.fld.pick{outline:2px solid var(--accent);outline-offset:4px}
+.fld.pick::after{content:"Racks needed · M";position:absolute;top:-24px;left:-4px;background:var(--accent);color:var(--accent-fg);font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px 6px 6px 0}
+.cols{display:grid;gap:14px;grid-template-columns:repeat(3,minmax(0,1fr))}
+.empty{border:1px dashed var(--line2);border-radius:9px;padding:12px;color:var(--muted);font-size:13px}
+.save{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hintline{font-size:12px;color:var(--muted)}
+.foot{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:center}
+.foot input{flex:1;min-width:200px;border:1px solid var(--line2);background:var(--surface);border-radius:10px;padding:10px 12px}
+.sgrid{display:grid;gap:10px}
+.sgrid label{font-size:12px;font-weight:600;color:var(--muted)}
+.ctl{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;padding:7px 10px;background:var(--surface2)}
+.sw{width:34px;height:20px;border-radius:999px;background:var(--accent);position:relative;flex:none}
+.sw::after{content:"";position:absolute;right:3px;top:3px;width:14px;height:14px;border-radius:50%;background:var(--accent-fg)}
+
+/* ===== operator ===== */
+.op{max-width:1040px;margin:0 auto}
+.opbar{background:var(--head);color:var(--head-fg);display:flex;gap:12px;align-items:center;padding:12px 18px;flex-wrap:wrap}
+.opbar b{font-size:18px;font-weight:650}
+.opbar .sp{flex:1}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--runs);display:inline-block}
+.opbody{padding:18px;background:var(--bg);display:grid;gap:18px}
+.lines{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.lines .lab{color:var(--muted);font-weight:600}
+.lbtn{border:1.5px solid var(--line2);background:var(--surface);border-radius:12px;padding:10px 18px;font-weight:650;min-height:46px}
+.lbtn.on{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.status{display:flex;gap:10px;flex-wrap:wrap}
+.stat{flex:1;min-width:200px;display:flex;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.stat b{display:block;font-size:20px;font-variant-numeric:tabular-nums;line-height:1.15}
+.stat span{color:var(--muted);font-size:13px}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+.card{display:flex;flex-direction:column;gap:14px;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;min-height:132px;transition:transform .12s,box-shadow .12s}
+.card:hover{box-shadow:var(--shadow);transform:translateY(-1px)}
+.card .nm{font-size:17px;font-weight:650}
+.card .sub{color:var(--muted);font-size:13px}
+.card .top2{display:flex;justify-content:space-between;align-items:flex-start}
+.sec{font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:650;margin:2px 0 -6px}
+.formcard{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;max-width:720px;width:100%;margin:0 auto}
+.formhead{display:flex;gap:12px;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line);background:var(--kt);color:var(--kc)}
+.formhead b{font-size:18px;font-weight:650;color:var(--fg)}
+.formbody{padding:18px;display:grid;gap:18px}
+.big{display:grid;gap:7px}
+.big>label{font-weight:650;font-size:15px}
+.big .inp{min-height:52px;font-size:17px;display:flex;align-items:center;gap:10px;color:var(--fg)}
+.big .inp .mono{font-family:var(--mono)}
+.choices{display:flex;gap:8px;flex-wrap:wrap}
+.ch{flex:1;min-width:110px;min-height:52px;border:1.5px solid var(--line2);background:var(--surface);border-radius:12px;font-weight:650;display:inline-flex;gap:8px;align-items:center;justify-content:center}
+.ch.on{border-color:var(--kc,var(--fg));background:var(--kt,var(--surface2));color:var(--kc,var(--fg))}
+.stepper{display:flex;align-items:center;gap:10px}
+.stepper button{width:56px;height:56px;border-radius:14px;border:1.5px solid var(--line2);background:var(--surface);font-size:24px;display:grid;place-items:center}
+.stepper output{flex:1;text-align:center;font-size:34px;font-weight:700;font-variant-numeric:tabular-nums;border:1px solid var(--line);border-radius:14px;padding:6px;background:var(--surface2)}
+.photo{border:1.5px dashed var(--line2);border-radius:12px;min-height:72px;display:flex;gap:10px;align-items:center;justify-content:center;color:var(--muted);font-weight:600}
+.savebar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:14px 18px;border-top:1px solid var(--line);background:var(--surface2)}
+.savebar .btn.pri{min-height:56px;padding:0 28px;font-size:17px;border-radius:14px;display:inline-flex;gap:8px;align-items:center}
+.back{display:inline-flex;gap:6px;align-items:center;border:0;background:none;color:var(--muted);font-weight:600;padding:6px 0}
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:var(--fg);color:var(--bg);padding:14px 20px;border-radius:14px;display:flex;gap:10px;align-items:center;font-weight:600;transition:.25s;z-index:20;box-shadow:var(--shadow);max-width:calc(100% - 32px)}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast .tick{color:var(--runs-t);background:var(--runs);border-radius:50%;width:24px;height:24px;display:grid;place-items:center}
+
+/* ===== key ===== */
+.keygrid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+.kc{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;display:grid;gap:10px;align-content:start}
+.kc h4{margin:0;font-size:14px}
+.kc p{margin:0;color:var(--muted);font-size:13px}
+.klist{display:grid;gap:8px}
+.klist div{display:flex;gap:10px;align-items:center}
+.note{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-top:12px;color:var(--muted);max-width:90ch}
+[hidden]{display:none!important}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<defs>
+<symbol id="doc" viewBox="0 0 24 24"><path d="M7 3h7l4 4v14H7z M14 3v4h4"/></symbol>
+<symbol id="table" viewBox="0 0 24 24"><path d="M4 5h16v14H4z M4 10h16 M10 5v14"/></symbol>
+<symbol id="fn" viewBox="0 0 24 24"><text x="12" y="17.5" text-anchor="middle" font-size="17" font-style="italic" font-family="Georgia,serif" fill="currentColor" stroke="none">ƒ</text></symbol>
+<symbol id="screen" viewBox="0 0 24 24"><path d="M3 5h18v11H3z M9 20h6 M12 16v4"/></symbol>
+<symbol id="pin" viewBox="0 0 24 24"><path d="M12 21s-6-5.5-6-10a6 6 0 0 1 12 0c0 4.5-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></symbol>
+<symbol id="play" viewBox="0 0 24 24"><path d="M8 5l11 7-11 7z"/></symbol>
+<symbol id="stop" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></symbol>
+<symbol id="box" viewBox="0 0 24 24"><path d="M3 8l9-5 9 5v8l-9 5-9-5z M3 8l9 5 9-5 M12 13v8"/></symbol>
+<symbol id="check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+<symbol id="flag" viewBox="0 0 24 24"><path d="M6 21V4 M6 5h11l-2 4 2 4H6"/></symbol>
+<symbol id="list" viewBox="0 0 24 24"><path d="M9 6h11 M9 12h11 M9 18h11 M4 6h.01 M4 12h.01 M4 18h.01"/></symbol>
+<symbol id="hash" viewBox="0 0 24 24"><path d="M5 9h14 M5 15h14 M10 4L8 20 M16 4l-2 16"/></symbol>
+<symbol id="text" viewBox="0 0 24 24"><path d="M5 6h14 M12 6v13 M9 19h6"/></symbol>
+<symbol id="cal" viewBox="0 0 24 24"><path d="M4 6h16v14H4z M4 10h16 M8 3v4 M16 3v4"/></symbol>
+<symbol id="toggle" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="10" rx="5"/><circle cx="16" cy="12" r="2.6"/></symbol>
+<symbol id="choice" viewBox="0 0 24 24"><path d="M4 7h7v10H4z M13 7h7v10h-7z"/></symbol>
+<symbol id="camera" viewBox="0 0 24 24"><path d="M4 8h4l2-3h4l2 3h4v11H4z"/><circle cx="12" cy="13.5" r="3.3"/></symbol>
+<symbol id="pen" viewBox="0 0 24 24"><path d="M4 20l4-1 11-11-3-3L5 16z"/></symbol>
+<symbol id="scan" viewBox="0 0 24 24"><path d="M4 8V4h4 M16 4h4v4 M20 16v4h-4 M8 20H4v-4 M7 12h10"/></symbol>
+<symbol id="search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></symbol>
+<symbol id="eye" viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+<symbol id="down" viewBox="0 0 24 24"><path d="M12 4v14 M6 13l6 6 6-6"/></symbol>
+<symbol id="plus" viewBox="0 0 24 24"><path d="M12 5v14 M5 12h14"/></symbol>
+<symbol id="minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+<symbol id="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
+<symbol id="back" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></symbol>
+<symbol id="refresh" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-3-6.2 M20 4v5h-5"/></symbol>
+<symbol id="book" viewBox="0 0 24 24"><path d="M5 4h10a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z M5 17a3 3 0 0 1 3-3h10"/></symbol>
+<symbol id="user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/></symbol>
+<symbol id="gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v3 M12 18v3 M3 12h3 M18 12h3 M5.6 5.6l2.1 2.1 M16.3 16.3l2.1 2.1 M5.6 18.4l2.1-2.1 M16.3 7.7l2.1-2.1"/></symbol>
+<symbol id="help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7 M12 17h.01"/></symbol>
+</defs>
+</svg>
+
+<div class="wrap">
+  <div class="top">
+    <div>
+      <h1>Form Platform, UI direction</h1>
+      <p>The same screens you sent, restyled. Colour comes from the kind of data, shape from the kind of thing, and text is left for names. Light and dark follow your system.</p>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <div class="tabs" role="tablist">
+        <button role="tab" id="t-editor" aria-selected="true" data-tab="editor">Editor</button>
+        <button role="tab" id="t-operator" aria-selected="false" data-tab="operator">Operator</button>
+        <button role="tab" id="t-key" aria-selected="false" data-tab="key">Key</button>
+      </div>
+      <button class="themebtn" id="themebtn" type="button">Light / dark</button>
+    </div>
+  </div>
+
+  <!-- ================= EDITOR ================= -->
+  <section id="p-editor">
+    <div class="app">
+      <div class="bar">
+        <b>Editor</b><span class="sp"></span>
+        <small>kernel 0.63.0 · Editor, every site</small>
+        <span class="pill"><svg class="i"><use href="#help"/></svg>Help</span>
+        <span class="pill"><svg class="i"><use href="#gear"/></svg>Admin</span>
+        <span class="pill"><svg class="i"><use href="#user"/></svg>Joshua Bertin</span>
+      </div>
+      <div class="ed">
+        <!-- map -->
+        <div class="panel">
+          <h3>Map</h3>
+          <div class="search"><input id="map-find" type="text" placeholder="Find a site, terminal, form…" aria-label="Find on the map"><button class="btn pri" type="button"><svg class="i"><use href="#plus"/></svg> Add</button></div>
+          <div class="tree">
+            <div class="row group">Plant · 2 sites</div>
+            <div class="row"><span class="tile plain" style="--s:26px"><svg class="i"><use href="#pin"/></svg></span><span class="nm">Abilene</span><span class="chip mono ghost">ABI</span></div>
+            <div class="row i1"><span class="tile plain" style="--s:24px;border-radius:6px"><svg class="i"><use href="#screen"/></svg></span><span class="nm">T01</span></div>
+            <div class="row i2 k-runs"><span class="tile" style="--s:24px"><svg class="i"><use href="#play"/></svg></span><span class="nm">Start shift</span><span class="v">v1</span></div>
+            <div class="row i2 k-rec"><span class="tile" style="--s:24px"><svg class="i"><use href="#check"/></svg></span><span class="nm">Hourly check</span><span class="v">v1</span></div>
+            <div class="row i2 k-inv"><span class="tile" style="--s:24px"><svg class="i"><use href="#box"/></svg></span><span class="nm">Rack</span><span class="v">v1</span></div>
+            <div class="row"><span class="tile plain" style="--s:26px"><svg class="i"><use href="#pin"/></svg></span><span class="nm">Test Plant</span><span class="chip mono ghost">TST</span></div>
+            <div class="row i1"><span class="tile plain" style="--s:24px;border-radius:6px"><svg class="i"><use href="#screen"/></svg></span><span class="nm">QC office · T02</span></div>
+            <div class="row i2 k-ord"><span class="tile" style="--s:24px"><svg class="i"><use href="#list"/></svg></span><span class="nm">Needs board</span><span class="v">v1</span></div>
+            <div class="row i2 k-ord"><span class="tile" style="--s:24px"><svg class="i"><use href="#plus"/></svg></span><span class="nm">Add a need</span><span class="v">v1</span></div>
+            <div class="row i2 k-ord sel"><span class="tile solid" style="--s:24px"><svg class="i"><use href="#doc"/></svg></span><span class="nm">Change a need</span><span class="v">v1</span></div>
+            <div class="row i3 k-ord"><span class="tile hex" style="--s:24px"><svg class="i"><use href="#table"/></svg></span><span class="nm">Needs</span><span class="chip">Orders</span></div>
+            <div class="row i3"><span class="tile round plain" style="--s:24px"><svg class="i"><use href="#fn"/></svg></span><span class="nm">A color code in words</span></div>
+            <div class="row i3"><span class="tile round plain" style="--s:24px"><svg class="i"><use href="#fn"/></svg></span><span class="nm">A need in words</span></div>
+          </div>
+        </div>
+
+        <!-- fields -->
+        <div class="panel">
+          <div class="vtabs"><span class="on">Fields</span><span>Data</span><span>Form</span></div>
+          <h3>On the form · in order</h3>
+          <div class="frow k-ord"><span class="tile outline" style="--s:30px"><svg class="i"><use href="#search"/></svg></span><div class="tx"><b>Open needs</b><span>Pick from open needs</span></div><span class="chip"><svg class="i"><use href="#eye"/></svg>Needs</span></div>
+          <div class="frow k-ord"><span class="tile outline" style="--s:30px"><svg class="i"><use href="#text"/></svg></span><div class="tx"><b>Need ID <span class="req">*</span></b><span>Shows the open need</span></div><span class="chip"><svg class="i"><use href="#eye"/></svg>Needs</span></div>
+          <div class="frow k-ord"><span class="tile outline" style="--s:30px"><svg class="i"><use href="#fn"/></svg></span><div class="tx"><b>Done so far</b><span>Worked out, never saved</span></div><span class="chip ghost">ƒ</span></div>
+          <div class="frow k-ord sel"><span class="tile solid" style="--s:30px"><svg class="i"><use href="#hash"/></svg></span><div class="tx"><b>Racks needed <span class="req">*</span></b><span>Number · racks</span></div><span class="chip"><svg class="i"><use href="#down"/></svg>Needs</span></div>
+          <div class="frow k-ord"><span class="tile solid" style="--s:30px"><svg class="i"><use href="#choice"/></svg></span><div class="tx"><b>Priority <span class="req">*</span></b><span>Choice · 3 options</span></div><span class="chip"><svg class="i"><use href="#down"/></svg>Needs</span></div>
+          <div class="frow k-ord"><span class="tile solid" style="--s:30px"><svg class="i"><use href="#cal"/></svg></span><div class="tx"><b>Due</b><span>Date</span></div><span class="chip"><svg class="i"><use href="#down"/></svg>Needs</span></div>
+          <div class="frow k-ord"><span class="tile solid" style="--s:30px"><svg class="i"><use href="#text"/></svg></span><div class="tx"><b>Notes</b><span>Long text</span></div><span class="chip"><svg class="i"><use href="#down"/></svg>Needs</span></div>
+          <div class="frow k-ord"><span class="tile solid" style="--s:30px"><svg class="i"><use href="#toggle"/></svg></span><div class="tx"><b>Cancel this need</b><span>Yes or no</span></div><span class="chip"><svg class="i"><use href="#down"/></svg>Needs</span></div>
+          <div class="addf">+ field</div>
+        </div>
+
+        <!-- preview -->
+        <div class="panel" style="min-width:0">
+          <div class="canvasbar">
+            <div class="seg" role="group" aria-label="Mode"><button class="on" type="button">Edit</button><button type="button">Try it</button></div>
+            <div class="seg" role="group" aria-label="Screen"><button class="on" type="button">T02 · 1912×948</button><button type="button">Tablet</button><button type="button">Phone</button></div>
+            <span class="fit">Fits T02 with 189 px to spare</span>
+          </div>
+          <div class="stage">
+            <div class="screen">
+              <div class="sh">Change a need</div>
+              <div class="sb">
+                <div class="fld"><label>Open needs: tap the one to change</label><div class="empty">Nothing to show yet</div></div>
+                <div class="cols">
+                  <div class="fld"><label>Need ID</label><div class="inp">—</div></div>
+                  <div class="fld"><label>Done so far</label><div class="inp">Tap a need above</div></div>
+                  <div></div>
+                </div>
+                <div class="cols">
+                  <div class="fld pick"><label>Racks needed <span class="req">*</span></label><div class="inp">&nbsp;</div><span class="hint">At or below what is done, the need closes</span></div>
+                  <div class="fld"><label>Priority <span class="req">*</span></label>
+                    <div class="seg" style="width:100%"><button type="button" style="flex:1">1 · first</button><button type="button" style="flex:1">2</button><button type="button" style="flex:1">3 · last</button></div></div>
+                  <div class="fld"><label>Due</label><div class="inp">mm/dd/yyyy</div></div>
+                </div>
+                <div class="fld"><label>Notes</label><div class="inp" style="min-height:76px">&nbsp;</div></div>
+                <div class="fld"><label>Cancel this need</label>
+                  <div class="seg" style="width:max-content"><button type="button">Cancel it</button><button type="button" class="on">Keep it</button></div></div>
+                <div class="save"><button class="btn pri" disabled type="button">Save the change</button><span class="hintline">To save: Racks needed, Priority, Need ID</span></div>
+              </div>
+            </div>
+          </div>
+          <p class="hintline" style="margin:8px 0 0">Click to pick · drag to move · drag the right edge to size it (S · M · L · Full)</p>
+        </div>
+
+        <!-- settings -->
+        <div class="panel">
+          <h3>Field settings</h3>
+          <div class="frow k-ord" style="margin-bottom:12px"><span class="tile solid" style="--s:30px"><svg class="i"><use href="#hash"/></svg></span><div class="tx"><b>Racks needed</b><span>Number</span></div></div>
+          <div class="sgrid">
+            <div><label>Label</label><div class="ctl">Racks needed</div></div>
+            <div><label>Saves to</label><div class="ctl k-ord"><span class="tile hex" style="--s:22px"><svg class="i"><use href="#table"/></svg></span>Needs · Racks needed</div></div>
+            <div><label>Unit</label><div class="ctl">racks</div></div>
+            <div><label>Required</label><div class="ctl"><span class="sw"></span>Yes</div></div>
+            <div><label>Width</label><div class="seg"><button type="button">S</button><button type="button" class="on">M</button><button type="button">L</button><button type="button">Full</button></div></div>
+          </div>
+        </div>
+      </div>
+      <div style="padding:0 12px 12px;background:var(--bg)">
+        <div class="foot">
+          <input type="text" id="what-changed" placeholder="What changed (kept with the version)" aria-label="What changed">
+          <button class="btn pri" type="button">Publish a new version</button>
+          <button class="btn" type="button">Publish as trial</button>
+          <button class="btn" type="button">Undo changes</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= OPERATOR ================= -->
+  <section id="p-operator" hidden>
+    <div class="app op">
+      <div class="opbar">
+        <b id="op-title">Abilene · T01</b><span class="sp"></span>
+        <span class="pill" style="border:1px solid var(--head-line);border-radius:10px;padding:5px 11px;display:inline-flex;gap:8px;align-items:center"><span class="dot"></span>Saved</span>
+        <span class="pill" style="border:1px solid var(--head-line);border-radius:10px;padding:5px 11px;display:inline-flex;gap:6px;align-items:center"><svg class="i"><use href="#user"/></svg>Joshua B.</span>
+      </div>
+
+      <!-- home -->
+      <div class="opbody" id="op-home">
+        <div class="lines"><span class="lab">Line</span>
+          <div class="lines" id="linepick"><button class="lbtn on" type="button">Line 1</button><button class="lbtn" type="button">Line 2</button></div>
+        </div>
+        <div class="status">
+          <div class="stat k-runs"><span class="tile solid" style="--s:40px"><svg class="i"><use href="#play"/></svg></span><div><b>Running</b><span>Shift started 06:02 · Profile P-2210</span></div></div>
+          <div class="stat k-inv"><span class="tile solid" style="--s:40px"><svg class="i"><use href="#box"/></svg></span><div><b>38 racks</b><span>made this shift</span></div></div>
+          <div class="stat k-rec"><span class="tile solid" style="--s:40px"><svg class="i"><use href="#check"/></svg></span><div><b>Check due 11:00</b><span>in 24 minutes</span></div></div>
+        </div>
+        <div class="sec">Forms</div>
+        <div class="grid">
+          <button class="card k-runs" type="button"><div class="top2"><span class="tile" style="--s:48px"><svg class="i"><use href="#play"/></svg></span><span class="chip">Done today</span></div><div><div class="nm">Start shift</div><div class="sub">Pick the profile for this line</div></div></button>
+          <button class="card k-rec" type="button"><div class="top2"><span class="tile" style="--s:48px"><svg class="i"><use href="#check"/></svg></span><span class="chip">Due 11:00</span></div><div><div class="nm">Hourly check</div><div class="sub">Last done 10:00 · Pass</div></div></button>
+          <button class="card k-inv" type="button" id="open-rack"><div class="top2"><span class="tile" style="--s:48px"><svg class="i"><use href="#box"/></svg></span><span class="chip ghost">38 today</span></div><div><div class="nm">Rack</div><div class="sub">Record a finished rack</div></div></button>
+          <button class="card k-runs" type="button"><div class="top2"><span class="tile" style="--s:48px"><svg class="i"><use href="#refresh"/></svg></span></div><div><div class="nm">Changeover</div><div class="sub">Switch to a new profile</div></div></button>
+          <button class="card k-runs" type="button"><div class="top2"><span class="tile" style="--s:48px"><svg class="i"><use href="#stop"/></svg></span></div><div><div class="nm">End shift</div><div class="sub">Close out the run</div></div></button>
+          <button class="card k-list" type="button"><div class="top2"><span class="tile" style="--s:48px"><svg class="i"><use href="#book"/></svg></span></div><div><div class="nm">Line instructions</div><div class="sub">Procedures and photos</div></div></button>
+        </div>
+      </div>
+
+      <!-- rack form -->
+      <div class="opbody" id="op-rack" hidden>
+        <button class="back" type="button" id="op-back"><svg class="i"><use href="#back"/></svg> Home</button>
+        <div class="formcard k-inv">
+          <div class="formhead"><span class="tile solid" style="--s:40px"><svg class="i"><use href="#box"/></svg></span><b>Rack</b><span class="chip" style="margin-left:auto">Line 1 · P-2210</span></div>
+          <div class="formbody">
+            <div class="big"><label for="rackid">Rack ID</label><div class="inp"><svg class="i" style="font-size:22px"><use href="#scan"/></svg><span class="mono" id="rackid">R12346</span></div></div>
+            <div class="big"><label>Good quantity</label>
+              <div class="stepper"><button type="button" id="qm" aria-label="Fewer"><svg class="i"><use href="#minus"/></svg></button><output id="qty">24</output><button type="button" id="qp" aria-label="More"><svg class="i"><use href="#plus"/></svg></button></div></div>
+            <div class="big"><label>Result</label>
+              <div class="choices" id="result">
+                <button class="ch k-runs on" type="button"><svg class="i"><use href="#check"/></svg>Good</button>
+                <button class="ch k-inv" type="button"><svg class="i"><use href="#flag"/></svg>Hold</button>
+                <button class="ch k-case" type="button"><svg class="i"><use href="#stop"/></svg>Scrap</button>
+              </div></div>
+            <div class="big"><label>Photo</label><div class="photo"><svg class="i" style="font-size:22px"><use href="#camera"/></svg>Add a photo</div></div>
+          </div>
+          <div class="savebar"><button class="btn pri" type="button" id="save-rack"><svg class="i"><use href="#check"/></svg>Save rack</button><span class="hintline">Saves to Racks · R12346</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= KEY ================= -->
+  <section id="p-key" hidden>
+    <div class="keygrid">
+      <div class="kc">
+        <h4>Colour means a kind of data</h4>
+        <p>A form takes the colour of the structure it mainly saves to, so a person learns "green is the run, amber is stock" once and it holds everywhere.</p>
+        <div class="klist">
+          <div class="k-runs"><span class="tile"><svg class="i"><use href="#play"/></svg></span>Runs · shifts, runs</div>
+          <div class="k-inv"><span class="tile"><svg class="i"><use href="#box"/></svg></span>Inventory · racks, lots</div>
+          <div class="k-rec"><span class="tile"><svg class="i"><use href="#check"/></svg></span>Records · checks, logs</div>
+          <div class="k-case"><span class="tile"><svg class="i"><use href="#flag"/></svg></span>Cases · downtime, nonconformances</div>
+          <div class="k-ord"><span class="tile"><svg class="i"><use href="#list"/></svg></span>Orders · needs, work orders</div>
+          <div class="k-list"><span class="tile"><svg class="i"><use href="#book"/></svg></span>Lists · profiles, lines</div>
+        </div>
+      </div>
+      <div class="kc">
+        <h4>Shape means a kind of thing</h4>
+        <p>Colour is never the only signal. Each object keeps its own outline, so it still reads for colour-blind users and in glare.</p>
+        <div class="klist k-ord">
+          <div><span class="tile"><svg class="i"><use href="#doc"/></svg></span>Form · rounded square</div>
+          <div><span class="tile hex"><svg class="i"><use href="#table"/></svg></span>Structure · hexagon</div>
+          <div><span class="tile round plain"><svg class="i"><use href="#fn"/></svg></span>Function · circle, no colour</div>
+          <div><span class="tile plain" style="border-radius:6px"><svg class="i"><use href="#screen"/></svg></span>Terminal · screen, no colour</div>
+          <div><span class="tile plain"><svg class="i"><use href="#pin"/></svg></span>Site · pin, no colour</div>
+        </div>
+      </div>
+      <div class="kc">
+        <h4>Fields: glyph, fill and arrow</h4>
+        <p>The four field families from the spec read at a glance. A filled tile writes data. A dashed tile only shows something. The arrow says which way data moves.</p>
+        <div class="klist k-ord">
+          <div><span class="tile solid"><svg class="i"><use href="#hash"/></svg></span>Entry field · filled, arrow down</div>
+          <div><span class="tile outline"><svg class="i"><use href="#text"/></svg></span>Display field · dashed, eye</div>
+          <div><span class="tile outline"><svg class="i"><use href="#fn"/></svg></span>Calculated · ƒ, never saved</div>
+          <div><span class="chip"><svg class="i"><use href="#down"/></svg>Needs</span>Writes to Needs</div>
+          <div><span class="chip"><svg class="i"><use href="#eye"/></svg>Needs</span>Reads from Needs</div>
+        </div>
+      </div>
+      <div class="kc">
+        <h4>Quiet when it is right</h4>
+        <p>The editor currently puts a ✓ on every row. Here a row says nothing when it is fine and turns red with the fix beneath it when it is not. The tabs show a count only when something needs attention.</p>
+        <div class="frow bad k-ord" style="margin:0"><span class="tile solid" style="--s:30px"><svg class="i"><use href="#hash"/></svg></span><div class="tx"><b>Racks needed <span class="req">*</span></b><span style="color:var(--case)">Saves to nothing. Pick a value on Needs.</span></div><span class="chip ghost">fix</span></div>
+      </div>
+      <div class="kc">
+        <h4>For the floor</h4>
+        <p>Operator screens use 48 to 56 px targets, 17 px type for what is entered, and plain words. Structure, container and entry stay in the editor.</p>
+      </div>
+      <div class="kc">
+        <h4>Warm, not soft</h4>
+        <p>Neutrals lean slightly warm. Contrast stays high, corners stay modest, and there are no gradients, illustrations or pastels.</p>
+      </div>
+    </div>
+    <div class="note">Mockups only. The names and values are taken from your screenshot; the operator screens use the forms in your map with invented example numbers.</div>
+  </section>
+</div>
+
+<div class="toast" id="toast" role="status"><span class="tick"><svg class="i"><use href="#check"/></svg></span><span id="toast-msg">Saved</span></div>
+
+<script>
+(function(){
+  var tabs=['editor','operator','key'];
+  function show(n){
+    if(tabs.indexOf(n)<0)n='editor';
+    tabs.forEach(function(t){
+      document.getElementById('p-'+t).hidden=(t!==n);
+      document.getElementById('t-'+t).setAttribute('aria-selected',t===n?'true':'false');
+    });
+    try{history.replaceState(null,'','#'+n)}catch(e){}
+  }
+  document.querySelectorAll('[data-tab]').forEach(function(b){b.addEventListener('click',function(){show(b.dataset.tab)})});
+  show((location.hash||'').slice(1));
+  window.addEventListener('hashchange',function(){show((location.hash||'').slice(1))});
+
+  document.getElementById('themebtn').addEventListener('click',function(){
+    var r=document.documentElement,cur=r.getAttribute('data-theme');
+    if(!cur)cur=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
+    r.setAttribute('data-theme',cur==='dark'?'light':'dark');
+  });
+
+  /* segmented controls */
+  document.querySelectorAll('.seg,.choices,.lines').forEach(function(g){
+    g.addEventListener('click',function(e){
+      var b=e.target.closest('button');if(!b||!g.contains(b))return;
+      if(g.classList.contains('lines')&&g.id!=='linepick')return;
+      g.querySelectorAll('button').forEach(function(x){x.classList.remove('on')});
+      b.classList.add('on');
+    });
+  });
+
+  /* operator */
+  var home=document.getElementById('op-home'),rack=document.getElementById('op-rack'),title=document.getElementById('op-title');
+  document.getElementById('open-rack').addEventListener('click',function(){home.hidden=true;rack.hidden=false;title.textContent='Abilene · T01 · Rack'});
+  document.getElementById('op-back').addEventListener('click',function(){rack.hidden=true;home.hidden=false;title.textContent='Abilene · T01'});
+  var q=24,out=document.getElementById('qty');
+  document.getElementById('qp').addEventListener('click',function(){q++;out.textContent=q});
+  document.getElementById('qm').addEventListener('click',function(){if(q>0){q--;out.textContent=q}});
+  var toast=document.getElementById('toast'),tm;
+  document.getElementById('save-rack').addEventListener('click',function(){
+    document.getElementById('toast-msg').textContent='Saved R12346 · '+q+' good. Next rack is ready.';
+    toast.classList.add('show');clearTimeout(tm);tm=setTimeout(function(){toast.classList.remove('show')},2600);
+    q=24;out.textContent=q;
+    document.getElementById('rackid').textContent='R12347';
+  });
+})();
+</script>
