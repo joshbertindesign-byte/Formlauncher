@@ -21,78 +21,146 @@
   const mapView = FP.editor.mapView;
 
   const CSS = `
-  .fpa-reh{margin-top:22px;padding-top:14px;border-top:1px solid var(--l-n-88)}
-  .fpa-reh-clock{font-weight:700;font-size:17px;margin:8px 0}
-  .fpa-reh-state{display:flex;flex-direction:column;gap:6px}
-  .fpa-reh-slot,.fpa-reh-alert{padding:8px 10px;border-radius:8px;border:1px solid var(--l-n-88);background:var(--s-n-100)}
-  .fpa-reh-slot.late{border-color:var(--l-amber-86);background:var(--s-amber-97)}.fpa-reh-slot.due{border-color:var(--l-n-79);background:var(--s-blue-93)}
-  .fpa-reh-alert{border-color:var(--l-red-78);background:var(--s-n-98);font-weight:600}.fpa-reh-alert.acked{background:var(--s-n-100);border-color:var(--l-n-88);font-weight:400}.fpa-reh-alert.done{background:var(--s-green-96);border-color:var(--l-green-84);font-weight:400}
-  .fpa-reh-vps{display:flex;flex-direction:column;gap:6px}.fpa-reh-vps .fpa-row{flex-wrap:wrap;align-items:center}
-  .fpa-reh-steps{margin:0;padding-left:20px;line-height:1.6}
-  .fpa-lib-make{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start;margin:10px 0}
-  @media (max-width:900px){.fpa-lib-make{grid-template-columns:1fr}}
-  .fpa-lib-prev{border:1px solid var(--l-n-88);border-radius:10px;background:var(--s-n-100);min-height:220px;display:flex;align-items:center;justify-content:center;overflow:hidden}
-  .fpa-lib-prev img{max-width:100%;max-height:520px;display:block}
-  .fpa-lib-prev iframe{width:100%;height:520px;border:0;background:var(--s-n-100)}
-  .fpa-lib-prev .lead{padding:16px}
-  .fpa-lib-bar{height:6px;border-radius:999px;background:var(--s-n-95);overflow:hidden;margin:6px 0 4px}.fpa-lib-bar i{display:block;height:100%;background:var(--s-blue-42)}
-  .fpa-lib-tags{display:flex;flex-direction:column;gap:6px}.fpa-lib-tags .fpa-row{flex-wrap:nowrap}.fpa-lib-tags select{max-width:150px}.fpa-lib-tags input{flex:1 1 auto;min-width:0}
-  .fpa-lib-warn{color:var(--t-amber-42);font-size:13px}.fpa-lib-warn:empty{display:none}
-  .fpa-lib-err{color:var(--t-red-40);font-size:14px;min-height:0}.fpa-lib-err:empty{display:none}
-  .fpa-lib-folders{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 8px}
-  .fpa-lib-list{display:flex;flex-direction:column;gap:4px;margin-top:8px}
-  .fpa-lib-row{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr) auto auto;gap:10px;align-items:center;text-align:left;font:inherit;padding:8px 10px;border:1px solid var(--l-n-88);border-radius:8px;background:var(--s-n-100);cursor:pointer}
-  .fpa-lib-row:hover{border-color:var(--l-n-79);background:var(--s-n-100)}.fpa-lib-row .tags{color:var(--t-n-42);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .fpa-lib-row .v,.fpa-lib-row .u{font-size:12px;color:var(--t-n-42)}.fpa-lib-row .u.warn{color:var(--t-amber-42)}
-  .fpa-lib-browse{display:flex;flex-direction:column;gap:4px;align-items:flex-start}
-  .fpa-lib-tagnames{display:flex;flex-direction:column;gap:6px}
-  .fpa-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin:0 0 12px}
-  .fpa-head h2{margin:0;font-size:22px}
-  .fpa-tabs{display:flex;flex-wrap:wrap;gap:4px}
-  .fpa-tabs button{font:inherit;font-size:13px;font-weight:600;min-height:34px;padding:4px 12px;border:1px solid var(--l-n-83);border-radius:999px;background:var(--s-n-100);cursor:pointer}
-  .fpa-tabs button.on{background:var(--s-blue-15);border-color:var(--l-blue-15);color:var(--t-n-100)}
-  .fpa-tools{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 10px}
-  .fpa-tools select,.fpa-tools input{min-height:38px}
-  .fpa-roles{display:flex;flex-wrap:wrap;gap:4px 14px;margin:0 0 10px}
-  .fpa-roles label{display:flex;align-items:center;gap:6px;font-size:14px}
-  .fpa-roles input{width:18px;height:18px}
-  .fpa-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 0 10px}
-  .fpa-row input{flex:1 1 140px;min-width:0}
-  .fpa-card{border:1px solid var(--l-n-88);border-radius:10px;padding:8px 12px;margin:0 0 8px;background:var(--s-n-100)}.fpa-card .ffe-note{margin:4px 0 0}
-  .fpa-table{border-collapse:collapse;width:100%;font-size:13px}.fpa-table td,.fpa-table th{padding:6px 8px;text-align:left;border-bottom:1px solid var(--l-n-95);vertical-align:top}.fpa-table th{font-size:12px;color:var(--t-n-42);background:var(--s-n-100)}.fpa-table input{min-width:140px}
-  .fpa-warn{background:var(--s-amber-97);border:1px solid var(--l-amber-88);border-radius:8px;padding:8px 10px;font-size:13px;margin:0 0 10px}
-  .fpa-warn ul{margin:4px 0 0;padding-left:18px}
-  .fpa-paper{padding:12px;background:var(--s-n-95)}
-  .fpa-paper .fpp{display:block!important;background:var(--s-n-100);color:var(--t-n-0);font:13px/1.4 var(--font-sans,system-ui,"Segoe UI",sans-serif);padding:18px 22px;border:1px solid var(--l-n-88);border-radius:6px;box-shadow:0 2px 10px rgba(0,0,0,.06)}
-  .fpa-actions{display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;border-bottom:1px solid var(--l-n-88)}
-  .fpa-fix{padding:10px 12px}.fpa-fix:empty{display:none}
-  .fpa-fix .ffe-set input,.fpa-fix .ffe-set select{width:100%}
-  .fpa-was{font-size:12px;color:var(--t-n-42)}
-  .fpa-side{padding:12px 14px;font-size:14px;line-height:1.5}
-  .fpa-side h4{margin:12px 0 4px;font-size:14px}
-  .fpa-side p{margin:0 0 8px;color:var(--t-n-29)}
-  .fpa-side dl{margin:0}.fpa-side dt{font-weight:700;margin-top:6px}.fpa-side dd{margin:0 0 4px;color:var(--t-n-29)}
-  .fpa-place{background:var(--s-n-100);border:1px solid var(--l-n-88);border-radius:12px;padding:14px 18px;display:flex;flex-direction:column;gap:14px;max-width:760px}
-  .fpa-place .crumb{font-size:13px;color:var(--t-n-42)}
-  .fpa-place h2{margin:2px 0 0;font-size:22px}
-  .fpa-place .lead{margin:4px 0 0;color:var(--t-n-42);font-size:14px;line-height:1.5}
-  .fpa-place .box{border:1px solid var(--l-n-88);border-radius:10px;padding:10px 12px;background:var(--s-n-100)}
-  .fpa-place .ffe-set{display:flex;flex-direction:column;gap:4px;margin:0}.fpa-place .ffe-set>span{font-size:13px;font-weight:600;color:var(--t-n-29)}.fpa-place .ffe-set em{font-weight:400;color:var(--t-n-42);font-style:normal}
-  .fpa-place .ffe-set input,.fpa-place .ffe-set select{width:100%;max-width:420px}.fpa-place .fpa-row input{flex:1 1 200px;max-width:420px}
-  .fpa-place>button{align-self:flex-start;min-width:160px}
-  .fpp-list{display:flex;flex-direction:column;gap:4px}
-  .fpa-chip{display:inline-flex;align-items:center;gap:4px;padding:2px 4px 2px 10px;border:1px solid var(--l-n-83);border-radius:999px;background:var(--s-n-100);font-size:13px}
-  .fpa-duty{border-left:4px solid var(--l-teal-45);padding-left:10px;margin:0 0 12px}
-  .fpp-li{display:flex;align-items:center;gap:6px;padding:6px 8px;border:1px solid var(--l-n-88);border-left:4px solid var(--c,var(--l-blue-50));border-radius:8px;background:var(--s-n-100);font-size:14px}
-  .fpp-li span{flex:1 1 auto}.fpp-li small{color:var(--t-n-42)}
-  .fpp-li button{font:inherit;font-size:12px;min-width:30px;min-height:30px;border:1px solid var(--l-n-83);border-radius:6px;background:var(--s-n-100);cursor:pointer}
-  .fpp-chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-  .fpp-chip{display:inline-flex;align-items:center;gap:4px;font-size:13px;padding:3px 4px 3px 10px;border:1px solid var(--l-n-83);border-radius:999px;background:var(--s-n-100)}
-  .fpa-for{display:flex;flex-direction:column;gap:8px;align-items:flex-start}
-  .fpa-forchip{font:inherit;font-size:14px;min-height:36px;padding:4px 14px;border-radius:999px;border:1px solid var(--l-n-83);background:var(--s-n-100);cursor:pointer}
-  .fpa-forchip.on{background:var(--s-blue-42);border-color:var(--l-blue-42);color:var(--t-n-100)}
-  .fpp-chip button{border:0;background:none;color:var(--t-n-42);font:inherit;font-size:13px;cursor:pointer;min-width:24px;min-height:24px}
-  .fpa-place table{border-collapse:collapse;width:100%}.fpa-place td,.fpa-place th{padding:6px 8px;text-align:left;border-bottom:1px solid var(--l-n-95);font-size:13px}.fpa-place th{font-size:12px;color:var(--t-n-42);background:var(--s-n-100)}`;
+  /* The new look (UI Release B, step 10): the mockup's panels, segmented tabs, rows with tiles and chips, tables of type and .btn buttons,
+   * on the semantic palette (so day, night and print follow the theme). Everything is scoped under .fpa, so the editor is untouched. */
+  .fpa.fpe{color:var(--fg);font-family:var(--font-sans)}
+  .fpa .fpa-head{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-3) var(--sp-5);margin:0 0 var(--sp-4)}
+  .fpa .fpa-head h2{margin:0;font-size:var(--fs-xl);font-weight:650}
+  .fpa .fpa-tabs{display:flex;flex-wrap:wrap;gap:var(--sp-1);background:var(--surface);border:1px solid var(--line);padding:var(--sp-1);border-radius:var(--r-lg)}
+  .fpa.fpe .fpa-tabs button{font:inherit;font-size:var(--fs-sm);font-weight:600;min-height:40px;padding:6px 10px;border:0;border-radius:var(--r);background:none;color:var(--muted);cursor:pointer;white-space:nowrap}
+  .fpa.fpe .fpa-tabs button:hover{background:var(--surface-2);color:var(--fg)}
+  .fpa.fpe .fpa-tabs button.on{background:var(--fg);color:var(--bg)}
+  .fpa .fpa-tools{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-2);margin:0 0 var(--sp-3)}
+  .fpa .fpa-roles{display:flex;flex-wrap:wrap;gap:var(--sp-1) 14px;margin:0 0 10px}
+  .fpa .fpa-roles label{display:flex;align-items:center;gap:6px;font-size:var(--fs-md)}
+  .fpa .fpa-roles input{width:18px;height:18px}
+  .fpa .fpa-row{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-2);margin:0 0 10px}
+  .fpa .fpa-row input{flex:1 1 140px;min-width:0}
+
+  /* controls: the mockup's inputs and .btn */
+  .fpa.fpe input,.fpa.fpe select,.fpa.fpe textarea{font:inherit;font-size:var(--fs-md);min-height:40px;padding:8px 11px;border:1px solid var(--line-2);border-radius:10px;background:var(--surface);color:var(--fg)}
+  .fpa.fpe input[type=checkbox],.fpa.fpe input[type=radio]{min-height:0;padding:0}
+  .fpa.fpe input::placeholder{color:var(--muted)}
+  .fpa.fpe button.small,.fpa.fpe button.ghost,.fpa.fpe .fpa-lib-folders button,.fpa.fpe .fpa-row>button{font:inherit;font-size:var(--fs-md);font-weight:600;min-height:40px;padding:8px 14px;border:1px solid var(--line-2);border-radius:10px;background:var(--surface);color:var(--fg);cursor:pointer}
+  .fpa.fpe button.small:hover,.fpa.fpe button.ghost:hover{background:var(--surface-2)}
+  .fpa.fpe button.primary{font:inherit;font-size:var(--fs-md);font-weight:600;min-height:40px;padding:8px 18px;border:1px solid var(--accent);border-radius:10px;background:var(--accent);color:var(--accent-fg);cursor:pointer}
+  .fpa.fpe button.primary:disabled,.fpa.fpe button.small:disabled{opacity:.5;cursor:default}
+  .fpa.fpe button.fpa-danger,.fpa.fpe button.primary.fpa-danger{background:var(--bad);border-color:var(--bad);color:var(--accent-fg)}
+  .fpa.fpe button:focus-visible,.fpa.fpe input:focus-visible,.fpa.fpe select:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+
+  /* the map's rows, as rows with a tile and chips */
+  .fpa .ffm{gap:6px}
+  .fpa .ffm-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 10px;margin:var(--sp-4) 0 var(--sp-1);font-size:var(--fs-xs);font-weight:650;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+  .fpa .ffm-h b{color:var(--muted)}
+  .fpa .ffm-h span{text-transform:none;letter-spacing:0;font-weight:400;font-size:var(--fs-sm)}
+  .fpa .ffm-r{min-height:52px;gap:var(--sp-3);padding:var(--sp-2) var(--sp-3);border:1px solid var(--line);border-radius:var(--r-lg);background:var(--surface);color:var(--fg)}
+  .fpa .ffm-r::before{display:none}
+  .fpa .ffm-r:hover{background:var(--surface-2)}
+  .fpa .ffm-r.on{background:var(--accent-t);border-color:var(--accent);box-shadow:inset 3px 0 0 var(--accent)}
+  .fpa .ffm-r.on .t{font-weight:650}
+  .fpa .ffm-r .body{display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding:0;flex:1 1 150px;min-width:150px}
+  .fpa .ffm-r .t{font-size:var(--fs-base);font-weight:600;white-space:normal}
+  .fpa .ffm-r .d{font-size:var(--fs-sm);color:var(--muted);white-space:normal;overflow:visible}
+  .fpa .ffm-r .x{align-items:center;gap:6px;flex:0 1 auto;flex-wrap:wrap;justify-content:flex-end;min-width:0;max-width:60%}
+  .fpa .ffm-r.top{min-height:56px}
+  .fpa .ffm-r.add{background:transparent;border:1.5px dashed var(--line-2);min-height:44px}.fpa .ffm-r.add .t{font-size:var(--fs-md);font-weight:550;color:var(--muted)}
+  .fpa .ffm-r.fpa-bad{border-color:var(--bad);background:var(--surface)}
+  .fpa .ffm-r.fpa-bad .d{color:var(--bad);font-weight:550}
+  .fpa .ffm-r.fpa-retired .t{color:var(--muted);font-weight:500}.fpa .ffm-r.fpa-retired .fpi-tile{filter:grayscale(1)}
+  .fpa .ffm-r>.fpi-tile{align-self:center}
+  .fpa .ffm-props{border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:var(--r-lg);background:var(--surface);padding:var(--sp-3) var(--sp-4);margin:2px 0 var(--sp-2)}
+  .fpa .ffm-tag.fpa-pill,.fpa .fpa-pill{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:var(--r-pill);font-size:var(--fs-xs);font-weight:600;background:var(--surface-2);color:var(--muted);white-space:nowrap;max-width:100%;border:0}
+  .fpa .fpa-pill .fpi{font-size:13px}
+  .fpa .fpa-pill.good{background:var(--k-runs-t);color:var(--good)}.fpa .fpa-pill.warn{background:var(--k-inv-t);color:var(--warn)}.fpa .fpa-pill.bad{background:var(--k-case-t);color:var(--bad)}.fpa .fpa-pill.info{background:var(--accent-t);color:var(--accent)}
+  .fpa .fpa-pill.mono{font-family:var(--font-mono);font-size:11px;overflow:hidden;text-overflow:ellipsis;display:inline-block;line-height:1.7;min-width:0}
+  .fpa .ffm-errs{color:var(--bad);font-size:var(--fs-sm)}
+
+  /* panels */
+  .fpa .ffe-prev{border:1px solid var(--line);border-radius:var(--r-lg);background:var(--surface)}
+  .fpa .ffe-prev>header{background:var(--surface);border-bottom:1px solid var(--line);font-size:11px;font-weight:650;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);padding:var(--sp-3) var(--sp-4)}
+  .fpa .fpa-side{padding:var(--sp-4);font-size:var(--fs-md);line-height:1.55}
+  .fpa .fpa-side h4{margin:var(--sp-4) 0 var(--sp-1);font-size:var(--fs-md);font-weight:650}
+  .fpa .fpa-side p{margin:0 0 var(--sp-2);color:var(--muted)}
+  .fpa .fpa-side dl{margin:0}.fpa .fpa-side dt{font-weight:650;margin-top:var(--sp-2)}.fpa .fpa-side dd{margin:0 0 var(--sp-1);color:var(--muted)}
+  .fpa .fpa-card{border:1px solid var(--line);border-radius:var(--r-lg);padding:var(--sp-3) var(--sp-4);margin:0 0 var(--sp-2);background:var(--surface)}.fpa .fpa-card .ffe-note{margin:4px 0 0}
+  .fpa .fpa-card .fpa-ch{display:flex;align-items:center;gap:10px;margin:0 0 6px}.fpa .fpa-card .fpa-ch b{font-size:var(--fs-base);font-weight:650;flex:1;min-width:0}
+  .fpa .fpa-card .fpa-duty-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:6px 0;border-top:1px solid var(--line);font-size:var(--fs-md)}
+  .fpa .fpa-card .fpa-duty-row .nm{font-weight:600}.fpa .fpa-card .fpa-duty-row .what{color:var(--muted);flex:1 1 220px}
+  .fpa .ffe-note,.fpa .fpe-note{background:var(--surface-2);color:var(--muted);border:1px solid var(--line);border-radius:var(--r-lg);padding:var(--sp-3) var(--sp-4);font-size:var(--fs-md);line-height:1.5;margin:0 0 var(--sp-3)}
+  .fpa .fpe-hint{font-size:var(--fs-xs);color:var(--muted)}
+  .fpa .fpe-warn{color:var(--warn);font-size:var(--fs-md)}
+  .fpa .fpa-warn{background:var(--k-inv-t);color:var(--fg);border:1px solid var(--warn);border-radius:var(--r-lg);padding:var(--sp-3) var(--sp-4);font-size:var(--fs-md);margin:0 0 var(--sp-3)}
+  .fpa .fpa-warn ul{margin:4px 0 8px;padding-left:20px}
+  .fpa h3{margin:var(--sp-5) 0 var(--sp-2);font-size:var(--fs-xs);font-weight:650;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+  .fpa .ffe-set{display:flex;flex-direction:column;gap:var(--sp-1);margin:0 0 var(--sp-3)}.fpa .ffe-set>span{font-size:var(--fs-sm);font-weight:600;color:var(--muted)}.fpa .ffe-set em{font-weight:400;font-style:normal}
+  .fpa .ffe-check{display:flex;align-items:center;gap:var(--sp-2);font-size:var(--fs-md);margin:0 0 10px}
+  .fpa code{font-family:var(--font-mono);font-size:var(--fs-sm);background:var(--surface-2);border-radius:var(--r-sm);padding:1px 6px}
+
+  /* tables of type: uppercase muted 12px header, hairline rules, no zebra, 40px+ rows, tabular numbers */
+  .fpa table{border-collapse:collapse;width:100%;font-size:var(--fs-md);font-variant-numeric:tabular-nums}
+  .fpa table th{padding:10px 12px;text-align:left;font-size:var(--fs-xs);font-weight:650;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:transparent;border-bottom:1px solid var(--line-2);white-space:nowrap}
+  .fpa table td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:middle;height:40px}
+  .fpa table tr:last-child td{border-bottom:0}
+  .fpa table input{min-width:140px}
+
+  /* the saved record, as on paper */
+  .fpa .fpa-paper{padding:var(--sp-3);background:var(--surface-2)}
+  .fpa .fpa-paper .fpp{display:block!important;background:var(--surface);color:var(--fg);font:13px/1.4 var(--font-sans);padding:18px 22px;border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow)}
+  .fpa .fpa-actions{display:flex;flex-wrap:wrap;gap:var(--sp-2);padding:var(--sp-3);border-bottom:1px solid var(--line)}
+  .fpa .fpa-fix{padding:var(--sp-3)}.fpa .fpa-fix:empty{display:none}
+  .fpa .fpa-fix .ffe-set input,.fpa .fpa-fix .ffe-set select{width:100%}
+  .fpa .fpa-was{font-size:var(--fs-xs);color:var(--muted)}
+
+  /* responsibility rehearsal, test folder */
+  .fpa .fpa-reh{margin-top:var(--sp-5);padding-top:var(--sp-4);border-top:1px solid var(--line)}
+  .fpa .fpa-reh-clock{font-weight:700;font-size:var(--fs-entry);margin:var(--sp-2) 0;font-variant-numeric:tabular-nums}
+  .fpa .fpa-reh-state{display:flex;flex-direction:column;gap:6px}
+  .fpa .fpa-reh-slot,.fpa .fpa-reh-alert{padding:var(--sp-2) 10px;border-radius:var(--r-lg);border:1px solid var(--line);background:var(--surface)}
+  .fpa .fpa-reh-slot.late{border-color:var(--warn);background:var(--k-inv-t)}.fpa .fpa-reh-slot.due{border-color:var(--accent);background:var(--accent-t)}
+  .fpa .fpa-reh-alert{border-color:var(--bad);background:var(--surface);font-weight:600}.fpa .fpa-reh-alert.acked{border-color:var(--line);font-weight:400}.fpa .fpa-reh-alert.done{background:var(--k-runs-t);border-color:var(--good);font-weight:400}
+  .fpa .fpa-reh-vps{display:flex;flex-direction:column;gap:6px}.fpa .fpa-reh-vps .fpa-row{flex-wrap:wrap;align-items:center}
+  .fpa .fpa-reh-steps{margin:0;padding-left:20px;line-height:1.6}
+  .fpa .fpa-test{display:flex;flex-direction:column;gap:var(--sp-2);align-items:flex-start;max-width:760px}.fpa .fpa-test h3{margin-top:0}
+  .fpa .fpa-test .fpa-state{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-3);margin:0 0 var(--sp-2)}.fpa .fpa-test .fpa-state h3{margin:0;font-size:var(--fs-lg);font-weight:650;letter-spacing:0;text-transform:none;color:var(--fg)}
+
+  /* the media library, people, sites and terminals */
+  .fpa .fpa-lib-make{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--sp-4);align-items:start;margin:10px 0}
+  @media (max-width:900px){.fpa .fpa-lib-make{grid-template-columns:1fr}}
+  .fpa .fpa-lib-prev{border:1px solid var(--line);border-radius:var(--r-lg);background:var(--surface-2);min-height:220px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .fpa .fpa-lib-prev img{max-width:100%;max-height:520px;display:block}
+  .fpa .fpa-lib-prev iframe{width:100%;height:520px;border:0;background:var(--surface)}
+  .fpa .fpa-lib-prev .lead{padding:var(--sp-4)}
+  .fpa .fpa-lib-bar{height:6px;border-radius:var(--r-pill);background:var(--surface-2);overflow:hidden;margin:6px 0 4px}.fpa .fpa-lib-bar i{display:block;height:100%;background:var(--accent)}
+  .fpa .fpa-lib-tags{display:flex;flex-direction:column;gap:6px}.fpa .fpa-lib-tags .fpa-row{flex-wrap:nowrap}.fpa .fpa-lib-tags select{max-width:150px}.fpa .fpa-lib-tags input{flex:1 1 auto;min-width:0}
+  .fpa .fpa-lib-warn{color:var(--warn);font-size:var(--fs-sm)}.fpa .fpa-lib-warn:empty{display:none}
+  .fpa .fpa-lib-err{color:var(--bad);font-size:var(--fs-md);min-height:0}.fpa .fpa-lib-err:empty{display:none}
+  .fpa .fpa-lib-folders{display:flex;flex-wrap:wrap;gap:6px;margin:var(--sp-3) 0 var(--sp-2)}
+  .fpa .fpa-lib-list{display:flex;flex-direction:column;gap:6px;margin-top:var(--sp-2)}
+  .fpa .fpa-lib-row{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr) auto auto;gap:var(--sp-3);align-items:center;text-align:left;font:inherit;color:var(--fg);padding:var(--sp-2) var(--sp-3);min-height:48px;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--surface);cursor:pointer}
+  .fpa .fpa-lib-row:hover{border-color:var(--line-2);background:var(--surface-2)}.fpa .fpa-lib-row .tags{color:var(--muted);font-size:var(--fs-sm);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .fpa .fpa-lib-row .v,.fpa .fpa-lib-row .u{font-size:var(--fs-xs);color:var(--muted);font-variant-numeric:tabular-nums}.fpa .fpa-lib-row .u.warn{color:var(--warn)}
+  .fpa .fpa-lib-browse{display:flex;flex-direction:column;gap:var(--sp-1);align-items:flex-start}
+  .fpa .fpa-lib-tagnames{display:flex;flex-direction:column;gap:6px}
+  .fpa .fpa-place{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:var(--sp-4) var(--sp-5);display:flex;flex-direction:column;gap:var(--sp-4);max-width:760px;line-height:1.5}
+  .fpa .fpa-place .crumb{font-size:var(--fs-sm);color:var(--muted)}
+  .fpa .fpa-place h2{margin:2px 0 0;font-size:var(--fs-xl);font-weight:650}
+  .fpa .fpa-place .lead{margin:4px 0 0;color:var(--muted);font-size:var(--fs-md);line-height:1.5}
+  .fpa .fpa-place .box{border:1px solid var(--line);border-radius:var(--r-lg);padding:var(--sp-3);background:var(--surface)}
+  .fpa .fpa-place .ffe-set>span{font-size:var(--fs-sm);font-weight:600;color:var(--muted)}.fpa .fpa-place .ffe-set em{font-weight:400;color:var(--muted);font-style:normal}
+  .fpa .fpa-place .ffe-set input,.fpa .fpa-place .ffe-set select{width:100%;max-width:420px}.fpa .fpa-place .fpa-row input{flex:1 1 200px;max-width:420px}
+  .fpa .fpa-place>button{align-self:flex-start;min-width:160px}
+  .fpa .fpp-list{display:flex;flex-direction:column;gap:6px}
+  .fpa .fpa-duty{border-left:3px solid var(--accent);padding-left:var(--sp-3);margin:0 0 var(--sp-3)}
+  .fpa .fpp-li{display:flex;align-items:center;gap:var(--sp-2);padding:6px var(--sp-3);min-height:44px;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--surface);font-size:var(--fs-md)}
+  .fpa .fpp-li span{flex:1 1 auto;font-weight:550}.fpa .fpp-li small{color:var(--muted)}
+  .fpa .fpp-li button{font:inherit;font-size:var(--fs-sm);min-width:34px;min-height:34px;border:1px solid var(--line-2);border-radius:var(--r);background:var(--surface);color:var(--fg);cursor:pointer}
+  .fpa .fpp-chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+  .fpa .fpp-chip{display:inline-flex;align-items:center;gap:4px;font-size:var(--fs-sm);padding:3px 4px 3px 10px;border:1px solid var(--line-2);border-radius:var(--r-pill);background:var(--surface);color:var(--fg)}
+  .fpa .fpp-chip button{border:0;background:none;color:var(--muted);font:inherit;font-size:var(--fs-sm);cursor:pointer;min-width:24px;min-height:24px}
+  .fpa .fpa-for{display:flex;flex-direction:column;gap:var(--sp-2);align-items:flex-start}
+  .fpa.fpe .fpa-forchip{font:inherit;font-size:var(--fs-md);font-weight:550;min-height:40px;padding:4px 14px;border-radius:var(--r-pill);border:1px solid var(--line-2);background:var(--surface);color:var(--fg);cursor:pointer}
+  .fpa.fpe .fpa-forchip.on{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+  .fpa .fpa-chip{display:inline-flex;align-items:center;gap:4px;padding:2px 4px 2px 10px;border:1px solid var(--line-2);border-radius:var(--r-pill);background:var(--surface);font-size:var(--fs-sm)}`;
   function injectCss() { if (document.getElementById('fp-admin-css')) return; const s = el('style'); s.id = 'fp-admin-css'; s.textContent = CSS; document.head.appendChild(s); }
 
   // People, sites and terminals are on the editor's map (0.41); their settings open from it (FP.editor.places).
@@ -192,7 +260,40 @@
     try { const r = await fn(); if (ok) toast(typeof ok === 'function' ? ok(r) : ok); if (after) await after(r); return r; }
     catch (e) { toast(e.message, true); return null; }
   }
-  const view = o => mapView({}, Object.assign({ stateKey: 'state', top: 'none', marked: NEVER, problemKey: () => 'none' }, o));
+  /* Rows with a tile and chips (UI Release B). The map's rows come from the editor; the Admin parts hand them a tile (the kind of thing: colour for
+   * the kind of data, shape for the kind of thing) and their tags as chips with a glyph for good, warning and bad, so colour is never the only
+   * signal. A row may name its own tone, glyph, shape, fill, retired or bad; otherwise they come from its colour. Behaviour is the map's own. */
+  const TONE_OF = c => { const m = /--d-([a-z]+)-/.exec(String(c || '')); return m ? ({ green: 'runs', blue: 'rec', amber: 'inv', red: 'case', violet: 'ord', teal: 'rec' })[m[1]] || null : null; };
+  const MOOD_OF = c => { const m = /--d-([a-z]+)-/.exec(String(c || '')); return m ? ({ green: 'good', amber: 'warn', yellow: 'warn', red: 'bad', blue: 'info' })[m[1]] || '' : ''; };
+  const MOOD_GLYPH = { good: 'check', warn: 'alert', bad: 'alert' };
+  const KIND_GLYPH = { runs: 'check', rec: 'doc', inv: 'box', case: 'alert', ord: 'list' };
+  function pill(text, mood, o) {
+    o = o || {};
+    const s = el('span', 'ffm-tag fpa-pill' + (mood ? ' ' + mood : '') + (o.mono ? ' mono' : ''));
+    const g = FP.icons && (o.glyph || MOOD_GLYPH[mood]) ? FP.icons.svg(o.glyph || MOOD_GLYPH[mood]) : null;
+    if (g) s.appendChild(g);
+    s.appendChild(document.createTextNode(String(text)));
+    if (o.mono) s.title = String(text);
+    return s;
+  }
+  const deco = a => Object.assign({}, a, {
+    tag: (text, color) => pill(text, MOOD_OF(color)),
+    row(parent, r) {
+      const bad = r.bad != null ? r.bad : /--d-red-/.test(String(r.color || ''));
+      const tone = bad ? 'case' : r.tone !== undefined ? r.tone : TONE_OF(r.color);
+      const rr = Object.assign({}, r);
+      if (r.retired) { const was = r.tags; rr.tags = () => [pill('retired', null, { glyph: 'lock' })].concat(was ? was() : []); }
+      const d = a.row(parent, rr);
+      if (bad) d.classList.add('fpa-bad');
+      if (r.retired) d.classList.add('fpa-retired');
+      if (FP.icons) d.insertBefore(FP.icons.tile({ glyph: r.glyph || (bad ? 'alert' : KIND_GLYPH[tone] || 'doc'), tone, shape: r.shape || 'form', fill: r.fill || (tone ? 'tint' : 'plain'), size: 32 }), d.firstChild);
+      return d;
+    },
+  });
+  const view = o => {
+    const build = o.build;
+    return mapView({}, Object.assign({ stateKey: 'state', top: 'none', marked: NEVER, problemKey: () => 'none' }, o, { build: (a, box) => build(deco(a), box) }));
+  };
   /* ---------- Launcher files ---------- */
   async function launchersPart(again) {
     const all = await FP.launchers.list().catch(() => []);
@@ -205,17 +306,17 @@
     return view({
       build(a, box) {
         a.head(box, 'The launcher', 'launch.html, at the top of the data folder: every terminal opens it');
-        a.row(box, { key: 'home', depth: 1, color: home ? 'var(--d-blue-50)' : 'var(--d-red-54)', title: () => 'launch.html',
+        a.row(box, { key: 'home', depth: 1, color: home ? 'var(--d-blue-50)' : 'var(--d-red-54)', glyph: 'screen', shape: 'place', tone: home ? null : 'case', title: () => 'launch.html',
           sub: () => (home ? 'Its home screen shows the forms of the terminal it runs on, for whoever signs in' : 'not made yet: installing an update makes it'),
           tags: () => [a.tag(home ? 'ready' : 'no file', home ? 'var(--d-green-95)' : 'var(--d-red-92)')],
           props: p => { p.appendChild(btn(home ? 'Make it again' : 'Make it', 'small', () => act(() => FP.launchers.makeHome(), 'launch.html is made.', again))); } });
         a.head(box, 'Shortcuts', 'straight to one form: launch.html?launcher=NAME; the same rules on who can use it');
         forms.forEach(d => {
           const mine = shortcuts.filter(f => f.form === d.id);
-          a.row(box, { key: 'f:' + d.id, depth: 1, color: mine.length ? 'var(--d-blue-50)' : 'var(--d-n-66)',
+          a.row(box, { key: 'f:' + d.id, depth: 1, color: mine.length ? 'var(--d-blue-50)' : 'var(--d-n-66)', tone: FP.kinds.formLook(d.def).tone, glyph: FP.kinds.formLook(d.def).glyph,
             title: () => d.def.title || d.id,
             sub: () => (mine.length ? mine.map(f => `${f.name} (${f.version === 'latest' || f.version == null ? 'always the latest' : `version ${f.version}`})`).join(' · ') : 'no shortcut'),
-            tags: () => [a.tag(mine.length ? 'ready' : 'none', mine.length ? 'var(--d-green-95)' : 'var(--d-n-95)')],
+            tags: () => mine.map(f => pill(f.address, null, { mono: true })).concat([a.tag(mine.length ? 'ready' : 'none', mine.length ? 'var(--d-green-95)' : 'var(--d-n-95)')]),
             props: async p => {
               if (!mine.some(f => f.version === 'latest' || f.version == null)) p.appendChild(btn('Make a shortcut', 'small', () => act(() => FP.launchers.make(d.id), n => `Shortcut ${n} is made: ${FP.launchers.addressOf(n)}`, again)));
               const hist = await FP.defs.history('form', d.id).catch(() => []);
@@ -238,7 +339,7 @@
         else a.addRow(box, '+all', '+ a shortcut for every launchable form that has none', 0, null, () => act(async () => { let n = 0; for (const d of forms) { if (!shortcuts.some(f => f.form === d.id && (f.version === 'latest' || f.version == null))) { await FP.launchers.make(d.id); n++; } } return n; }, n => `${n} shortcut${n === 1 ? '' : 's'} made.`, again));
         if (strays.length || oldFiles.length) {
           a.head(box, 'To tidy', 'shortcuts whose form is gone, and launcher files from before 0.48');
-          strays.forEach(f => a.row(box, { key: 'x:' + f.name, depth: 1, color: 'var(--d-red-54)', title: () => f.name, sub: () => f.problem,
+          strays.forEach(f => a.row(box, { key: 'x:' + f.name, depth: 1, color: 'var(--d-red-54)', retired: !!f.retired, title: () => f.name, sub: () => f.problem,
             props: p => {
               if (f.retired && f.supersededBy && f.repointable) {
                 const t = (FP.defs.get('form', f.supersededBy).def || {}).title || f.supersededBy;
@@ -246,7 +347,7 @@
               }
               p.appendChild(btn('Remove the shortcut', 'small', () => act(() => FP.launchers.remove(f.name), `Shortcut ${f.name} is removed.`, again)));
             } }));
-          oldFiles.forEach(f => a.row(box, { key: 'o:' + f.name, depth: 1, color: 'var(--d-amber-47)', title: () => `launchers/${f.name}`, sub: () => f.problem,
+          oldFiles.forEach(f => a.row(box, { key: 'o:' + f.name, depth: 1, color: 'var(--d-amber-47)', tone: null, glyph: 'doc', title: () => `launchers/${f.name}`, sub: () => f.problem,
             props: p => p.appendChild(btn('Remove the file', 'small', () => { if (confirm(`Remove launchers/${f.name}? Windows shortcuts to the file stop working.`)) act(() => FP.launchers.remove(f.name), `launchers/${f.name} is removed.`, again); })) }));
         }
       },
@@ -267,9 +368,9 @@
     return view({
       build(a, box) {
         a.head(box, 'Running', cfg && cfg.current ? null : 'files from before releases');
-        if (cfg && cfg.current) a.row(box, { key: 'cur', depth: 1, color: 'var(--d-green-47)', cls: 'top', title: () => `Version ${cfg.current}`, sub: () => [cfg.installedAt ? `installed ${new Date(cfg.installedAt).toLocaleString()}` : null, cfg.by ? `by ${cfg.by}` : null, cfg.from ? `after ${cfg.from}` : null].filter(Boolean).join(' · '), act: () => {} });
+        if (cfg && cfg.current) a.row(box, { key: 'cur', depth: 1, color: 'var(--d-green-47)', cls: 'top', glyph: 'check', tags: () => [a.tag('running', 'var(--d-green-95)')], title: () => `Version ${cfg.current}`, sub: () => [cfg.installedAt ? `installed ${new Date(cfg.installedAt).toLocaleString()}` : null, cfg.by ? `by ${cfg.by}` : null, cfg.from ? `after ${cfg.from}` : null].filter(Boolean).join(' · '), act: () => {} });
         a.head(box, 'Waiting in updates', pending.length ? null : 'nothing');
-        pending.forEach(z => a.row(box, { key: 'p:' + z.name, depth: 1, color: z.problems.length ? 'var(--d-red-54)' : z.newer ? 'var(--d-blue-42)' : 'var(--d-n-83)',
+        pending.forEach(z => a.row(box, { key: 'p:' + z.name, depth: 1, color: z.problems.length ? 'var(--d-red-54)' : z.newer ? 'var(--d-blue-42)' : 'var(--d-n-83)', glyph: 'box', tone: z.newer && !z.problems.length ? 'rec' : null, tags: () => [z.problems.length ? a.tag('can\'t install', 'var(--d-red-92)') : z.newer ? a.tag('ready to install', 'var(--d-blue-85)') : a.tag('not newer', 'var(--d-n-95)')],
           title: () => z.version ? `Version ${z.version}` : z.name, sub: () => (z.problems.length ? z.problems.join('; ') : z.newer ? `${z.name} · ready to install` : `${z.name} · not newer than what runs`),
           props: p => {
             if (z.problems.length) p.appendChild(el('p', 'ffe-note', 'It can\'t be installed. Put a fresh copy of the release zip in updates.'));
@@ -282,7 +383,7 @@
           fi.click();
         });
         a.head(box, 'Kept to go back to', kept.length > 1 ? null : 'none yet');
-        kept.filter(v => !cfg || v !== cfg.current).forEach(v => a.row(box, { key: 'k:' + v, depth: 1, color: 'var(--d-n-66)', title: () => `Version ${v}`, sub: () => (FP.updates.cmp(v, cfg.current) < 0 ? 'older' : 'newer'),
+        kept.filter(v => !cfg || v !== cfg.current).forEach(v => a.row(box, { key: 'k:' + v, depth: 1, color: 'var(--d-n-66)', glyph: 'refresh', title: () => `Version ${v}`, sub: () => (FP.updates.cmp(v, cfg.current) < 0 ? 'older' : 'newer'),
           props: p => p.appendChild(btn(`Use ${v} again`, 'small', () => { if (confirm(`Make ${v} the release every terminal runs?`)) act(() => FP.updates.useRelease(v), `${v} runs now; terminals move to it by themselves.`, again); })) }));
       },
       right(prev) {
@@ -311,9 +412,9 @@
           const sts = Object.entries(t.structures || {}).sort((x, y) => y[1].loadMs - x[1].loadMs);
           const slow = forms.filter(([, f]) => f.readyMs > FORM_BUDGET_MS).length + sts.filter(([, x]) => x.loadMs > LOAD_BUDGET_MS).length;
           a.head(box, `${FP.identity.label ? FP.identity.label(t.terminalId) : t.terminalId}${slow ? ` · ${slow} slow` : ''}`, `${t.screen ? t.screen + ' · ' : ''}${t.cores ? t.cores + ' cores · ' : ''}figures from ${new Date(t.at).toLocaleString()}`);
-          forms.forEach(([id, f]) => a.row(box, { key: `f:${t.terminalId}:${id}`, depth: 1, color: f.readyMs > FORM_BUDGET_MS ? 'var(--d-red-40)' : 'var(--d-green-47)', title: () => `${(FP.defs.get('form', id) || { def: {} }).def.title || id}: ready in ${ms(f.readyMs)}`,
+          forms.forEach(([id, f]) => a.row(box, { key: `f:${t.terminalId}:${id}`, depth: 1, color: f.readyMs > FORM_BUDGET_MS ? 'var(--d-red-40)' : 'var(--d-green-47)', glyph: 'doc', tags: () => [pill(ms(f.readyMs), f.readyMs > FORM_BUDGET_MS ? 'bad' : 'good', { mono: true })], title: () => `${(FP.defs.get('form', id) || { def: {} }).def.title || id}: ready in ${ms(f.readyMs)}`,
             sub: () => `form · slowest of the last ${f.runs}: ${ms(f.worstMs)}`, act: () => {} }));
-          sts.forEach(([id, x]) => a.row(box, { key: `s:${t.terminalId}:${id}`, depth: 1, color: x.loadMs > LOAD_BUDGET_MS ? 'var(--d-red-40)' : 'var(--d-teal-45)', title: () => `${id}: loads in ${ms(x.loadMs)}`,
+          sts.forEach(([id, x]) => a.row(box, { key: `s:${t.terminalId}:${id}`, depth: 1, color: x.loadMs > LOAD_BUDGET_MS ? 'var(--d-red-40)' : 'var(--d-teal-45)', shape: 'structure', glyph: 'table', tone: x.loadMs > LOAD_BUDGET_MS ? 'case' : null, tags: () => [pill(ms(x.loadMs), x.loadMs > LOAD_BUDGET_MS ? 'bad' : 'good', { mono: true })], title: () => `${id}: loads in ${ms(x.loadMs)}`,
             sub: () => `structure · ${x.entries} entries, ${x.items} items, ${x.filesRead} files read${x.windowed ? ' · live window' : ' · whole history'}`, act: () => {} }));
         });
       },
@@ -411,9 +512,9 @@
         const list = shown();
         if (st.structure) {
           a.head(box, 'Health', health.length ? `${health.length} note${health.length === 1 ? '' : 's'}` : 'nothing found');
-          health.forEach((h, i) => a.row(box, { key: 'h:' + i, depth: 1, color: /^Files checked [^:]*: all/.test(h) ? 'var(--d-green-47)' : 'var(--d-amber-47)', title: () => h.length > 90 ? h.slice(0, 88) + '…' : h, sub: () => (h.length > 90 ? h : ''),
+          health.forEach((h, i) => a.row(box, { key: 'h:' + i, depth: 1, color: /^Files checked [^:]*: all/.test(h) ? 'var(--d-green-47)' : 'var(--d-amber-47)', glyph: /^Files checked [^:]*: all/.test(h) ? 'check' : 'alert', title: () => h.length > 90 ? h.slice(0, 88) + '…' : h, sub: () => (h.length > 90 ? h : ''),
             act: () => {} }));
-          (data && data.twice || []).forEach(x => a.row(box, { key: 'tw:' + x.id, depth: 2, color: 'var(--d-red-40)', title: () => `${x.id}: saved new ${x.saves.length} times`,
+          (data && data.twice || []).forEach(x => a.row(box, { key: 'tw:' + x.id, depth: 2, color: 'var(--d-red-40)', tags: () => [pill(`${x.saves.length} saves`, 'bad')], title: () => `${x.id}: saved new ${x.saves.length} times`,
             sub: () => x.saves.map(s => `${FP.identity.label(s.terminalId)} ${new Date(s.at).toLocaleString()}${users.get(s.userId) ? ' · ' + users.get(s.userId) : ''}`).join(' · '),
             act: () => { st.filter = x.id; a.paint(); } }));
           a.addRow(box, '+verify', '+ check every file of this structure, line by line', 0, null, () => act(async () => {
@@ -423,7 +524,7 @@
           }, v => (v.broken.length ? `${v.broken.length} file${v.broken.length === 1 ? '' : 's'} changed after saving.` : `All ${v.files} files are as saved.`), again));
         }
         a.head(box, 'Saved', st.structure ? `${list.length} of ${rows.length}, newest first${list.length > 100 ? '; the first 100 shown' : ''}` : 'no structures yet');
-        list.slice(0, 100).forEach(r => a.row(box, { key: 'r:' + r.entryId, depth: 1, color: r.corrections.length ? 'var(--d-amber-47)' : 'var(--d-blue-50)', cls: st.sel === r.entryId ? 'on' : '',
+        list.slice(0, 100).forEach(r => a.row(box, { key: 'r:' + r.entryId, depth: 1, color: r.corrections.length ? 'var(--d-amber-47)' : 'var(--d-blue-50)', tone: 'rec', glyph: 'doc', cls: st.sel === r.entryId ? 'on' : '',
           title: () => r.item.id,
           sub: () => [formTitle(r), r.action, new Date(r.writtenAt).toLocaleString(), who(r), FP.identity.label(r.terminalId)].filter(Boolean).join(' · '),
           tags: () => (r.corrections.length ? [a.tag(`corrected${r.corrections.length > 1 ? ` ×${r.corrections.length}` : ''}`, 'var(--d-amber-96b)')] : []),
@@ -584,11 +685,11 @@
       build(a, box) {
         a.head(box, 'Purge all data', testFolder ? 'for clearing out test data; it can\'t be undone' : 'off: this folder isn\'t marked as a test folder');
         if (!testFolder) {
-          a.row(box, { key: 'purge-off', depth: 1, color: 'var(--d-n-42)', title: () => 'Purge is off for this folder', sub: () => 'records here are kept for audit',
+          a.row(box, { key: 'purge-off', depth: 1, color: 'var(--d-n-42)', glyph: 'lock', title: () => 'Purge is off for this folder', sub: () => 'records here are kept for audit',
             props: p => p.appendChild(el('p', 'ffe-note', 'Purge clears every record, and nothing in a production folder may be deleted. To use it on a test copy of the folder, mark that copy as a test folder (Admin > Test folder), then come back here.')) });
           return;
         }
-        a.row(box, { key: 'purge', depth: 1, color: 'var(--d-red-40)', title: () => 'Purge all data…', sub: () => 'everything but the people', tags: () => [a.tag('can\'t be undone', 'var(--d-red-92)')],
+        a.row(box, { key: 'purge', depth: 1, color: 'var(--d-red-40)', glyph: 'alert', title: () => 'Purge all data…', sub: () => 'everything but the people', tags: () => [a.tag('can\'t be undone', 'var(--d-red-92)')],
           props: p => {
             const w = el('div', 'fpa-warn');
             w.appendChild(el('b', null, 'This deletes from the data folder, for every terminal:'));
@@ -609,7 +710,7 @@
               go.disabled = true;
               act(() => purgeAll(), g => `Purged: ${g.structures} structure${g.structures === 1 ? '' : 's'} of records, ${g.folders} folder${g.folders === 1 ? '' : 's'} of definitions and settings, ${g.captured} folder${g.captured === 1 ? '' : 's'} of captured files. The people are kept.`, again).then(() => { go.disabled = false; });
             });
-            go.style.background = 'var(--d-red-40)'; go.style.borderColor = 'var(--d-red-40)';
+            go.classList.add('fpa-danger');
             const r = el('div', 'fpa-row'); r.append(ti, go);
             p.appendChild(r);
           } });
@@ -924,7 +1025,7 @@
     return view({
       build(a, box) {
         a.head(box, 'Install a pack', 'definitions and starting records made elsewhere, in one file');
-        a.row(box, { key: 'pick', depth: 1, color: 'var(--d-blue-50)', title: () => (st.pack ? `${st.pack.name || 'Pack'}` : 'Choose a pack file…'), sub: () => (st.pack ? `${st.pack.definitions.length} definitions · ${Object.values(st.pack.items).reduce((n, l) => n + (Array.isArray(l) ? l.length : 0), 0)} items${st.pack.note ? ' · ' + st.pack.note : ''}` : 'a .json file made with Make a pack'),
+        a.row(box, { key: 'pick', depth: 1, color: 'var(--d-blue-50)', glyph: 'box', tone: null, tags: () => (st.pack ? [pill(`${st.pack.definitions.length} definitions`), pill(`${Object.values(st.pack.items).reduce((n, l) => n + (Array.isArray(l) ? l.length : 0), 0)} items`)] : []), title: () => (st.pack ? `${st.pack.name || 'Pack'}` : 'Choose a pack file…'), sub: () => (st.pack ? `${st.pack.definitions.length} definitions · ${Object.values(st.pack.items).reduce((n, l) => n + (Array.isArray(l) ? l.length : 0), 0)} items${st.pack.note ? ' · ' + st.pack.note : ''}` : 'a .json file made with Make a pack'),
           props: p => {
             const i = input('', { type: 'file' }); i.accept = '.json,application/json';
             i.onchange = async () => { const f = i.files && i.files[0]; if (!f) return; try { st.pack = readPack(await f.text()); again(); } catch (e) { toast(e.message, true); } };
@@ -933,9 +1034,9 @@
         if (plan && plan.error) box.appendChild(el('div', 'fpe-warn', plan.error));
         if (plan && !plan.error) {
           const tagOf = h => ({ new: ['new', 'var(--d-green-95)'], changed: ['replaces the one here', 'var(--d-amber-96)'], same: ['already here', 'var(--d-n-95)'], 'built-in': ['built in: skipped', 'var(--d-n-95)'] })[h];
-          PACK_KINDS.forEach(k => plan.defs.filter(d => d.kind === k).forEach(d => a.row(box, { key: `d:${k}/${d.id}`, depth: 2, color: { function: 'var(--d-violet-43)', structure: 'var(--d-teal-45)', form: 'var(--d-blue-50)' }[k],
+          PACK_KINDS.forEach(k => plan.defs.filter(d => d.kind === k).forEach(d => a.row(box, { key: `d:${k}/${d.id}`, depth: 2, shape: { function: 'function', structure: 'structure', form: 'form' }[k], glyph: { function: 'fn', structure: 'table', form: 'doc' }[k], tone: k === 'form' ? FP.kinds.formLook(d.def).tone : null, color: { function: 'var(--d-violet-43)', structure: 'var(--d-teal-45)', form: 'var(--d-blue-50)' }[k],
             title: () => (d.def.title || d.def.label || d.id), sub: () => `${FP.defs.LABELS[k]} ${d.id}${d.cur ? ` · here: version ${d.cur.version}` : ''}`, tags: () => [a.tag(...tagOf(d.how))] })));
-          plan.items.forEach(it => a.row(box, { key: 'i:' + it.structure, depth: 2, color: 'var(--d-amber-47)', title: () => `${it.structure}: ${it.all} item${it.all === 1 ? '' : 's'}`,
+          plan.items.forEach(it => a.row(box, { key: 'i:' + it.structure, depth: 2, color: 'var(--d-amber-47)', shape: 'structure', glyph: 'table', tone: null, title: () => `${it.structure}: ${it.all} item${it.all === 1 ? '' : 's'}`,
             sub: () => (it.add.length ? `${it.add.length} new; ${it.all - it.add.length} already here (left as they are)` : 'all already here'), tags: () => [a.tag(it.add.length ? `${it.add.length} to add` : 'nothing to add', it.add.length ? 'var(--d-green-95)' : 'var(--d-n-95)')] }));
           // Where the forms go (0.52): sites, groups, terminals, and people for a test folder.
           const su = plan.setup;
@@ -943,14 +1044,14 @@
           const setupRows = su.sites.length + su.groups.length + su.terminals.length + su.people.length + (su.centers || []).length;
           if (setupRows) {
             a.head(box, 'Where the forms go', su.test ? 'sites, terminal groups and terminals; people too, as this is a test folder' : 'sites, terminal groups and terminals; no people, as this isn\'t a test folder');
-            su.sites.forEach(r => a.row(box, { key: 's:' + r.x.id, depth: 2, color: 'var(--d-teal-45)', title: () => r.x.name || r.x.id, sub: () => `site ${r.x.id}`, tags: () => [sTag(r)] }));
-            su.groups.forEach(r => a.row(box, { key: 'g:' + r.x.site + ':' + r.x.name, depth: 2, color: 'var(--d-n-48)', title: () => r.x.name,
+            su.sites.forEach(r => a.row(box, { key: 's:' + r.x.id, depth: 2, color: 'var(--d-teal-45)', shape: 'place', glyph: 'pin', tone: null, title: () => r.x.name || r.x.id, sub: () => `site ${r.x.id}`, tags: () => [sTag(r)] }));
+            su.groups.forEach(r => a.row(box, { key: 'g:' + r.x.site + ':' + r.x.name, depth: 2, color: 'var(--d-n-48)', shape: 'place', glyph: 'screen', tone: null, title: () => r.x.name,
               sub: () => [`group at ${r.x.site}`, `${(r.x.forms || []).length} forms`, (r.x.terminals || []).length ? (r.x.terminals || []).join(', ') : 'no terminals', r.x.homeForm && r.x.homeForm !== 'none' ? `home ${r.x.homeForm}` : null, r.x.view ? `${r.x.view} view` : null, r.x.signIn === 'supervisors' ? 'supervisors sign in' : null, r.diff && r.diff.length ? `changes ${r.diff.join(', ')}` : null].filter(Boolean).join(' · '),
               tags: () => [sTag(r)] }));
-            su.terminals.forEach(r => a.row(box, { key: 't:' + r.id, depth: 2, color: 'var(--d-n-36)', title: () => `${r.id}${r.x.name ? ' ' + r.x.name : ''}`,
+            su.terminals.forEach(r => a.row(box, { key: 't:' + r.id, depth: 2, color: 'var(--d-n-36)', shape: 'place', glyph: 'screen', tone: null, title: () => `${r.id}${r.x.name ? ' ' + r.x.name : ''}`,
               sub: () => [`terminal${r.x.site ? ' at ' + r.x.site : ''}`, `${(r.x.forms || []).length} forms`, r.inGroup ? `in ${r.inGroup.name} here: its group's forms count` : null, r.diff && r.how === 'changes' ? `changes ${r.diff.join(', ')}` : null].filter(Boolean).join(' · '), tags: () => [sTag(r)] }));
-            su.people.forEach(r => a.row(box, { key: 'p:' + r.x.name, depth: 2, color: 'var(--d-violet-45)', title: () => r.x.name, sub: () => `${(r.x.roles || ['user']).join(', ')}${r.x.pin ? ' · with the pack\'s PIN' : ' · PIN 918273, changed at first sign-in'}`, tags: () => [sTag(r)] }));
-            (su.centers || []).forEach(r => a.row(box, { key: 'c:' + r.x.name, depth: 2, color: 'var(--d-teal-45)', title: () => r.x.name, sub: () => `responsibility center · ${(r.x.duties || []).length} dut${(r.x.duties || []).length === 1 ? 'y' : 'ies'}`, tags: () => [sTag(r)] }));
+            su.people.forEach(r => a.row(box, { key: 'p:' + r.x.name, depth: 2, color: 'var(--d-violet-45)', glyph: 'user', tone: null, title: () => r.x.name, sub: () => `${(r.x.roles || ['user']).join(', ')}${r.x.pin ? ' · with the pack\'s PIN' : ' · PIN 918273, changed at first sign-in'}`, tags: () => [sTag(r)] }));
+            (su.centers || []).forEach(r => a.row(box, { key: 'c:' + r.x.name, depth: 2, color: 'var(--d-teal-45)', shape: 'place', glyph: 'pin', tone: null, title: () => r.x.name, sub: () => `responsibility center · ${(r.x.duties || []).length} dut${(r.x.duties || []).length === 1 ? 'y' : 'ies'}`, tags: () => [sTag(r)] }));
           }
           const setupN = su.sites.filter(r => r.how === 'new').length + su.groups.filter(r => r.how !== 'same').length + su.terminals.filter(r => r.how !== 'same').length + su.people.filter(r => r.how === 'new').length + (su.centers || []).filter(r => r.how === 'new').length;
           const n = plan.defs.filter(d => d.how === 'new' || d.how === 'changed').length, m = plan.items.reduce((x, it) => x + it.add.length, 0);
@@ -961,7 +1062,7 @@
           });
         }
         a.head(box, 'Make a pack', 'every form, structure and function published here, and the items of the structures you tick');
-        a.row(box, { key: 'make', depth: 1, color: 'var(--d-teal-45)', title: () => 'Make a pack…', sub: () => `${FP.defs.list().filter(d => PACK_KINDS.includes(d.kind) && !d.retired && !FP.defs.isBuiltIn(d.kind, d.id)).length} definitions`,
+        a.row(box, { key: 'make', depth: 1, color: 'var(--d-teal-45)', glyph: 'box', tone: null, tags: () => [pill(`${FP.defs.list().filter(d => PACK_KINDS.includes(d.kind) && !d.retired && !FP.defs.isBuiltIn(d.kind, d.id)).length} definitions`)], title: () => 'Make a pack…', sub: () => `${FP.defs.list().filter(d => PACK_KINDS.includes(d.kind) && !d.retired && !FP.defs.isBuiltIn(d.kind, d.id)).length} definitions`,
           props: p => {
             const name = input(st.name || '', { placeholder: 'e.g. Production pilot' });
             name.oninput = () => { st.name = name.value; };
@@ -1042,7 +1143,7 @@
           const rows = U.filter(u => u.kind === kind);
           if (!rows.length) return;
           a.head(box, label, `${rows.length} unused`);
-          rows.forEach(u => a.row(box, { key: 'u:' + kind + ':' + u.id, depth: 1, color: 'var(--d-n-66)', title: () => u.name,
+          rows.forEach(u => a.row(box, { key: 'u:' + kind + ':' + u.id, depth: 1, color: 'var(--d-n-66)', tone: null, shape: { form: 'form', structure: 'structure', function: 'function' }[kind], glyph: { form: 'doc', structure: 'table', function: 'fn' }[kind], tags: () => [pill('unused', null)], title: () => u.name,
             sub: () => `${u.id} · ${u.why}`,
             props: p => {
               if (canRetire) p.appendChild(btn('Retire', 'small', () => act(() => retireOne(u), `${u.name} is retired.`, again)));
@@ -1063,20 +1164,20 @@
             const u = FP.sources.upgrade(d.def);
             await FP.defs.publish('form', d.id, u.def, { basedOn: d.version, note: `Brought up to date (0.48): ${u.changes.join('; ')}` });
           };
-          L.older.forEach(d => a.row(box, { key: 'o:' + d.id, depth: 1, color: 'var(--d-blue-50)', title: () => d.def.title || d.id,
+          L.older.forEach(d => a.row(box, { key: 'o:' + d.id, depth: 1, color: 'var(--d-blue-50)', tone: null, glyph: 'doc', title: () => d.def.title || d.id,
             sub: () => [!Array.isArray(d.def.sources) ? 'before sources' : null, d.def.action ? `its saves are named ${d.def.action} on the form` : null].filter(Boolean).join(' · '),
             props: p => p.appendChild(btn('Bring it up to date', 'small', () => act(() => upgradeOne(d), `${d.def.title || d.id} is up to date.`, again))) }));
           if (L.older.length > 1) a.addRow(box, '+older', `+ bring all ${L.older.length} up to date`, 0, null, () => act(async () => { let n = 0; for (const d of L.older) { await upgradeOne(d); n++; } return n; }, n => `${n} form${n === 1 ? '' : 's'} brought up to date.`, again));
         }
         if (L.homes.length) {
           a.head(box, 'Forms set to show on the home screen', 'each terminal or group picks its home form now (0.51): this moves the setting there and takes it off the form');
-          L.homes.forEach(d => a.row(box, { key: 'h:' + d.id, depth: 1, color: 'var(--d-blue-50)', title: () => d.def.title || d.id,
+          L.homes.forEach(d => a.row(box, { key: 'h:' + d.id, depth: 1, color: 'var(--d-blue-50)', tone: null, glyph: 'doc', title: () => d.def.title || d.id,
             sub: () => { const to = homeTargets(d); return to.length ? `becomes the home form of ${to.map(x => x.name).join(', ')}` : 'no terminal or group without a home form has it: just taken off the form'; },
             props: p => p.appendChild(btn('Move it to its terminals', 'small', () => act(() => moveHome(d), n => `${d.def.title || d.id}: the home form of ${n} group${n === 1 ? '' : 's'} or terminal${n === 1 ? '' : 's'} now.`, again))) }));
         }
         if (L.opens.length) {
           a.head(box, 'Open and Apply buttons', 'gone (0.48): these forms keep working, but can\'t be published again until each becomes a sub-form');
-          L.opens.forEach(d => a.row(box, { key: 'b:' + d.id, depth: 1, color: 'var(--d-amber-47)', title: () => d.def.title || d.id,
+          L.opens.forEach(d => a.row(box, { key: 'b:' + d.id, depth: 1, color: 'var(--d-amber-47)', tone: 'inv', glyph: 'alert', title: () => d.def.title || d.id,
             sub: () => (d.def.buttons || []).filter(b => b && (b.action === 'open' || b.action === 'apply')).map(b => `${b.label || b.name} (${b.action === 'open' ? `opens ${b.form}` : 'apply'})`).join(', '),
             props: p => p.appendChild(el('p', 'ffe-note', 'Open the form in the editor, add a sub-form for what the button opened (its fields, and where they save), and point the button at it. Apply buttons go: a sub-form hands its values back by itself.')) }));
         }
@@ -1091,7 +1192,7 @@
           a.head(box, 'Structures that still name sessions', 'each gets a new version without them');
           L.plans.forEach(pl => {
             const d = pl.doc;
-            a.row(box, { key: 's:' + d.id, depth: 1, color: 'var(--d-teal-45)', title: () => (d.def.label || d.id),
+            a.row(box, { key: 's:' + d.id, depth: 1, color: 'var(--d-teal-45)', tone: null, shape: 'structure', glyph: 'table', title: () => (d.def.label || d.id),
               sub: () => `${d.id} · ${Object.entries(d.def.sessions).map(([t, raw]) => `${t} (${raw && typeof raw === 'object' ? raw.mode : raw})`).join(', ')}${pl.calc.length && calcOn.get(d.id) ? ` · ${pl.calc.map(c => c.name).join(', ')} becomes a calculated value` : ''}`,
               props: p => {
                 if (pl.calc.length) {
@@ -1107,13 +1208,13 @@
         }
         if (L.forms.length) {
           a.head(box, 'Forms that ask to read something every shift', 'every 12 hours instead');
-          L.forms.forEach(d => a.row(box, { key: 'f:' + d.id, depth: 1, color: 'var(--d-blue-50)', title: () => d.def.title || d.id,
+          L.forms.forEach(d => a.row(box, { key: 'f:' + d.id, depth: 1, color: 'var(--d-blue-50)', tone: null, glyph: 'doc', title: () => d.def.title || d.id,
             sub: () => d.def.acknowledge.filter(x => x && x.every === 'shift').map(x => x.label || x.name).join(', '),
             props: p => p.appendChild(btn('Read every 12 hours', 'small', () => act(() => fixForm(d), `${d.def.title || d.id} asks every 12 hours.`, again))) }));
         }
         if (L.types.length) {
           a.head(box, 'Session types', 'retired: nothing uses them now');
-          L.types.forEach(d => a.row(box, { key: 't:' + d.id, depth: 1, color: 'var(--d-n-66)', title: () => d.id,
+          L.types.forEach(d => a.row(box, { key: 't:' + d.id, depth: 1, color: 'var(--d-n-66)', retired: true, glyph: 'doc', title: () => d.id,
             sub: () => [d.def.label, d.def.fallback && Array.isArray(d.def.fallback.rows) ? `time table ${d.def.fallback.rows.map(r => `${r.value} ${r.start}–${r.end}`).join(', ')}` : null, d.def.within ? `within ${d.def.within}` : null].filter(Boolean).join(' · '),
             props: p => p.appendChild(btn('Retire it', 'small', () => act(() => retireType(d), `Session type ${d.id} is retired.`, again))) }));
         }
@@ -1146,7 +1247,7 @@
     opts = opts || {};
     injectCss();
     host.replaceChildren();
-    const page = el('div', 'fpe');
+    const page = el('div', 'fpe fpa');
     host.appendChild(page);
     const head = el('div', 'fpa-head');
     head.appendChild(el('h2', null, 'Admin'));
@@ -1194,9 +1295,10 @@
     if (!centers.length) box.appendChild(el('p', 'ffe-note', 'None yet. On the map, People › Responsibility centers › + responsibility center (or + Add).'));
     centers.forEach(c => {
       const card = el('div', 'fpa-card');
-      card.appendChild(el('b', null, c.name));
+      const ch = el('div', 'fpa-ch'); ch.append(FP.icons.tile({ glyph: 'pin', shape: 'place', fill: 'plain', size: 32 }), el('b', null, c.name), pill(`${c.duties.length} dut${c.duties.length === 1 ? 'y' : 'ies'}`));
+      card.appendChild(ch);
       if (!c.duties.length) card.appendChild(el('div', 'ffe-note', 'No duties.'));
-      c.duties.forEach(d => card.appendChild(el('div', 'ffe-note', `${d.name}: ${FP.due.describe(d)} Done by ${(d.forms || []).map(formTitle).join(' or ')}.`)));
+      c.duties.forEach(d => { const r = el('div', 'fpa-duty-row'); r.append(el('span', 'nm', d.name), el('span', 'what', `${FP.due.describe(d)} Done by ${(d.forms || []).map(formTitle).join(' or ')}.`)); card.appendChild(r); });
       box.appendChild(card);
     });
     const users = await FP.users.list().catch(() => []);
@@ -1206,8 +1308,10 @@
     if (forms.length) box.appendChild(el('h3', null, 'Forms with their own schedules (0.54): move them into a center from the form\'s settings'));
     forms.forEach(d => {
       const card = el('div', 'fpa-card');
-      card.appendChild(el('b', null, d.def.title || d.id));
-      d.def.due.forEach(sc => card.appendChild(el('div', 'ffe-note', `${sc.name}: ${FP.due.describe(sc)}`)));
+      const look = FP.kinds.formLook(d.def);
+      const ch = el('div', 'fpa-ch'); ch.append(FP.icons.tile({ glyph: look.glyph, tone: look.tone, size: 32 }), el('b', null, d.def.title || d.id));
+      card.appendChild(ch);
+      d.def.due.forEach(sc => { const r = el('div', 'fpa-duty-row'); r.append(el('span', 'nm', sc.name), el('span', 'what', FP.due.describe(sc))); card.appendChild(r); });
       box.appendChild(card);
     });
     const list = await FP.due.misses(14);
@@ -1220,7 +1324,7 @@
       tr.dataset.slot = m.id;
       tr.append(el('td', null, new Date(m.dueBy).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })),
         el('td', null, `${m.title || m.form}${m.schedule ? ' · ' + m.schedule : ''}${m.centerName ? ' · ' + m.centerName : ''}`), el('td', null, m.item || m.where || ''),
-        el('td', null, m.responsible || ''), el('td', null, m.critical ? 'critical' : ''));
+        el('td', null, m.responsible || ''), el('td', null, m.critical ? pill('critical', 'bad') : ''));
       const act = el('td');
       if (m.excusedReason) act.textContent = `Excused by ${m.excusedBy || 'a supervisor'}: ${m.excusedReason}`;
       else {
@@ -1371,7 +1475,10 @@
     const isTest = await isTestFolder();
     const name = FP.folder.handle ? FP.folder.handle.name : '';
     const d = el('div', 'fpa-test');
-    d.appendChild(el('h3', null, isTest ? `${name} is a test folder` : `${name} is an ordinary data folder`));
+    const state = el('div', 'fpa-state');
+    state.append(FP.icons.tile({ glyph: isTest ? 'alert' : 'lock', tone: isTest ? 'inv' : null, shape: 'place', fill: isTest ? 'tint' : 'plain', size: 40 }),
+      el('h3', null, isTest ? `${name} is a test folder` : `${name} is an ordinary data folder`), pill(isTest ? 'test folder' : 'ordinary folder', isTest ? 'warn' : 'good'));
+    d.appendChild(state);
     d.appendChild(el('p', 'ffe-note', isTest
       ? 'Here you can purge all data, run the stress test, open the launcher as other terminals (simulated terminals) and install a pack\'s people. Every launcher and the editor say TEST FOLDER in their top bar.'
       : 'Records here are kept for audit: nothing may be purged, and the stress test, simulated terminals and a pack\'s people are off. To try things out, make a copy of the data folder (or a new empty one), connect a computer to it, and mark that copy as a test folder here.'));
@@ -1408,7 +1515,7 @@
       return d;
     }
     // Kept between visits, so a run goes on (and its results stay) while other parts of Admin are open.
-    if (!stressNode) { stressNode = el('div'); FP.stress.render(stressNode); }
+    if (!stressNode) { stressNode = el('div', 'fpa-stress'); FP.stress.render(stressNode); }
     return stressNode;
   }
 
@@ -1696,7 +1803,7 @@
     const again = async () => { if (ctx.refresh) await ctx.refresh(); await places(host, kind, id, ctx); };
     // Not fpp: that is the forms' print page, hidden on screen once a form has been opened (the blank pane, 0.53.3).
     const card = el('div', 'fpa-place');
-    const wrap = el('div', 'fpe'); wrap.appendChild(card);
+    const wrap = el('div', 'fpe fpa'); wrap.appendChild(card);
     const head = (crumb, title, lead) => { if (crumb) card.appendChild(el('div', 'crumb', crumb)); card.appendChild(el('h2', null, title)); if (lead) card.appendChild(el('p', 'lead', lead)); };
     const sites = (md && md.sites) || await FP.sites.list().catch(() => []);
     const siteName = sid => (sites.find(x => x.id === sid) || {}).name || sid || 'no site';
