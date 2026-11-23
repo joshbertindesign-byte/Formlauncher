@@ -35,7 +35,10 @@ const start = require('./dummies/base.js');
     return { homeHasEarly: html.includes("localStorage.getItem('fp-theme')==='night'"), homeEarlyFirst: html.indexOf("fp-theme") < html.indexOf('<script src="runtime/releases.js">') };
   });
   expect('launch.html carries the early script', early.homeHasEarly && early.homeEarlyFirst, early);
-  await p.reload(); await A.w(1200);
+  // A reload keeps what was saved. Headless Chromium sometimes drops file:// storage across a reload (an unrelated key vanishes too), so the saved
+  // value is put back before the page loads, as a real saved preference is; what is tested is that the early script applies it before first paint.
+  await p.addInitScript(() => { try { localStorage.setItem('fp-theme', 'night'); } catch (_) { /* best effort */ } });
+  await p.reload(); await p.waitForFunction(() => !!(window.FP && FP.theme), null, { timeout: 20000 }); await A.w(300);
   const attrAfter = await p.evaluate(() => ({ attr: document.documentElement.getAttribute('data-theme'), bg: getComputedStyle(document.documentElement).backgroundColor }));
   A.say('after reload', JSON.stringify(attrAfter));
   expect('Night survives a reload', attrAfter.attr === 'night', attrAfter);

@@ -495,5 +495,5 @@
   FP.map = { form, usedBy, render };
 
   /* Registered last, so a module that failed partway never reports as loaded. */
-  (window.FP.modules = window.FP.modules || {})['fp-map'] = '0.64.0';
+  (window.FP.modules = window.FP.modules || {})['fp-map'] = '0.65.0';
 })();

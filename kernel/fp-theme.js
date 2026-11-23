@@ -490,5 +490,5 @@
   apply(get());   // before first paint: this script is in the head, ahead of the page's own styles
 
   /* Registered last, so a module that failed partway never reports as loaded. */
-  (window.FP.modules = window.FP.modules || {})['fp-theme'] = '0.64.0';
+  (window.FP.modules = window.FP.modules || {})['fp-theme'] = '0.65.0';
 })();

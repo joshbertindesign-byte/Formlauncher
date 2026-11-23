@@ -287,7 +287,7 @@
       },
       right(prev) {
         header(prev, 'About updates');
-        prev.appendChild(side('A new version of the platform comes as a release zip (kernel-0.64.0.zip). Put it in the data folder\'s updates folder (or use + put a release zip) and install it here. Installing checks every file, writes the release to runtime, and switches every page to it; each terminal reloads by itself once nothing unsaved is on its screen.',
+        prev.appendChild(side('A new version of the platform comes as a release zip (kernel-0.65.0.zip). Put it in the data folder\'s updates folder (or use + put a release zip) and install it here. Installing checks every file, writes the release to runtime, and switches every page to it; each terminal reloads by itself once nothing unsaved is on its screen.',
           el('h4', null, 'Going back'), `The three newest releases are kept. Using an older one switches every terminal back the same way. This editor runs ${FP.version}.`));
       },
     });
@@ -2133,5 +2133,5 @@
   FP.editor.places = { pane: places };
 
   /* Registered last, so a module that failed partway never reports as loaded. */
-  (window.FP.modules = window.FP.modules || {})['fp-admin'] = '0.64.0';
+  (window.FP.modules = window.FP.modules || {})['fp-admin'] = '0.65.0';
 })();

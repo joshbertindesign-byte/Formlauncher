@@ -3767,5 +3767,5 @@
   FP.editor.toSources = toSources;
 
   /* Registered last, so a module that failed partway never reports as loaded. */
-  (window.FP.modules = window.FP.modules || {})['fp-form-editor'] = '0.64.0';
+  (window.FP.modules = window.FP.modules || {})['fp-form-editor'] = '0.65.0';
 })();
