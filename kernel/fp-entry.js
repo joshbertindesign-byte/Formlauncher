@@ -363,15 +363,21 @@
         // Commit markers go last, after every other waiting entry has landed.
         const firstPass = rows.filter(r => !r.value.commit);
         const secondPass = rows.filter(r => r.value.commit);
+        // A submission whose own entries failed is not committed (readers ignore it until it is); other
+        // submissions still commit (F7).
+        const failedSubs = new Set();
         for (const pass of [firstPass, secondPass]) {
-          if (failure && pass === secondPass) break;
-          const results = await Promise.allSettled(pass.map(r => {
+          const rowsNow = pass === secondPass ? pass.filter(r => !r.value.submissionId || !failedSubs.has(r.value.submissionId)) : pass;
+          const results = await Promise.allSettled(rowsNow.map(r => {
             const { parts, fileName } = FP.entry.location(r.value, now);
             return FP.files.appendLine(parts, fileName, r.value, { chain: true }).then(() => r.key);   // chained (0.49)
           }));
-          results.forEach(res => {
+          results.forEach((res, i) => {
             if (res.status === 'fulfilled') done.push(res.value);
-            else failure = failure || res.reason;
+            else {
+              failure = failure || res.reason;
+              if (pass === firstPass && rowsNow[i].value.submissionId) failedSubs.add(rowsNow[i].value.submissionId);
+            }
           });
         }
         if (done.length) { await FP.outboxStore.remove(done); status.lastWrite = new Date().toISOString(); }

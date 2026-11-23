@@ -206,9 +206,16 @@
   async function lastLineOf(file) {
     const size = file.size;
     if (!size) return null;
-    const tail = await file.slice(Math.max(0, size - 262144)).text();
-    const lines = tail.split('\n').filter(l => l.trim());
-    return lines.length ? lines[lines.length - 1] : null;
+    // Read back from the end until a line break shows where the last line starts. A last line longer than the
+    // span would otherwise be hashed as a fragment and break the chain (F39).
+    let span = 262144;
+    for (;;) {
+      const tail = (await file.slice(Math.max(0, size - span)).text()).replace(/\s+$/, '');
+      const nl = tail.lastIndexOf('\n');
+      if (nl >= 0) { const l = tail.slice(nl + 1); return l.trim() ? l : null; }
+      if (span >= size) return tail.trim() ? tail : null;
+      span *= 4;
+    }
   }
   /* Check a file's chain: { lines, chained, broken: [line numbers whose prev doesn't match the line before] }. */
   async function verifyChain(text) {
