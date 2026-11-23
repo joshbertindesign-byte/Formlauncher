@@ -223,7 +223,7 @@
       m.sources.push({ name: src.name, kind: src.kind, structure: src.structure || null, text: src.kind === 'item' ? `${idText} of ${src.structure}` : src.kind === 'items' ? `items of ${src.structure}${src.filter ? ` where ${src.filter}` : ''}` : `= ${src.formula}` });
       if (src.kind === 'items' || src.kind === 'item') {
         const rd = readOf(src.structure);
-        rd.via.push({ source: src.name, from: 'items', window: src.kind === 'items' ? 'all items' : 'one item', match: [], summary: src.kind === 'items' ? 'list' : 'item', filter: src.filter || null });
+        rd.via.push({ source: src.name, from: 'items', window: src.kind === 'items' ? 'all items' : 'one item', match: [], summary: src.kind === 'items' ? 'list' : 'item', filter: src.filter || null, reads: sourceReads(src) });
         if (!rd.defined) problems.push({ level: 'error', text: `Source ${src.name} uses ${src.structure}, which is not a published structure` });
       }
       if (src.filter) noteCalls(src.filter, `Source ${src.name}`);
@@ -261,6 +261,13 @@
     return m;
   }
 
+  /* Does a source read what it names? Not when every value it lists is only written. */
+  function sourceReads(src) {
+    if (!src || (src.kind !== 'item' && src.kind !== 'items') || !src.structure) return false;
+    const v = Object.values(src.values || {});
+    return !v.length || v.some(u => u !== 'write');
+  }
+
   /* Structures read anywhere: by a lookup, a picker, a media rule, or as the item of a form opened with a link. */
   function readersOfStructures() {
     const out = new Set();
@@ -268,6 +275,7 @@
     FP.defs.list('form').filter(d => !d.retired).forEach(d => {
       (d.def.fields || []).forEach(f => { if (f && f.control === 'pick' && f.structure) out.add(f.structure); if (f && f.pick) out.add(f.pick); });
       (d.def.buttons || []).forEach(b => { if (b && b.link) out.add(b.link); });
+      (Array.isArray(d.def.sources) ? d.def.sources : []).forEach(s => { if (sourceReads(s)) out.add(s.structure); });   // reads through a source (F16)
     });
     return out;
   }
@@ -301,6 +309,8 @@
           const touches = lookupTouches(reads, containerName);
           if (touches) out.push({ form: d.id, title: m.title, field: m.fields.filter(f => f.calls.includes(v.fn) || m.functions.some(g => g.calls.includes(v.fn) && f.calls.includes(g.name))).map(f => f.label).join(', ') || '(a button or reading list)', how: `reads it through ${v.fn} (${v.window})` });
         }));
+        // A source names the item (or all items) of a structure: it reads every container of it.
+        m.reads.filter(r => r.structure === id).forEach(r => r.via.filter(v => v.source && v.reads).forEach(v => out.push({ form: d.id, title: m.title, field: `source ${v.source}`, how: `reads it through source ${v.source} (${v.window})` })));
         m.opens.filter(o => o.link === id && !containerName).forEach(o => out.push({ form: d.id, title: m.title, field: o.label, how: `links ${o.title} records to its item` }));
       });
       FP.fn.list().filter(f => f.kind === 'lookup' && f.reads && f.reads.structure === id && lookupTouches(f.reads, containerName))

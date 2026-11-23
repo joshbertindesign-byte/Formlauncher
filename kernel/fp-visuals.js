@@ -34,6 +34,11 @@
   /* ---------- Colours (validated categorical order; status kept apart) ---------- */
   const SERIES = ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#008300', '#6250d6', '#e34948'];
   const LIGHT_SERIES = '#86b6ef'; // sequential step 250 of the series blue
+  /* Own properties only: a status or key named constructor / __proto__ must not reach Object.prototype (F35). */
+  const hasOwn = (o, k) => o != null && Object.prototype.hasOwnProperty.call(o, k);
+  const own = (o, k) => (hasOwn(o, k) ? o[k] : undefined);
+  /* Smallest and largest of a list, by loop: Math.min(...list) throws past about 100,000 values. */
+  const extent = list => { let lo = Infinity, hi = -Infinity; for (let i = 0; i < list.length; i++) { const v = list[i]; if (v < lo) lo = v; if (v > hi) hi = v; } return { lo, hi }; };
   const STATUS = { good: '#0ca30c', warn: '#fab219', bad: '#d03b3b' };
   const TONE_TEXT = { good: '#006300', warn: '#8a5a00', bad: '#b42318' };
   const ICON = { good: '✓', warn: '!', bad: '✕' };
@@ -241,7 +246,7 @@
     });
     return { s, m, pw, ph, y };
   }
-  const leftFor = (ticks, f) => 14 + Math.max(...ticks.ticks.map(t => f(t).length)) * 7;
+  const leftFor = (ticks, f) => 14 + extent(ticks.ticks.map(t => f(t).length)).hi * 7;
   /* Reference lines across the plot, labelled at the right; labels are spread so none overlap. */
   function refLines(p, list) {
     const items = list.filter(r => r.value != null && isFinite(r.value)).map(r => Object.assign({ yy: p.y(r.value) }, r)).sort((a, b) => a.yy - b.yy);
@@ -358,8 +363,8 @@
       case 'count': return list.length;
       case 'sum': return nums.reduce((a, b) => a + b, 0);
       case 'average': return nums.length ? nums.reduce((a, b) => a + b, 0) / nums.length : null;
-      case 'min': return nums.length ? Math.min(...nums) : null;
-      case 'max': return nums.length ? Math.max(...nums) : null;
+      case 'min': return nums.length ? extent(nums).lo : null;
+      case 'max': return nums.length ? extent(nums).hi : null;
       default: return nums.length ? nums[nums.length - 1] : null; // latest
     }
   }
@@ -420,7 +425,8 @@
         card.appendChild(lg);
       }
       const ys = pts.map(p => p.y).concat(refs.map(r => r.y));
-      let lo = Math.min(...ys), hi = Math.max(...ys);
+      const ext = extent(ys);
+      let lo = ext.lo, hi = ext.hi;
       if (bar) lo = Math.min(0, lo), hi = Math.max(0, hi);
       const yt = niceTicks(lo, hi, 5);
       const yFmt = t => fmtAxis(t, yt.step);
@@ -548,7 +554,8 @@
 
       const card = frame(box);
       const all = ys.concat([mean, ucl, lcl, usl, lsl].filter(n => n != null));
-      const yt = niceTicks(Math.min(...all), Math.max(...all), 5);
+      const ext = extent(all);
+      const yt = niceTicks(ext.lo, ext.hi, 5);
       const yFmt = t => fmtAxis(t, yt.step);
       const W = widthOf(box) - 30, H = f.height || 260;
       const p = plotArea(card, W, H, yt, yFmt, leftFor(yt, yFmt));
@@ -622,8 +629,8 @@
       const total = rows.reduce((a, b) => a + b.n, 0);
       const cutoff = f.cutoff || 80;
       let cum = 0, vital = 0;
-      rows.forEach(r => { const before = cum; cum += r.n; r.cum = (cum / total) * 100; r.vital = !r.other && before / total * 100 < cutoff; if (r.vital) vital++; });
-      const max = Math.max(...rows.map(r => r.n));
+      rows.forEach(r => { const before = cum; cum += r.n; r.cum = total > 0 ? (cum / total) * 100 : 0; r.vital = !r.other && total > 0 && before / total * 100 < cutoff; if (r.vital) vital++; });
+      const max = extent(rows.map(r => r.n)).hi;
       const card = frame(box);
       const g = el('div', 'fpv-par');
       g.append(el('span', 'head', ''), el('span', 'head', f.count ? `Total of ${f.count}` : 'Count'), el('span', 'head', 'Running %'));
@@ -632,13 +639,13 @@
         lab.title = r.c;
         const barBox = el('span', 'fpv-pb');
         const fill = el('i');
-        const w = (r.n / max) * 82;
+        const w = max > 0 ? (r.n / max) * 82 : 0;
         fill.style.width = w + '%';
         fill.style.background = r.vital ? SERIES[0] : LIGHT_SERIES;
         const val = el('b', null, fmt(r.n, f.count ? undefined : 0));
         val.style.left = w + '%';
         barBox.append(fill, val);
-        barBox.addEventListener('pointermove', e => showTip(e.clientX, e.clientY, r.c, [{ value: fmt(r.n), label: `${fmt((r.n / total) * 100, 1)}% of ${fmt(total)}`, color: fill.style.background }, { value: `${fmt(r.cum, 0)}%`, label: 'running total' }]));
+        barBox.addEventListener('pointermove', e => showTip(e.clientX, e.clientY, r.c, [{ value: fmt(r.n), label: `${fmt(total > 0 ? (r.n / total) * 100 : 0, 1)}% of ${fmt(total)}`, color: fill.style.background }, { value: `${fmt(r.cum, 0)}%`, label: 'running total' }]));
         barBox.addEventListener('pointerleave', hideTip);
         g.append(lab, barBox, el('span', 'cum', `${fmt(r.cum, 0)}%`));
       });
@@ -664,7 +671,7 @@
       if (!recs.length) { say(box, 'Nothing to show yet'); return; }
       const tKey = f.title || 'id';
       const sKey = f.status || (recs.some(r => r.$status != null) ? '$status' : '$action');
-      const tone = st => (f.colors || {})[String(st)] || null;
+      const tone = st => { const t = own(f.colors, String(st)); return hasOwn(STATUS, t) ? t : null; };
       let list = recs.slice();
       if (f.sort === 'given') { /* as the formula lists them */ }
       else if ((f.sort || 'newest') === 'newest') list.sort((a, b) => String(b.$at || '').localeCompare(String(a.$at || '')));
@@ -684,7 +691,7 @@
         const tile = el('div', 'fpv-tile');
         if (tn) tile.style.borderLeftColor = STATUS[tn];
         tile.appendChild(el('b', null, String(r[tKey] == null ? '—' : r[tKey])));
-        if (f.show) tile.appendChild(el('div', 'sub', f.show.replace(/\{([$\w]+)\}/g, (_, k) => fmtCell(r[k]))));
+        if (f.show) tile.appendChild(el('div', 'sub', f.show.replace(/\{([$\w]+)\}/g, (_, k) => fmtCell(own(r, k)))));
         if (f.progress && f.progress.done && f.progress.of) {
           // done of total: a bar and "7 of 20".
           const dn = toNum(r[f.progress.done]) || 0, of = toNum(r[f.progress.of]);
@@ -784,7 +791,7 @@
       if (!t || !t.roots.length) { say(box, f.empty || 'Nothing to trace yet'); return; }
       const card = frame(box);
       const open = box.__open || (box.__open = new Map());   // a node's path -> open; kept while the form is open
-      const fill = (tpl, r, dflt) => (tpl ? tpl.replace(/\{([$\w]+)\}/g, (_, k) => fmtCell(r[k])) : dflt);
+      const fill = (tpl, r, dflt) => (tpl ? tpl.replace(/\{([$\w]+)\}/g, (_, k) => fmtCell(own(r, k))) : dflt);
       const selecting = !!(f.select && h && h.select);
       // The node tapped is marked by where it sits: two nodes can share an ID (a run, and a check saved on that run).
       if (!(selecting && h.selectedId && h.selectedId() != null)) box.__selPath = null;
@@ -802,7 +809,7 @@
         const r = node.r;
         const sKey = (L && L.status) || '$status';
         const st = r[sKey];
-        const tone = L && L.colors ? L.colors[String(st)] : null;
+        const tone = L && L.colors && hasOwn(STATUS, own(L.colors, String(st))) ? L.colors[String(st)] : null;
         if (tone) bd.style.borderLeftColor = STATUS[tone];
         const head = el('div');
         head.appendChild(el('b', null, fill(L ? L.title : f.title, r, treeKey(r))));
@@ -952,12 +959,12 @@
       const show = (label, x) => {
         if (special(x)) return x.__fp === 'error' ? '!' : '—';
         if (x == null || x === '') return '—';
-        if (fmts[label]) return FP.fn.format(x, fmts[label]);
+        if (hasOwn(fmts, label) && fmts[label]) return FP.fn.format(x, fmts[label]);
         return typeof x === 'number' ? fmt(x, f.decimals) : fmtCell(x, f.decimals);
       };
       const acrossVals = f.across ? Array.from(new Set(recs.map(r => groupKey(r[f.across])))).sort(cmpKeys) : [null];
       const cellsFor = list => {
-        const out = {};
+        const out = Object.create(null);
         acrossVals.forEach(av => {
           const g = av == null ? list : list.filter(r => groupKey(r[f.across]) === av);
           out[av == null ? '' : av] = figs.map(([label, fx]) => (g.length ? calc(fx, g) : null));
