@@ -82,7 +82,7 @@
   .fpc-chips{gap:8px}
   .fpc-chips button{min-height:var(--touch);padding:6px 18px;border:1.5px solid var(--line-2);background:var(--surface);color:var(--fg);font-weight:650}
   .fpc-chips button.on{border-color:var(--kc,var(--accent));background:var(--kt,var(--accent-t));color:var(--kc,var(--accent))}
-  .fpc-chips button.on::before{content:"\\2713";margin-right:6px;font-weight:700}
+  .fpc-chips button.on::before{content:"\\2713" / "";margin-right:6px;font-weight:700}
   .fpc-big{min-width:var(--touch-lg);width:var(--touch-lg);height:var(--touch-lg);min-height:var(--touch-lg);border:1.5px solid var(--line-2);border-radius:14px;background:var(--surface);color:var(--fg);font-size:28px;line-height:1;display:grid;place-items:center;padding:0}
   .fpc-big:active{background:var(--surface-2)}
   .fpc-big+.fpc-num{flex:1}

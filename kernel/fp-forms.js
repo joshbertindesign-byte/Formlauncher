@@ -888,7 +888,7 @@
   .fpf-seg{gap:8px}
   .fpf-seg button,.fpf-tile{min-height:52px;font-weight:650;font-size:var(--fs-base);border:1.5px solid var(--line-2);border-radius:12px;background:var(--surface);color:var(--fg);display:inline-flex;align-items:center;justify-content:center;gap:8px}
   .fpf-seg button.on,.fpf-tile.on{border-color:var(--kc,var(--accent));background:var(--kt,var(--accent-t));color:var(--kc,var(--accent))}
-  .fpf-seg button.on::before{content:"\\2713";font-weight:700}
+  .fpf-seg button.on::before{content:"\\2713" / "";font-weight:700}
   .fpf-seg button.on.good{border-color:var(--good);background:var(--k-runs-t);color:var(--good)}
   .fpf-seg button.on.bad{border-color:var(--bad);background:var(--k-case-t);color:var(--bad)}
   .fpf-seg button.on.warn{border-color:var(--warn);background:var(--k-inv-t);color:var(--warn)}
@@ -901,7 +901,7 @@
   .fpf-foot{position:sticky;bottom:0;z-index:5;margin:0 calc(-1 * var(--fpf-pad,0px));padding:14px var(--fpf-pad,16px);background:var(--surface-2);border-top:1px solid var(--line);gap:12px 16px}
   .fpf-save,.fpf-btn,.fpf-back,.fpf-next{min-height:var(--touch-lg);padding:0 28px;font-size:var(--fs-entry);font-weight:650;border-radius:14px}
   .fpf-save{border:0;background:var(--accent);color:var(--accent-fg)}
-  .fpf-save:not(:disabled)::before{content:"\\2713";margin-right:8px;font-weight:700}
+  .fpf-save:not(:disabled)::before{content:"\\2713" / "";margin-right:8px;font-weight:700}
   .fpf-save:disabled,.fpf-next:disabled{background:var(--surface);color:var(--muted);border:1.5px solid var(--line-2)}
   .fpf-btn{border:1.5px solid var(--accent);background:var(--surface);color:var(--accent)}
   .fpf-btn:disabled{border-color:var(--line-2);color:var(--muted)}
