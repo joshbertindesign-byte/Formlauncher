@@ -35,7 +35,60 @@
   const BUILT_IN = ['users', 'sites', 'media', 'submissions', 'acknowledgments'];
   const FACTS = ['lastAction', 'firstAt', 'lastAt', 'entryCount'];
 
+  /* "Show retired" (retiring definitions): pickers of existing definitions skip retired ones unless the preference is on.
+     fp-editor.js owns the main checkbox; this only reads the same key, and sets it from the small toggle by a picker. */
+  const SHOW_RETIRED_KEY = 'fpe-show-retired';
+  const showRetired = () => { try { return localStorage.getItem(SHOW_RETIRED_KEY) === '1'; } catch (_) { return false; } };
+  const setShowRetired = on => { try { localStorage.setItem(SHOW_RETIRED_KEY, on ? '1' : '0'); } catch (_) { /* no storage: it stays off */ } };
+  const allOf = kind => (kind === 'function' ? (FP.fn.listAll ? FP.fn.listAll() : FP.fn.list()).map(f => ({ id: f.name, retired: !!f.retired, fn: f })) : FP.defs.list(kind));
+  const isRetiredDef = (kind, id) => !!id && allOf(kind).some(d => d.id === id && d.retired);
+  /* The [id, text] options for a kind: active ones, plus retired ones (suffixed) when shown or already chosen. */
+  const defOptions = (kind, cur, show, text, skip) => allOf(kind)
+    .filter(d => (!d.retired || show || d.id === cur) && !(skip && skip(d)))
+    .map(d => [d.id, text(d) + (d.retired ? ' (retired)' : '')]);
+  /* A picker of existing definitions: build(show, cur) makes the select; the toggle (only where something is retired)
+     flips the preference and rebuilds just this picker; a chosen retired one gets its problem line. */
+  function retPicker(kinds, initial, build) {
+    kinds = [].concat(kinds);
+    const box = el('div', 'ffe-retpick');
+    let cur = initial || '';
+    const paint = () => {
+      const s = build(showRetired(), cur);
+      const note = el('div', 'ffe-retnote');
+      const mark = () => {
+        cur = s.value;
+        const k = kinds.find(kk => isRetiredDef(kk, cur));
+        s.classList.toggle('ret', !!k);
+        note.textContent = k ? `${cur} is retired: pick another, or an admin can reinstate it` : '';
+        note.hidden = !k;
+      };
+      s.addEventListener('change', mark);
+      mark();
+      box.replaceChildren(s);
+      if (kinds.some(k => allOf(k).some(d => d.retired))) {
+        const cb = el('input'); cb.type = 'checkbox'; cb.checked = showRetired();
+        cb.onchange = () => { setShowRetired(cb.checked); paint(); };
+        const lab = el('label', 'ffe-retoggle'); lab.append(cb, document.createTextNode('Show retired'));
+        box.appendChild(lab);
+      }
+      box.appendChild(note);
+    };
+    paint();
+    return box;
+  }
+  const defText = {
+    form: d => `${(d.def && d.def.title) || d.id} (${d.id})`,
+    structure: d => (d.def && d.def.label) || d.id,
+    structureId: d => `${(d.def && d.def.label) || d.id} (${d.id})`,
+  };
+
   const CSS = `
+  .ffe-retpick{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center}
+  .ffe-retpick select{flex:1 1 12em;min-width:0}
+  .ffe-retpick select.ret{color:var(--t-n-42)}
+  .ffe-retoggle{display:flex;gap:4px;align-items:center;font-size:12px;color:var(--t-n-42);white-space:nowrap;cursor:pointer}
+  .ffe-retnote{flex:1 1 100%;font-size:12px;color:var(--t-red-40)}
+  .ffe-retnote[hidden]{display:none}
   .ffe{display:grid;grid-template-columns:minmax(300px,var(--mapw,38%)) 10px minmax(0,1fr);gap:4px;align-items:start}
   .ffe.ffe-two{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
   .ffe-split{align-self:stretch;cursor:col-resize;border-radius:4px;position:relative;min-height:200px}
@@ -664,14 +717,20 @@
         }
         case 'target': wrap.append(head, targetPicker(obj, x.name, onChange, opts.field)); return wrap;
         case 'form': {
-          const s = select([['', '—']].concat(FP.defs.list('form').filter(d => !d.retired && d.id !== ctx.id).map(d => [d.id, `${(d.def && d.def.title) || d.id} (${d.id})`])), v || '');
-          s.onchange = () => set(s.value || undefined);
-          wrap.append(head, s); return wrap;
+          const rp = retPicker('form', v, (show, cur) => {
+            const s = select([['', '—']].concat(defOptions('form', cur, show, defText.form, d => d.id === ctx.id)), cur || '');
+            s.onchange = () => set(s.value || undefined);
+            return s;
+          });
+          wrap.append(head, rp); return wrap;
         }
         case 'structure': {
-          const s = select([['', '—']].concat(FP.defs.list('structure').filter(d => !d.retired).map(d => [d.id, (d.def && d.def.label) || d.id])), v || '');
-          s.onchange = () => set(s.value || undefined);
-          wrap.append(head, s); return wrap;
+          const rp = retPicker('structure', v, (show, cur) => {
+            const s = select([['', '—']].concat(defOptions('structure', cur, show, defText.structure)), cur || '');
+            s.onchange = () => set(s.value || undefined);
+            return s;
+          });
+          wrap.append(head, rp); return wrap;
         }
         case 'field': {
           const s = select([['', '—']].concat(draft.fields.map(f => [f.name, `${f.label || f.name} (${f.name})`])), v || '');
@@ -786,8 +845,8 @@
         const r = el('div', 'ffe-maprow');
         if (choosing) {
           // A new source: which structure's item?
-          const structures = FP.defs.list('structure').filter(d => !d.retired && !FP.sources.BUILT_IN.includes(d.id));
-          const ns = select([['', 'which structure?']].concat(structures.map(d => [d.id, `${(d.def && d.def.label) || d.id} (${d.id})`]), [['__new', '+ New structure…']]), '');
+          const nsBox = retPicker('structure', '', (show, cur) => {
+          const ns = select([['', 'which structure?']].concat(defOptions('structure', cur, show, defText.structureId, d => FP.sources.BUILT_IN.includes(d.id)), [['__new', '+ New structure…']]), cur || '');
           ns.onchange = async () => {
             if (!ns.value) return;
             choosing = false;
@@ -800,7 +859,9 @@
             }
             saveTo(addSource('item', ns.value));
           };
-          r.append(ns, btn('Cancel', 'small', () => { choosing = false; paint(); }));
+          return ns;
+          });
+          r.append(nsBox, btn('Cancel', 'small', () => { choosing = false; paint(); }));
           box.appendChild(r);
           return;
         }
@@ -931,6 +992,9 @@
       if ((m = /(\w+) isn't ticked write on (\w+)/.exec(t)) && srcByName(m[2])) return `v:${m[2]}:${m[1]}`;
       if ((m = /^items\.([a-z0-9-]+)/.exec(t)) || (m = /^([a-z0-9-]+) IDs are/.exec(t))) { const x = draft.sources.find(y => y.structure === m[1] && y.kind === 'item'); if (x) return 'id:' + x.name; }
       if ((m = /^(.+?) (both|all) save to/.exec(t))) { const f = fieldBy(m[1].split(' and ')[0]); if (f) return 'f:' + f.name; }
+      // A retired structure a source reads or saves to: on that source (Data). A retired form a field opens: on that field.
+      if ((m = /^structure ([A-Za-z0-9_-]+) is retired/.exec(t))) { const x = draft.sources.find(y => y && y.structure === m[1]); if (x) return 's:' + x.name; }
+      if ((m = /^a button opens form ([A-Za-z0-9_-]+)/.exec(t))) { const f = draft.fields.find(y => y && (y.form === m[1] || (Array.isArray(y.actions) && y.actions.some(a => a && a.form === m[1])))); if (f) return 'f:' + f.name; }
       // A field named at the start: "Measured OD saves to …", "notes: …"
       const lead = draft.fields.filter(f => [f.label, f.name].filter(Boolean).some(n => t.startsWith(n + ' ') || t.startsWith(n + ':')))
         .sort((a, b) => String(b.label || b.name).length - String(a.label || a.name).length)[0];
@@ -1033,10 +1097,11 @@
           if (r2) { const fn = FP.fn.get(r2.id); x.formula = `${r2.id}(${((fn && fn.inputs) || []).map(i => i.name).join(', ')})`; changed(); hard(); }
         }));
       } else {
-        const own = FP.defs.list('structure').filter(d => !d.retired).map(d => [d.id, `${(d.def && d.def.label) || d.id} (${d.id})`]);
         const built = [['users', 'Users (built in; PINs are never read)'], ['sites', 'Sites (built in)']];
-        const sl = el('label', 'ffe-set'); sl.appendChild(el('span', null, 'Structure'));
-        const ss = select([['', 'choose a structure…']].concat(own, built, [['__new', '+ New structure…']]), x.structure || '');
+        const sl = el('div', 'ffe-set'); sl.appendChild(el('span', null, 'Structure'));
+        const ssBox = retPicker('structure', x.structure, (show, cur) => {
+        const own = defOptions('structure', cur, show, defText.structureId);
+        const ss = select([['', 'choose a structure…']].concat(own, built, [['__new', '+ New structure…']]), cur || '');
         if (!x.structure) ss.classList.add('bad');
         ss.onchange = async () => {
           let st = ss.value;
@@ -1055,7 +1120,9 @@
           if (st) state.open = 'id:' + x.name;
           changed(); hard();
         };
-        sl.appendChild(ss); box.appendChild(sl);
+        return ss;
+        });
+        sl.appendChild(ssBox); box.appendChild(sl);
         if (x.structure) box.appendChild(el('div', 'fpe-hint', `Which ${idLabel(x.structure)} this form works with is set on the ID row under it.`));
         if (x.structure && x.kind === 'item') {
           // Fill in from it (0.60): the fields saving to it start at the item's values.
@@ -1573,11 +1640,13 @@
         }
       }
       if (b.action === 'open') {
-        const fl = el('label', 'ffe-set'); fl.appendChild(el('span', null, 'Form it opens'));
-        const forms = FP.defs.list('form').filter(d => !d.retired && d.id !== ctx.id);
-        const fs = select([['', 'choose a form…']].concat(forms.map(d => [d.id, `${(d.def && d.def.title) || d.id} (${d.id})`])), b.form || '');
-        fs.onchange = () => { if (fs.value) b.form = fs.value; else delete b.form; delete b.prefill; delete b.apply; changed(); hard(); };
-        fl.appendChild(fs); box.appendChild(fl);
+        const fl = el('div', 'ffe-set'); fl.appendChild(el('span', null, 'Form it opens'));
+        const fsBox = retPicker('form', b.form, (show, cur) => {
+          const fs = select([['', 'choose a form…']].concat(defOptions('form', cur, show, defText.form, d => d.id === ctx.id)), cur || '');
+          fs.onchange = () => { if (fs.value) b.form = fs.value; else delete b.form; delete b.prefill; delete b.apply; changed(); hard(); };
+          return fs;
+        });
+        fl.appendChild(fsBox); box.appendChild(fl);
         const child = b.form ? FP.defs.get('form', b.form) : null;
         if (child && ctx.open) box.appendChild(btn(`Edit ${(child.def && child.def.title) || b.form} ›`, 'small', () => ctx.open('form', b.form)));
         const kl = el('label', 'ffe-set'); const kh = el('span', null, 'Linked to '); kh.appendChild(el('em', null, "· its records point at this form's item, and are saved with it"));
@@ -1869,7 +1938,7 @@
       const list = el('div');
       wrap.appendChild(list);
       // The library's structures (not the kernel's own), by name.
-      const userStructures = () => FP.defs.list('structure').filter(d => !d.retired && d.def).map(d => Object.assign({ id: d.id }, d.def)).sort((a, b) => String(a.label || a.id).localeCompare(String(b.label || b.id)));
+      const userStructures = cur => FP.defs.list('structure').filter(d => d.def && (!d.retired || showRetired() || d.id === cur)).map(d => Object.assign({ id: d.id, retired: !!d.retired }, d.def)).sort((a, b) => String(a.label || a.id).localeCompare(String(b.label || b.id)));
       const csv = a => (a || []).join(', ');
       const fromCsv = t => String(t || '').split(',').map(x => x.trim()).filter(Boolean);
       const done = () => { if (!draft.due.length) delete draft.due; changed(); soft(); };
@@ -1910,8 +1979,11 @@
             // 0.56: any structure, by its name, and a While formula over its items (the structure's Still open rule when empty).
             const each = sc.forEach || sc.forEachOpen || '';
             // Item by item (0.60): structures whose kind opens and closes (and any without a kind, from before kinds).
-            const fo = select([['', 'No: once for where it runs (below)']].concat(userStructures().filter(st => st.id === each || !FP.kinds || FP.kinds.opensAndCloses(st.id) || !st.kind).map(st => [st.id, `Each item of ${st.label || st.id}`])), each);
-            fo.onchange = () => { delete sc.forEachOpen; if (fo.value) { sc.forEach = fo.value; delete sc.per; } else { delete sc.forEach; delete sc.while; } done(); paint(); };
+            const fo = retPicker('structure', each, (show, cur) => {
+              const sel = select([['', 'No: once for where it runs (below)']].concat(userStructures(cur).filter(st => (show || !st.retired || st.id === cur) && (st.id === each || !FP.kinds || FP.kinds.opensAndCloses(st.id) || !st.kind)).map(st => [st.id, `Each item of ${st.label || st.id}${st.retired ? ' (retired)' : ''}`])), cur);
+              sel.onchange = () => { delete sc.forEachOpen; if (sel.value) { sc.forEach = sel.value; delete sc.per; } else { delete sc.forEach; delete sc.while; } done(); paint(); };
+              return sel;
+            });
             card.appendChild(row('Item by item', 'one series for each item of a structure, from its first save; saving this form on the item does it', fo));
             if (each) {
               const rule = FP.structures.has(each) ? FP.structures.get(each).open : null;
@@ -3158,9 +3230,12 @@
       if (col.kind === 'calculated') {
         const c = draft.calculated[n];
         box.appendChild(nameBox(n));
-        const fs = select([['', 'choose a function…']].concat(FP.fn.list().map(f => [f.name, `${f.name}${f.label && f.label !== f.name ? ' — ' + f.label : ''}`])), c.fn || '');
-        fs.onchange = () => { draft.calculated[n] = { fn: fs.value, inputs: {} }; changed(); api.paint(); };
-        box.appendChild(set('Worked out by', 'a function from the library; worked out each time an item is read, never saved', fs));
+        const fsBox = retPicker('function', c.fn, (show, cur) => {
+          const fs = select([['', 'choose a function…']].concat(defOptions('function', cur, show, d => `${d.id}${d.fn.label && d.fn.label !== d.id ? ' — ' + d.fn.label : ''}`)), cur || '');
+          fs.onchange = () => { draft.calculated[n] = { fn: fs.value, inputs: {} }; changed(); api.paint(); };
+          return fs;
+        });
+        box.appendChild(set('Worked out by', 'a function from the library; worked out each time an item is read, never saved', fsBox));
         const f = FP.fn.get(c.fn);
         if (f && (f.inputs || []).length) {
           const g = el('div', 'ffe-group');
@@ -3501,10 +3576,13 @@
     }
     function readsProps(box) {
       const r = draft.reads = draft.reads || {};
-      const own = FP.defs.list('structure').filter(d => !d.retired).map(d => [d.id, `${(d.def && d.def.label) || d.id} (${d.id})`]);
-      const ss = select([['', 'choose a structure…']].concat(own, [['users', 'Users (built in)'], ['sites', 'Sites (built in)']]), r.structure || '');
-      ss.onchange = () => { r.structure = ss.value; r.match = {}; r.return = '*'; syncOutput(); changed(); api.paint(); };
-      box.appendChild(set('Structure', null, ss));
+      const ssBox = retPicker('structure', r.structure, (show, cur) => {
+        const own = defOptions('structure', cur, show, defText.structureId);
+        const ss = select([['', 'choose a structure…']].concat(own, [['users', 'Users (built in)'], ['sites', 'Sites (built in)']]), cur || '');
+        ss.onchange = () => { r.structure = ss.value; r.match = {}; r.return = '*'; syncOutput(); changed(); api.paint(); };
+        return ss;
+      });
+      box.appendChild(set('Structure', null, ssBox));
       if (!r.structure) return;
       const fs = select([['items', 'its items as they are now'], ['entries', 'every save to it (history)']], r.from || 'items');
       fs.onchange = () => { r.from = fs.value; if (fs.value === 'items' && !['latest', 'first', 'count', 'list'].includes(r.summary)) r.summary = 'latest'; if (fs.value === 'items') delete r.action; syncOutput(); changed(); api.paint(); };
