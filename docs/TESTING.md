@@ -30,7 +30,7 @@ A test counts as failed if it crashes, times out, prints `pageerror`, or prints 
   do not repeat setup. `regress.sh` makes them in this order, then reuses them:
   1. `dummies/build.js` (the **chain**, 14 parts, each building on the last: structures, forms, users, launcher…) saves `snap1…snap14`.
   2. `l59.js` saves `snap15`.
-  3. `snap15b` = a copy of `snap15` (see below).
+  3. `snap15b` is made by `dummies/mkseed15b.js` from `snap15` (T01 in its group with one form, approval on for one form; see `docs/SNAP15B.md`).
   4. `dummies/p1.js` saves `snapPilot`; `pilot2/q1…q4` save `snapQ…snapQC` (the production pilot, shared line terminals).
   5. The `lNN` tests (one per feature, from 0.40 on) start from those and check behaviour; some save their own seeds. Tests added in the 0.63 fix
      pass are `l100` (storage), `l110`-`l112` (forms), `l120`-`l121` (formulas, library), `l130`-`l134` (users, updates, media, packs),
@@ -47,16 +47,19 @@ A test counts as failed if it crashes, times out, prints `pageerror`, or prints 
   `production-pilot.json`). It is **not committed**; `prepare-data.sh` reads it out of
   `Forms b/form-platform-repo-wip-0.61-0.62.zip` into git-ignored files (override with `PILOT_DATA_ZIP=…`). The tests assert on
   these names ("805 CLAYTON White"), so replacing them with made-up data means editing the tests too (T3 in `FIX-LIST.md`).
-- **`snap15b` is a stand-in.** The original was made by hand and is lost; it was `snap15` plus something that gave the
-  terminal a group with only some of the forms. `l60` and `l78` need the real thing and fail with the stand-in (they also fail on 0.60.0); they are in
-  `known-failing.txt`. Rebuilding it is T2.
+- **`snap15b` is rebuilt.** The original was made by hand and lost; `docs/SNAP15B.md` explains how it was worked out from the tests, and
+  `dummies/mkseed15b.js` makes it.
+- **One shifted clock.** `regress.sh` runs everything on a page clock that starts at 12:30 on 2026-11-18 and moves forward (`FP_SEED_OFFSET_MS`,
+  read by `dummies/base.js`; kept in `dummies/.seed-clock` so later runs carry on from it). The tests freeze their own clocks at 13:00 that day, so
+  seeds must be older than that, and tests with no clock must see seeds that are minutes old. A seed stamped with today's date makes a test's writes
+  look older than the seed's, and they lose.
 
 ## The Test pack and packaging
 
 - `dev/packs/test-pack/build.js` builds `test-pack.json`: the pilot's functionality with made-up data (a guard refuses plant-specific words). `l150` installs it.
 - `dev/tools/build-package.js <out dir>` builds the end-user package with the platform's own installer and opens the result from disk; it is the
   last step of a release (`node dev/tools/build-package.js ../dist`). `l151` tests the update path (an installed 0.60.0 folder updated by this kernel's zip).
-- Last full result (0.63.0, from nothing): 78 passed, 2 known failing, 0 failed; `l150` and `l151` were added afterwards and pass.
+- Last full result (0.63.0, from nothing): 83 passed, 0 known failing, 0 failed.
 
 ## Adding or changing a test
 

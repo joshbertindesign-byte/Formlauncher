@@ -43,7 +43,10 @@ module.exports = async function start(opts = {}) {
   }
   await p.route('**/fp-core.js', r => r.fulfill({ contentType: 'text/javascript', body: fs.readFileSync(ROOT + '/fp-core.js', 'utf8').replace('FP.kv = {', 'FP.kv = window.__memkv || {') }));
   // A fixed start time (the pilot's snapshot is made before its scenarios' dates, whatever day it runs).
-  if (opts.at) { await p.clock.install({ time: new Date(opts.at) }); await p.clock.resume(); }
+  // FP_SEED_OFFSET_MS (set by regress.sh while it builds seeds): the page's clock runs that far in the past, so a seed is older than
+  // the clocks the tests freeze (2026-11-18T13:00) and a test's own writes always come after the seed's. Time still moves forward.
+  const at = opts.at || (process.env.FP_SEED_OFFSET_MS ? new Date(Date.now() - Number(process.env.FP_SEED_OFFSET_MS)).toISOString() : null);
+  if (at) { await p.clock.install({ time: new Date(at) }); await p.clock.resume(); }
   await p.goto('file:///home/claude/kernel/editor.html' + (opts.query || ''));
   const w = ms => p.waitForTimeout(ms);
   if (!opts.seed) {

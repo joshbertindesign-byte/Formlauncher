@@ -12,7 +12,7 @@ FRESH=0; ONLY=()
 for a in "$@"; do if [ "$a" = "--fresh" ]; then FRESH=1; else ONLY+=("$a"); fi; done
 T="$PWD"; mkdir -p out; : > out/results.txt
 ./prepare-data.sh || exit 2
-if [ $FRESH = 1 ]; then rm -f dummies/snap*.json pilot2/snap*.json out/*.json; fi
+if [ $FRESH = 1 ]; then rm -f dummies/snap*.json pilot2/snap*.json out/*.json dummies/.seed-clock; fi
 
 bad() { grep -Eq 'errs? +: \[[^]]' "$1" || grep -Eqi 'pageerror|TimeoutError|^Error:|Unhandled' "$1"; }
 note() { echo "$1" | tee -a out/results.txt; }
@@ -29,19 +29,32 @@ run() {   # run <name> <dir under dev/tests> <command...>: PASS, FAIL or KNOWN-F
 wanted() { [ ${#ONLY[@]} -eq 0 ] && return 0; for t in "${ONLY[@]}"; do [ "$t" = "$1" ] && return 0; done; return 1; }
 
 # Seeds: made once, reused. Each is a data folder saved after a scripted build.
+# The whole run uses ONE shifted clock (FP_SEED_OFFSET_MS, read by dummies/base.js): the page's clock runs from 12:30 on 2026-11-18
+# and moves forward. The tests freeze their own clocks at 13:00 that day, so seeds must be older than that (a seed stamped with
+# today's date made a test's writes look older than the seed's, and they lost), and tests with no clock of their own must see
+# seeds that are minutes old, not days (an old sign-in has expired). The seed clock is kept in dummies/.seed-clock so a later
+# run carries on from where the seeds were made.
+SEEDCLOCK=dummies/.seed-clock
+if [ -f "$SEEDCLOCK" ] && [ $FRESH = 0 ]; then BASE="$(cat "$SEEDCLOCK")"; else BASE="2026-11-18T12:30:00-06:00"; rm -f "$SEEDCLOCK"; fi
+SEED_OFFSET=$(node -e "console.log(Date.now()-Date.parse('$BASE'))")
+export FP_SEED_OFFSET_MS=$SEED_OFFSET
+SEED="env FP_SEED_OFFSET_MS=$SEED_OFFSET"
 if [ ${#ONLY[@]} -eq 0 ] || [ ! -f dummies/snap15.json ]; then
   run unit . node kt28.js
-  for i in $(seq 0 13); do run chain-$((i+1)) dummies env FROM=$i SNAP=1 node build.js $((i+1)); done
-  [ -f dummies/snap15.json ] && [ $FRESH = 0 ] || run l59 . node l59.js          # l59 saves snap15
+  for i in $(seq 0 13); do run chain-$((i+1)) dummies $SEED FROM=$i SNAP=1 node build.js $((i+1)); done
+  [ -f dummies/snap15.json ] && [ $FRESH = 0 ] || run l59 . $SEED node l59.js          # l59 saves snap15
 fi
-# snap15b: the original was made by hand and is not available. snap15 stands in (see docs/TESTING.md).
-[ -f dummies/snap15b.json ] || cp dummies/snap15.json dummies/snap15b.json
-if [ ! -f dummies/snapPilot.json ]; then (cd dummies && node ../pilot/mkpack.js >/dev/null); run p1 dummies node p1.js; fi
-if [ ! -f pilot2/snapQC.json ]; then (cd pilot2 && node mkpack.js >/dev/null); for q in q1 q2 q3 q4; do run $q pilot2 node $q.js; done; fi
+# snap15b (the starting point of l60, l64 to l92): the original was made by hand and is lost; this rebuilds it. See docs/SNAP15B.md.
+[ -f dummies/snap15b.json ] || run mkseed15b . $SEED node dummies/mkseed15b.js
+if [ ! -f dummies/snapPilot.json ]; then (cd dummies && node ../pilot/mkpack.js >/dev/null); run p1 dummies $SEED node p1.js; fi
+if [ ! -f pilot2/snapQC.json ]; then (cd pilot2 && node mkpack.js >/dev/null); for q in q1 q2 q3 q4; do run $q pilot2 $SEED node $q.js; done; fi
+
+[ -f "$SEEDCLOCK" ] || node -e "console.log(new Date(Date.now()-$SEED_OFFSET).toISOString())" > "$SEEDCLOCK"
 
 # Every lNN.js from l42 on, in number order (a new test is picked up by being added; nothing to register).
 for f in $(ls l[0-9]*.js | sort -V); do
   t="${f%.js}"; n="${t#l}"; n="${n%%[!0-9]*}"
+  if [ "$t" = "l59" ]; then wanted "$t" && run "$t" . $SEED node "$f"; continue; fi   # l59 also saves snap15
   [ "$n" -ge 42 ] && wanted "$t" && run "$t" . node "$f"
 done
 echo; note "$(grep -c '^PASS' out/results.txt) passed, $(grep -c '^KNOWN-FAIL' out/results.txt) known failing, $(grep -c '^FAIL' out/results.txt) failed"

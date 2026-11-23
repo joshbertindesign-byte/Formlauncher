@@ -12,7 +12,7 @@ Line numbers are for `kernel/` at 0.62.0 and move as code changes; search the fu
 
 > **Status at 0.63.0 (see `docs/FIX-REPORT-0.63.0.md`):** every item below is done except **F20** (needs your decision). **F11** was resolved
 > by relabelling (the default window is real; there is no form date filter). F44's repeat-miss count was a real bug and is fixed; the
-> two-terminal climb was not a bug. T1, T4 and T5 are done; T2, T3, T6 and T7 are open. The text below is the list as it was written, so
+> two-terminal climb was not a bug. T1, T2, T4 and T5 are done; T3, T6 and T7 are open. The text below is the list as it was written, so
 > "Sure?" and "Where" describe the code before the fixes.
 
 ---
@@ -88,7 +88,7 @@ Line numbers are for `kernel/` at 0.62.0 and move as code changes; search the fu
 | # | What | Status |
 |---|---|---|
 | T1 | `regress.sh` now builds its own seeds, includes `l93`, and reports PASS / FAIL / KNOWN-FAIL. The old script printed only error lines, so a test that died and a test that passed looked the same. | Done (this change) |
-| T2 | `snap15b.json`, the seed `l60`, `l64`, `l78` and others start from, was made by hand and is lost. `snap15` stands in. `l60` and `l78` fail with the stand-in (and fail on 0.60.0 too). Work out what `snap15b` added (a terminal group set up with only some forms) and build it in a script. Then remove them from `known-failing.txt`. | Open |
+| T2 | `snap15b.json`, the seed `l60`, `l64`, `l78` and others start from, was made by hand and lost. Worked out and rebuilt by `dev/tests/dummies/mkseed15b.js`; `l60` and `l78` pass. See `docs/SNAP15B.md`. | Done |
 | T3 | The pilot data (`profiles.json`, `production-pilot.json`) is real production data. It is kept out of git and read from the WIP zip. Replace it with synthetic data (the tests assert on its part names, e.g. "805 CLAYTON White"), then the zip is no longer needed for tests. | Open |
 | T4 | `kernel-test.html` leaves `fp-kinds` out of its `NEEDED` list, and loads no `fp-updates` / `fp-launcher`. | Open |
 | T5 | There are no tests for the P0 and P1 items above. Add one with each fix. | Open |

@@ -44,7 +44,7 @@ Failures:
 - **`l80` (real, new in 0.61):** installing the pilot pack on another folder fails because its `die-setup` form names a
   media-library entry the pack does not carry. Passes on 0.60. = F5.
 - **`l60` and `l78`:** fail identically on 0.60 and 0.62, so 0.61/0.62 did not break them. They start from `snap15b`, a seed made by hand
-  and not available; `snap15` was used as a stand-in. They stay as known failures until the seed is rebuilt (T2).
+  and not available; `snap15` was used as a stand-in. They stayed known failures until the seed was rebuilt (done in 0.63.0: `docs/SNAP15B.md`).
 - **`l92`** only failed at first because it looked for fixtures on the original author's machine. Fixed: synthetic
   fixtures are now in the repo; it passes.
 - **Gaps in the old script (now fixed):** `l93` was not in `regress.sh`; `regress.sh` printed only error lines so a test

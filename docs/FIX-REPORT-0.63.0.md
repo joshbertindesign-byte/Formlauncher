@@ -6,14 +6,15 @@ verified here. `docs/FIX-LIST.md` is the list it worked from; `docs/REVIEW-0.60-
 ## Result
 
 - **43 of the 44 fix-list items are done.** The one left is **F20** (the Admin "move a terminal" control), which needs your decision.
-- **Regression, from nothing: 78 passed, 2 known failing (`l60`, `l78`), 0 failed.** 17 new tests were added, each written to fail
-  on the old code first. The two known failures need the lost `snap15b` seed and also fail on 0.60.0 (T2).
+- **Regression, from nothing: 83 passed, 0 known failing, 0 failed.** 17 new tests were added, each written to fail on the old code first.
+  The lost `snap15b` seed was worked out and is rebuilt by a script, so `l60` and `l78` pass too (`docs/SNAP15B.md`). The 78-passed, 2-known-failing
+  result was the run before that.
 - **Unit tests:** formula 129/129 (was 90) and lookup 36/36 (was 26), also under four time zones.
 - **Update path tested:** `l151` installs the committed 0.60.0 zip, then 0.63.0 over it, as Admin > Updates does. The switch moves, 0.60.0 stays
   as the fallback, and the entry format is 6 in both, so saved data needs no conversion.
 - **Downloads built:** `dist/` holds the end-user package (below). The version is 0.63.0.
-- After the full regression, three small things changed (the F11 label text, the new Test pack and `l150`, and `l151`). Those and the
-  tests around them (`kt28`, `l86`, `l121`, `l150`, `l151`) were run again and pass; the full regression was not repeated.
+- The final 83-test run is after every change to the code and tests (the F11 label, the Test pack and `l150`, `l151`, the rebuilt seed and its
+  shifted clock). No product code changed after the package in `dist/` was built.
 
 ## What each area did
 
@@ -92,7 +93,7 @@ Admin > Packs on a **test folder**.
 | # | Status |
 |---|---|
 | T1 regress runner | Done |
-| T2 rebuild `snap15b` (`l60`, `l78`) | Open |
+| T2 rebuild `snap15b` (`l60`, `l78`) | Done: `docs/SNAP15B.md` |
 | T3 replace the pilot's production data in the tests | Open; the Test pack covers deployment, not the old tests |
 | T4 `kernel-test.html` lists `fp-kinds` | Done |
 | T5 tests for the fixes | Done (17 new) |
