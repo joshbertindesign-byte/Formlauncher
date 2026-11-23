@@ -46,29 +46,29 @@ can be rolled back to the previous one.
 | Step | What | Size | Done when |
 | --- | --- | --- | --- |
 | 1 | **Baseline harness.** A demo data folder (a few structures, forms, runs, users, two sites) checked into the repo, plus a Playwright script that opens the launcher and editor against it and saves a screenshot of each key screen. The File System Access folder picker is replaced in the harness by a seeded in-browser folder (to verify that the platform's folder code accepts it). | M | One command produces a labelled screenshot set for the launcher, editor, form editor, structure editor, Admin, Help and a dashboard. Baseline images are stored. |
-| 2 | **Theme file** `fp-theme.js`, loaded right after `fp-config` in both lists. Defines every token once: surfaces, lines, text, accent, header, the six kind colours with tints, good/warn/bad, focus ring, shadow, radius, spacing, type scale, touch sizes. Day values on `:root`, night values under `[data-theme="night"]`. Exposes `FP.theme.get()`, `set(mode)` and `apply()`. | S | Both pages load it; the tokens exist; nothing looks different yet. |
+| 2 | **Theme file** `fp-theme.js`, loaded right after `fp-config` in both lists. Defines every token once: surfaces, lines, text, accent, header, the six kind colours with tints, good/warn/bad, focus ring, shadow, radius, spacing, type scale, touch sizes. Day values on `:root`, night values under `[data-theme="night"]`. Exposes `FP.theme.get()`, `set(mode)` and `apply()`. Also ships Inter (see Font below) with `@font-face` rules pointing into the release folder. | S | Both pages load it; the tokens exist; Inter loads from `file://` on a real terminal; nothing else looks different yet. |
 | 3 | **Move colours onto tokens, no visual change.** Map the 178 hex values to about 30 tokens, then replace literals file by file: `fp-forms`, `fp-controls`, `fp-launcher`, `fp-visuals`, `fp-editor`, `fp-form-editor`, `fp-admin`, `fp-help`, `fp-map`, the rest. Include colours set from code (`style.cssText`, `el.style.*`) and the error banner in `launcher.html` and `editor.html`. A colour with no matching token is listed and decided, not guessed. | L | Day-mode screenshots match the step 1 baseline within tolerance. A script finds no remaining hex literals outside the theme file and the documented exceptions. |
 | 4 | **Night mode.** Night palette, native controls via `color-scheme`, scrollbars, date picker, focus ring. A contrast check script enforces at least 4.5:1 for text and 3:1 for icons and borders in both modes. Print always uses day values. | M | Every baseline screen renders in night mode with no unreadable text, and the contrast script passes. A printed record is identical in both modes. |
-| 5 | **Switch and persistence.** Day, Night and Auto (follows the system) in the header of the launcher and editor. Saved per terminal in `localStorage`, best effort like other preferences. Applied before first paint so there is no flash. Default Auto. | S | Choice survives reloads and is shared by the launcher and editor on that terminal. A terminal with storage blocked still works in Auto. |
+| 5 | **Switch and persistence.** A Day / Night switch in the header of the launcher and editor. Saved per terminal in `localStorage`, best effort like other preferences. Applied before first paint so there is no flash. Default Day. | S | Choice survives reloads and is shared by the launcher and editor on that terminal. A terminal with storage blocked still works in Day. |
 | 6 | **Night-safe content.** Charts and visuals get a palette for each mode (control chart limits, pareto, heatmap, board tiles). The drawing pad keeps a white writing surface so saved signatures and sketches stay legible whatever the mode. Photos, PDFs and media thumbnails are not recoloured. Audit definitions for colours users set themselves (field colours, choice tints) and map them to tokens or night-safe variants. | M | Every visual and the drawing pad pass review in both modes. User-set colours stay readable in night mode. |
 | 7 | **Identity system.** `fp-icons.js` (hand-drawn inline SVG glyph set, about 30 glyphs, no library) and `FP.kinds.look(structure)` returning the tone and glyph for a structure kind. A form's tone comes from the structure it mainly saves to (the one holding its item ID, otherwise its first write source). Derived only; no new form setting in this release, so the script notation and the control catalog are unchanged. | M | The map, field rows and launcher cards all read tone and glyph from one function. A form that writes to several structures picks one by the stated rule. |
 | 8 | **Editor restyle.** Map rows with shape tiles and kind chips. Field rows with a glyph tile, family fill, and write/read arrow chip. Checks go silent when right (a Show all checks toggle keeps the old view). The preview shows at real size. Settings panel as in the mockup. | L | The Change a need screen matches the mockup in day and night. Every existing editor action still works. |
 | 9 | **Operator launcher restyle.** Home screen of form cards (tone and glyph from step 7), line picker, 48 to 56 px targets, bigger entered text, a clear save confirmation naming what was saved, friendlier empty states and error wording. Choice, number pad and stepper controls restyled. The status strip from the mockup is out of scope here (see Later). | L | The mockup's home and Rack screens are reproduced with real forms. Existing launcher files keep working. |
 | 10 | **Admin, Help and printing.** Restyle Admin tables and Help to the same tokens. Confirm print and Save as PDF are unchanged. | M | All screens in the harness set pass in both modes. Prints match the baseline. |
-| 11 | **Rollout.** Ship as normal releases (below). Add a "What changed" page to Help. Update the User Guide and spec (new term: Night mode). During the first release the new look is opt-in per terminal (Look: Classic or New in the header menu); the release after makes New the default. | S | The old look can be chosen back on any terminal. Guide and spec updated. |
+| 11 | **Rollout.** Ship as normal releases (below). Add a "What changed" page to Help. Update the User Guide and spec (new term: Night mode). There is no Classic look and no opt-in: the platform is in test with no users, so the new look replaces the old one directly. | S | Guide and spec updated. |
 
 ## Release plan
 
-| Release | Contains | Visible to users |
-| --- | --- | --- |
-| A | Steps 1 to 3 | No change |
-| B | Steps 4 to 6 | Night mode and the switch |
-| C | Steps 7 and 8 | New editor look |
-| D | Steps 9 and 10 | New operator look (opt-in, then default) |
-| E | Step 11 | Default flipped, Classic option removed one release later |
+There are no users yet, so there is no staged rollout. Two releases, each tested on a real terminal
+before the next starts.
 
-Steps 7 and 8 can start once step 3 is done and do not depend on night mode, so releases B and C
-can overlap if there is capacity.
+| Release | Contains | What changes |
+| --- | --- | --- |
+| A | Steps 1 to 6 | Theme file, Inter, tokens, night mode and the switch. Day mode looks the same as today apart from the font. |
+| B | Steps 7 to 11 | New look for the editor, operator screens, Admin and Help |
+
+Steps 7 and 8 can start once step 3 is done and do not depend on night mode, so the two releases can
+overlap if there is capacity. The old release stays installed, so going back is still one step.
 
 ## Risks
 
@@ -78,21 +78,22 @@ can overlap if there is capacity.
   a screenshot diff each time.
 - **Colours set in code or in saved definitions.** Missed ones show up as light patches in night
   mode. The step 3 script and the step 6 audit are there to catch them.
-- **Fonts.** The mockup used Inter from a CDN. The platform cannot. Use the system font stack
-  (system-ui, Segoe UI) or ship a font file inside the release folder, and check that it loads from
-  `file://`. Decision needed.
+- **Font.** Inter ships inside the release folder (decided). Use a Latin subset in WOFF2, regular
+  to bold, to keep the release small; include its licence file (SIL Open Font License). The
+  fallback stack is `system-ui, "Segoe UI", sans-serif`, so a font that fails to load still reads
+  fine. Check on a real terminal that it loads from `file://`. IDs and code keep Consolas.
 - **Dim areas and glare.** Night mode on a bright floor can be worse than day mode. Keep both
   strong in contrast and test on a real terminal screen.
 
-## Decisions
+## Decisions (settled 2026-11-23)
 
-1. **Where the choice is saved.** Recommended: per terminal now (step 5), because a screen's
-   lighting belongs to the place. Later, a per-person preference saved as an entry so it follows
-   them. Do you want the per-person version in release B?
-2. **Auto means what?** Recommended: follow the operating system. Alternative: follow the shift
-   (for example night shift uses night mode). The shift version needs the Usual shifts structure.
-3. **Font:** system stack, or ship Inter in the release?
-4. **Classic look:** how long to keep it (recommended: one release after the default flips).
+1. **Day or night is chosen per terminal**, saved on that terminal. A screen's lighting belongs to
+   the place, not the person.
+2. **Day and Night only.** No Auto option for now. (Auto would have followed the computer's own
+   light or dark setting, or the shift. It can be added later as a third choice if wanted.)
+3. **Inter ships in the release.**
+4. **No Classic look and no opt-in.** The platform is in test with no users, so the new look
+   replaces the old one as soon as it is built.
 
 ## Later
 
@@ -102,3 +103,5 @@ can overlap if there is capacity.
   changes form definitions, the control catalog and the script notation, so it is a separate order.
 - Kiosk and wall-display mode, which reuses these tokens and the night palette.
 - Bilingual labels.
+- An Auto mode (follow the computer's light or dark setting, or the shift), and a per-person
+  choice saved as an entry so it follows them to any terminal.
