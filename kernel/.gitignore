@@ -20,3 +20,6 @@ dev/tests/pilot2/production-pilot.json
 dev/tests/pilot2/snap*.json
 dev/tests/out/
 dev/tests/*.png
+
+# Test fixtures are small synthetic images and are meant to be committed.
+!dev/tests/fixtures/**/*.png
