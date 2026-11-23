@@ -687,6 +687,8 @@
 
   /* Everything publish would refuse about a definition, without publishing it. */
   async function check(kind, id, def) {
+    // A form that shows library entries is checked against the library, so read it first (F41).
+    if (kind === 'form' && FP.media && FP.media.library && !FP.media.library.loaded() && def && Array.isArray(def.media) && def.media.some(m => m && m.entry)) await FP.media.library.load().catch(() => null);
     const known = FP.sites ? new Set((await FP.sites.list()).map(s => s.id)) : null;
     const p = checkSites(def, known).concat(trial(kind, id, def));
     // Its sites must be covered by what it uses, and must still cover what uses it.
