@@ -1,0 +1,1 @@
+Synthetic setup sheet for the media-library test (D-1047).

@@ -1,0 +1,6 @@
+{"title":"T","sites":["all"],"fields":[{"name":"dieNo","label":"Die no.","control":"text","required":true},{"name":"retestTemp","label":"Re-test temperature","control":"number"},{"name":"samplesAvg","label":"Average wall","control":"number"}],
+"buttons":[{"name":"save","label":"Save","action":"save"},{"name":"retestBtn","label":"Record re-test","action":"subform","subform":"retest"},{"name":"samplesBtn","label":"Samples","action":"subform","subform":"samples"},{"name":"listBtn","label":"Each","action":"subform","subform":"each1"}],
+"subforms":[{"name":"retest","label":"Re-test","title":"\"Re-test for \" & dieNo","saves":"own","required":true,"sources":[{"name":"rt","kind":"item","structure":"retests","id":{"generate":true},"values":{"temp":"both"}}],"fields":[{"name":"temp","label":"Temperature","control":"number","required":true,"writes":"rt.temp"}],"back":[{"to":"retestTemp","from":"temp"}]},
+{"name":"samples","label":"Wall sample","repeat":{"count":3},"fields":[{"name":"wall","label":"Wall","control":"number"}],"layout":[["wall"]],"back":[{"to":"samplesAvg","from":"wall","how":"avg"}]},
+{"name":"each1","label":"Each die","repeat":{"list":"SPLIT(\"a,b\", \",\")"},"fields":[{"name":"x","label":"X","control":"text"}]},
+{"name":"op","label":"Open","repeat":{"open":true},"fields":[{"name":"y","label":"Y","control":"text"}]}]}

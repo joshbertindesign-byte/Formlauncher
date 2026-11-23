@@ -1,0 +1,21 @@
+const pilot = require('./pt.js');
+(async () => {
+  const t = await pilot({ seed: 'snapPilotA.json', at: '2026-11-19T07:20:00-06:00' });
+  const { p, w, say } = t;
+  await t.signIn('Josh', '482913');
+  await t.open('hourly');
+  if (process.argv[2] === 'never') await p.evaluate(() => FP.keyboard.setMode('never'));
+  await t.pick('run', 'Line 1');
+  await t.seg('lineStatus', 'Running');
+  await t.fill('lengthAct', 179.0);
+  say('pad', JSON.stringify(await p.evaluate(() => FP.keyboard.showing() && FP.keyboard.showing().kind)));
+  const b = '[data-name="surface"] .fpf-seg button:text-is("Fail")';
+  say('box', JSON.stringify(await p.$eval(b, x => { const r = x.getBoundingClientRect(); const at = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2); return { r: [Math.round(r.x), Math.round(r.y), Math.round(r.width)], hit: at && (at.className + ' ' + at.textContent).slice(0, 60) }; })));
+  await p.screenshot({ path: 'dbgh1.png' });
+  await p.evaluate(sel => { window.__ev = []; const x = document.querySelector('[data-name="surface"] .fpf-seg button:nth-child(2)'); ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'click'].forEach(t => document.addEventListener(t, e => window.__ev.push(t + ':' + (e.target.textContent || e.target.className || e.target.tagName).slice(0, 20) + '@' + Math.round(e.clientX)), true)); document.addEventListener('focusout', e => window.__ev.push('focusout:' + e.target.tagName), true); new ResizeObserver(() => window.__ev.push('resize')).observe(document.body); }, b);
+  await p.click(b); await w(400);
+  say('events', JSON.stringify(await p.evaluate(() => window.__ev)));
+  say('pressed', await p.$eval(b, x => x.className) + ' value ' + JSON.stringify(await p.evaluate(() => FP.launcher.current().values().surface)) + ' lineStatus ' + JSON.stringify(await p.evaluate(() => FP.launcher.current().values().lineStatus)) + ' why ' + await t.why());
+  await p.screenshot({ path: 'dbgh2.png' });
+  await t.b.close();
+})();

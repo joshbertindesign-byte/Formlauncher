@@ -1,0 +1,22 @@
+# Made by the tests and the release tool, not source
+*.png
+*.log
+*.gif
+dev/tests/out/
+/rel*/
+dev/tests/dummies/snap*.json
+dev/tests/dummies/purged.json
+dev/tests/pilot/*.log
+dev/tests/*.log
+dev/tests/*snap*.json
+dev/tests/purged.json
+dev/tests/pilot2/snap*.json
+
+# Pilot data holds production part numbers: read from the WIP zip by dev/tests/prepare-data.sh, never committed.
+dev/tests/pilot/profiles.json
+dev/tests/pilot/production-pilot.json
+dev/tests/pilot2/profiles.json
+dev/tests/pilot2/production-pilot.json
+dev/tests/pilot2/snap*.json
+dev/tests/out/
+dev/tests/*.png
