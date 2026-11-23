@@ -34,7 +34,7 @@ A test counts as failed if it crashes, times out, prints `pageerror`, or prints 
   4. `dummies/p1.js` saves `snapPilot`; `pilot2/q1…q4` save `snapQ…snapQC` (the production pilot, shared line terminals).
   5. The `lNN` tests (one per feature, from 0.40 on) start from those and check behaviour; some save their own seeds. Tests added in the 0.63 fix
      pass are `l100` (storage), `l110`-`l112` (forms), `l120`-`l121` (formulas, library), `l130`-`l134` (users, updates, media, packs),
-     `l140`-`l143` (map, visuals, due, alerts), `l150` (the Test pack) and `l151` (updating a 0.60.0 folder to this kernel).
+     `l140`-`l143` (map, visuals, due, alerts), `l150` (the Test pack), `l151` (updating a 0.60.0 folder to this kernel) and `l152` (the pack's forms are offered on the terminals, on any site).
 - **Unit tests.** `kt28.js` runs `fp-formula-tests.js` (129 cases) and `fp-lookup-tests.js` (36) without a browser.
 - **Time.** The clock is fixed per test (`at:`) and `TZ=America/Chicago`, so results do not depend on the day it runs.
 - **Where it looks.** Tests ask for `file:///home/claude/kernel/launcher.html`; `base.js` rewrites that to this `kernel/` folder.
@@ -59,7 +59,7 @@ A test counts as failed if it crashes, times out, prints `pageerror`, or prints 
 - `dev/packs/test-pack/build.js` builds `test-pack.json`: the pilot's functionality with made-up data (a guard refuses plant-specific words). `l150` installs it.
 - `dev/tools/build-package.js <out dir>` builds the end-user package with the platform's own installer and opens the result from disk; it is the
   last step of a release (`node dev/tools/build-package.js ../dist`). `l151` tests the update path (an installed 0.60.0 folder updated by this kernel's zip).
-- Last full result (0.63.0, from nothing): 83 passed, 0 known failing, 0 failed.
+- Last full result (0.63.0, from nothing): 84 passed, 0 known failing, 0 failed.
 
 ## Adding or changing a test
 

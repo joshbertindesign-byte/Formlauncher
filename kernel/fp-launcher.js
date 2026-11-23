@@ -21,7 +21,7 @@
   const FP = window.FP;
   if (!FP || !FP.defs || !FP.forms) throw new Error('Load fp-defs.js before fp-launcher.js');
 
-  const VERSION = '0.63.0';
+  const VERSION = '0.63.1';
   /* The runtime, in load order. */
   const KERNEL = ['fp-config', 'fp-core', 'fp-identity', 'fp-entry', 'fp-session', 'fp-formula', 'fp-current', 'fp-kinds', 'fp-sites', 'fp-lookup',
     'fp-users', 'fp-media', 'fp-sources', 'fp-forms', 'fp-controls', 'fp-visuals', 'fp-keyboard', 'fp-defs', 'fp-due', 'fp-launcher', 'fp-updates'];
@@ -275,7 +275,8 @@ window.addEventListener('unhandledrejection', function (e) { window.__fpReport('
       const ts = await FP.groups.terminals().catch(() => new Map());
       const reg = await FP.identity.all().catch(() => []);
       const siteOf = id => (reg.find(r => r.terminalId === id) || {}).site;
-      const setUp = groups.some(g => g.site === site) || Array.from(ts.entries()).some(([id, t]) => t.forms && t.forms.length && (id === tid || siteOf(id) === site));
+      // A terminal named in a group is set up whichever site the group is at (the group's forms, home form and view are matched by terminal ID).
+      const setUp = !!ft.group || groups.some(g => g.site === site) || Array.from(ts.entries()).some(([id, t]) => t.forms && t.forms.length && (id === tid || siteOf(id) === site));
       const usable = id => { const d = FP.defs.get('form', id); return !!(d && !d.retired && FP.defs.usedHere('form', id)); };
       place = { group: ft.group, name: ft.name, forms: ft.forms.filter(usable), setUp, signedInFor: ft.signedInFor || 15, signIn: ft.signIn || 'anyone',
         homeForm: ft.homeForm || null, view: ft.view === 'admin' ? 'admin' : 'kiosk' };
@@ -1044,5 +1045,5 @@ ${preamble('Check the runtime folder (next to this file) has finished syncing.')
   FP.launcher = { start };
 
   /* Registered last, so a module that failed partway never reports as loaded. */
-  (window.FP.modules = window.FP.modules || {})['fp-launcher'] = '0.63.0';
+  (window.FP.modules = window.FP.modules || {})['fp-launcher'] = '0.63.1';
 })();

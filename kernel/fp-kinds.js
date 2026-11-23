@@ -289,5 +289,5 @@
     setHere,
   };
 
-  (window.FP.modules = window.FP.modules || {})['fp-kinds'] = '0.63.0';
+  (window.FP.modules = window.FP.modules || {})['fp-kinds'] = '0.63.1';
 })();

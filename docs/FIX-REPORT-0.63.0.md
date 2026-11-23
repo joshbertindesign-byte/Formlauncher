@@ -6,14 +6,14 @@ verified here. `docs/FIX-LIST.md` is the list it worked from; `docs/REVIEW-0.60-
 ## Result
 
 - **43 of the 44 fix-list items are done.** The one left is **F20** (the Admin "move a terminal" control), which needs your decision.
-- **Regression, from nothing: 83 passed, 0 known failing, 0 failed.** 17 new tests were added, each written to fail on the old code first.
+- **Regression, from nothing: 84 passed, 0 known failing, 0 failed.** 17 new tests were added, each written to fail on the old code first.
   The lost `snap15b` seed was worked out and is rebuilt by a script, so `l60` and `l78` pass too (`docs/SNAP15B.md`). The 78-passed, 2-known-failing
   result was the run before that.
 - **Unit tests:** formula 129/129 (was 90) and lookup 36/36 (was 26), also under four time zones.
 - **Update path tested:** `l151` installs the committed 0.60.0 zip, then 0.63.0 over it, as Admin > Updates does. The switch moves, 0.60.0 stays
   as the fallback, and the entry format is 6 in both, so saved data needs no conversion.
 - **Downloads built:** `dist/` holds the end-user package (below). The version is 0.63.0.
-- The final 83-test run is after every change to the code and tests (the F11 label, the Test pack and `l150`, `l151`, the rebuilt seed and its
+- The final 84-test run is after every change to the code and tests (the F11 label, the Test pack and `l150`, `l151`, the rebuilt seed and its
   shifted clock). No product code changed after the package in `dist/` was built.
 
 ## What each area did
@@ -99,3 +99,19 @@ Admin > Packs on a **test folder**.
 | T5 tests for the fixes | Done (17 new) |
 | T6 a real person's name in `Forms b/runtime/releases.js` | Open (the new package has none) |
 | T7 keep `Forms b/` in step with `kernel/` | `build-package.js` now builds the folder; nothing copies it into `Forms b/` |
+
+## 0.63.1: a bug found on the live folder
+
+After installing 0.63.0 and the Test pack, **only "Line instructions" was offered on T01 and T02, even to an admin.** It was a launcher bug, not a pack
+mistake, and it is fixed in 0.63.1.
+
+- **Cause:** the launcher decided whether a terminal was "set up" by looking for a group at the terminal's own site (`fp-launcher.js`, `loadPlace`). The
+  group's forms, home form and view are matched by terminal ID, whatever the site. The Test pack's groups are on its own site (`TST`) and the live terminals are
+  on the site made at first launch, so the launcher found the group but treated the site as having nothing set up. It then listed every form at the site that is
+  marked launchable, and only Line instructions is.
+- **Fix:** a terminal named in a group counts as set up, wherever the group's site is. (One line.)
+- **Test:** `l152` installs the pack, then opens the launcher as T01 on the pack's site, T01 on another site (an admin and a supervisor), and T02 on another site
+  as an admin, and checks every form the groups list is offered. Without the fix it fails for T01 and T02 on the other site, exactly as reported; with it, it passes.
+- **Also:** the full regression was run again for 0.63.1 (see `docs/TESTING.md`). The version moved from 0.63.0 to 0.63.1 and `dist/` now holds 0.63.1 only.
+- **To apply it to a live folder:** save `kernel-0.63.1.zip` in `updates/` and install it from Admin > Updates. Nothing else changes; the Test pack does not need
+  installing again.

@@ -4,7 +4,7 @@
  "name": "Test pack",
  "note": "A complete example with made-up data: profiles, lines, needs, shifts, runs, hour checks, racks, partial racks, the needs board, trace and production report, two terminal groups, four responsibility centers with an escalation ladder, six test people, and two media-library instructions. Install on a test folder.",
  "madeAt": "1970-01-01T00:00:00.000Z",
- "kernel": "0.63.0",
+ "kernel": "0.63.1",
  "definitions": [
   {
    "kind": "function",
