@@ -3423,7 +3423,7 @@
   /* ---------- The function editor: inputs, then a formula or what it reads; tried out on the right ---------- */
   const TYPES = ['text', 'number', 'date', 'boolean', 'list', 'record', 'item', 'any'];
   const SUMMARY_TEXT = { latest: 'the latest match', first: 'the first match', count: 'how many match', list: 'every match, as a list', sum: 'the matches added up', average: 'the average of the matches', min: 'the smallest match', max: 'the largest match' };
-  const WINDOW_TEXT = { form: 'the form\'s time window', all: 'everything', 'always-current': 'always today\'s data' };
+  const WINDOW_TEXT = { form: 'the form\'s time window (forms have none yet, so everything loaded)', all: 'everything', 'always-current': 'always today\'s data' };
   function functionEditor(draft, ctx) {
     draft.inputs = Array.isArray(draft.inputs) ? draft.inputs : [];
     const isLookup = () => draft.kind === 'lookup';
@@ -3552,9 +3552,11 @@
       box.appendChild(set('Gives back', 'one value, several (a record), or the whole item', chips([['the whole item', 'container' + (whole ? ' on' : ''), '*']].concat(cont.map(c => [c, 'container' + (picked.includes(c) ? ' on' : ''), c])), c => {
         if (c === '*') r.return = '*';
         else { const now = picked.includes(c) ? picked.filter(x => x !== c) : picked.concat(c); r.return = !now.length ? '*' : now.length === 1 ? now[0] : now; }
+        if (!['latest', 'first', 'count', 'list'].includes(r.summary || 'latest') && (typeof r.return !== 'string' || r.return === '*')) r.summary = 'latest';
         syncOutput(); changed(); api.paint();
       })));
-      const list = (r.from || 'items') === 'items' ? ['latest', 'first', 'count', 'list'] : FP.summary.rules;
+      // sum, average, min and max need one container to work on (F4).
+      const list = (r.from || 'items') === 'items' || typeof r.return !== 'string' || r.return === '*' ? ['latest', 'first', 'count', 'list'] : FP.summary.rules;
       const su = select(list.map(x => [x, SUMMARY_TEXT[x] || x]), r.summary || 'latest');
       su.onchange = () => { r.summary = su.value; syncOutput(); changed(); api.soft(); };
       box.appendChild(set('When several match', null, su));
@@ -3564,7 +3566,7 @@
       const r = draft.reads;
       const w = r.window;
       const wv = w && typeof w === 'object' ? 'days' : w || 'form';
-      const ws = select([['form', 'the form\'s time window (its records\' time)'], ['days', 'the last few days'], ['all', 'everything'], ['always-current', 'always today\'s data']], wv);
+      const ws = select([['form', 'the form\'s time window (forms have none yet: reads everything loaded)'], ['days', 'the last few days'], ['all', 'everything'], ['always-current', 'always today\'s data']], wv);
       const dn = input(w && w.days ? String(w.days) : '30', { type: 'number', min: 1 });
       dn.hidden = wv !== 'days';
       const setW = () => { if (ws.value === 'form') delete r.window; else if (ws.value === 'days') r.window = { days: Math.max(1, Number(dn.value) || 30) }; else r.window = ws.value; changed(); api.soft(); };

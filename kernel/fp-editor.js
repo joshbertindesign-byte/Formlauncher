@@ -386,7 +386,7 @@
               const h = FP.fn.help(c.name);
               const b = FP.fn.builtins().includes(c.name.toUpperCase());
               const f = !b && FP.fn.get(c.name);
-              const lim = b ? (FP.fn.argLimits ? FP.fn.argLimits(c.name) : null) : f ? { min: (f.inputs || []).length, max: (f.inputs || []).length } : null;
+              const lim = b ? (FP.fn.argLimits ? FP.fn.argLimits(c.name) : null) : f ? { min: (f.inputs || []).reduce((n, i, k) => (i.required !== false ? k + 1 : n), 0), max: (f.inputs || []).length } : null;   // optional inputs may be left out (F27)
               if (lim && (c.args < lim.min || c.args > lim.max)) {
                 const want = lim.min === lim.max ? `${lim.min}` : lim.max >= 99 ? `at least ${lim.min}` : `${lim.min} or ${lim.max}`;
                 bad = `${h ? h.name : c.name} takes ${want} input${lim.max === 1 ? '' : 's'}${h && h.args.length ? ` (${h.args.join(', ')})` : ''}, not ${c.args}${h && h.example ? `: e.g. ${h.example}` : ''}`;

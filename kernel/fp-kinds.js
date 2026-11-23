@@ -159,9 +159,9 @@
   /* Kinds whose items open and close: what due item by item and "the open one" go through. */
   const opensAndCloses = id => { const d = defOf(id); return !!(d && d.kind && d.open); };
 
-  /* A literal for a formula: a starting value written as a fallback. */
+  /* A literal for a formula: a starting value written as a fallback (a quote is doubled, as the formula text reads it). */
   const lit = v => (typeof v === 'number' ? String(v) : typeof v === 'boolean' ? (v ? 'TRUE' : 'FALSE')
-    : Array.isArray(v) ? `LIST(${v.map(lit).join(', ')})` : `"${String(v).replace(/"/g, "'")}"`);
+    : Array.isArray(v) ? `LIST(${v.map(lit).join(', ')})` : `"${String(v).replace(/"/g, '""')}"`);
   const isEntry = c => { const d = FP.forms && FP.forms.describe ? FP.forms.describe(c) : null; return !!(d && d.category === 'entry'); };
   const hasWork = d => d && ((d.fields || []).some(f => f && f.pick) || (Array.isArray(d.sources) ? d.sources : []).some(s => s && s.kind === 'item' && s.fill));
   /* A form's fields and sources as the runtime works with them:

@@ -398,8 +398,11 @@
       if (!st || !st.structures) continue;
       for (const [s, x] of Object.entries(st.structures)) {
         if (!x || Date.parse(x.at) < weekAgo) continue;
+        // The slowest load and the biggest entry count are judged separately: they are often on different terminals (F39).
         const prev = by[s];
-        if (!prev || x.loadMs > prev.loadMs) by[s] = Object.assign({ terminal: st.terminalId }, x);
+        if (!prev) { by[s] = Object.assign({ terminal: st.terminalId }, x, { entriesAt: x.entries || 0, entriesTerminal: st.terminalId }); continue; }
+        if (x.loadMs > prev.loadMs) Object.assign(prev, x, { terminal: st.terminalId });
+        if ((x.entries || 0) > prev.entriesAt) Object.assign(prev, { entriesAt: x.entries, entriesTerminal: st.terminalId });
       }
     }
     return by;
@@ -408,10 +411,12 @@
   function perfOf(id, stats) {
     const x = stats[id];
     if (!x) return { status: 'unknown', message: 'No load times reported yet.' };
-    const slow = x.loadMs > FP.defs.slowMs || x.entries > FP.defs.slowEntries;
+    const most = Math.max(x.entries || 0, x.entriesAt || 0);
+    const slow = x.loadMs > FP.defs.slowMs || most > FP.defs.slowEntries;
     const def = FP.structures.get(id);
     const took = x.loadMs >= 1000 ? `${(x.loadMs / 1000).toFixed(1)} s` : `${x.loadMs} ms`;
-    const what = `loading takes ${took} on ${x.terminal} (${x.items.toLocaleString()} items from ${x.entries.toLocaleString()} entries)`;
+    const bigger = x.entriesAt > x.entries;   // another terminal holds more entries than the slowest one
+    const what = `loading takes ${took} on ${x.terminal} (${x.items.toLocaleString()} items from ${x.entries.toLocaleString()} entries)${bigger ? `; ${x.entriesTerminal} reads ${x.entriesAt.toLocaleString()} entries` : ''}`;
     if (!slow) return Object.assign({ status: 'ok', message: `OK: ${what}.` }, x);
     const advice = BUILT_IN.structure.has(id)
       ? '. This structure is built into the kernel, so it has no definition to change: report it.'
@@ -650,7 +655,17 @@
   /* A form's open buttons: the forms must exist, and no form may open itself through others. */
   function formLinks(id, def) {
     const p = [];
-    const opens = d => ((d && d.buttons) || []).filter(b => b && b.action === 'open' && b.form).map(b => b.form);
+    // Forms a form opens: its open buttons, and the forms its "buttons from a list" fields (and their cards' buttons) open (F21).
+    const opens = d => {
+      const out = ((d && d.buttons) || []).filter(b => b && b.action === 'open' && b.form).map(b => b.form);
+      const fieldsOf = x => (Array.isArray(x && x.fields) ? x.fields : []).concat(...(Array.isArray(x && x.subforms) ? x.subforms : []).map(sf => (Array.isArray(sf && sf.fields) ? sf.fields : [])));
+      fieldsOf(d).forEach(f => {
+        if (!f || f.control !== 'buttons') return;
+        if (typeof f.form === 'string' && f.form) out.push(f.form);
+        (Array.isArray(f.actions) ? f.actions : []).forEach(a => { if (a && typeof a.form === 'string' && a.form) out.push(a.form); });
+      });
+      return out;
+    };
     opens(def).forEach(f => { if (f !== id && !(current.get(docKey('form', f)) && !current.get(docKey('form', f)).retired)) p.push(`a button opens form ${f}, which is not published`); });
     const path = [id];
     const seen = new Set();
@@ -817,7 +832,8 @@
     async restore(kind, id, version, opts) {
       const old = (await history(kind, id)).find(d => d.version === version);
       if (!old) throw new Error(`${nameOf(kind, id)} has no version ${version}.`);
-      return publish(kind, id, old.def, Object.assign({ note: `Restored version ${version}` }, opts));
+      const cur = current.get(docKey(kind, id));
+      return publish(kind, id, old.def, Object.assign({ note: `Restored version ${version}`, basedOn: cur ? cur.version : null }, opts));
     },
     history,
     /* One version of a definition (a trial included), or null. */

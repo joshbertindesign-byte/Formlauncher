@@ -24,6 +24,9 @@
     FP.fn.define({ name: 'ODCheck', kind: 'calculation', output: 'text',
       inputs: [{ name: 'measuredOD', label: 'Measured OD', type: 'number' }, { name: 'spec', type: 'record', fields: { min: 'number', max: 'number' } }],
       formula: 'InSpec(measuredOD, spec.min, spec.max)' });
+    FP.fn.define({ name: 'Pad', kind: 'calculation', output: 'number',
+      inputs: [{ name: 'a', type: 'number' }, { name: 'b', type: 'number', required: false }],
+      formula: 'a + COALESCE(b, 0)' });
     FP.fn.define({ name: 'Attainment', kind: 'summary', output: 'number',
       inputs: [{ name: 'produced', type: 'list' }, { name: 'scheduled', type: 'list' }],
       formula: 'SUM(produced) / SUM(scheduled)' });
@@ -133,6 +136,52 @@
     ['FIRST and LAST', () => ev('FIRST(LIST(3, 4, 5)) & LAST(LIST(3, 4, 5))'), '35'],
     ['FIRST of nothing is No data', () => state(ev('FIRST(LIST())')), 'nodata'],
     ['INDEX from the end', () => ev('INDEX(LIST("a", "b", "c"), -2)'), 'b'],
+    // F3: a date alone ("2026-11-18", what TODAY() gives) is a LOCAL day: the same weekday, hour 0 and date text in every time zone.
+    ['A date alone is a local day: WEEKDAY', () => ev('WEEKDAY("2026-11-18")'), 3],
+    ['A date alone is midnight, not the evening before: HOUR', () => ev('HOUR("2026-11-18")'), 0],
+    ['WEEKDAY(TODAY()) on the form clock', () => ev('WEEKDAY(TODAY())'), 3],
+    ['HOUR(TODAY()) is 0', () => ev('HOUR(TODAY())'), 0],
+    ['TEXT of a date alone: day name', () => ev('TEXT("2026-11-18", "dddd d MMM yyyy")'), 'Wednesday 18 Nov 2026'],
+    ['DATEDIFF of two dates alone: whole days', () => ev('DATEDIFF("2026-11-18", "2026-11-25")'), 7],
+    ['DATEDIFF across the autumn clock change is still whole days', () => ev('DATEDIFF("2026-10-31", "2026-11-08")'), 8],
+    ['DATEDIFF across the spring clock change is still whole days', () => ev('DATEDIFF("2026-03-05", "2026-03-20")'), 15],
+    ['STARTOF week of a date alone is that Monday', () => ev('TEXT(STARTOF("2026-11-18", "week"), "yyyy-MM-dd")'), '2026-11-16'],
+    ['DATEADD days keeps a date alone', () => ev('DATEADD("2026-11-18", 1, "days")'), '2026-11-19'],
+    // F22: ROUND goes away from zero at .5, as Excel does.
+    ['ROUND(-2.5) is -3', () => ev('ROUND(-2.5)'), -3],
+    ['ROUND(2.5) is 3', () => ev('ROUND(2.5)'), 3],
+    ['ROUND(-1.25, 1) is -1.3', () => ev('ROUND(-1.25, 1)'), -1.3],
+    ['ROUND(-0.4) is 0', () => ev('TEXT(ROUND(-0.4))'), '0'],
+    // F23: text that is not a number is skipped, never NaN.
+    ['SUM skips text that is not a number', () => ev('SUM(LIST(1, "abc", 2))'), 3],
+    ['SUM of only text is 0', () => ev('SUM("abc")'), 0],
+    ['MIN skips text', () => ev('MIN(LIST(4, "abc", 2))'), 2],
+    ['MAX of only text is No data', () => state(ev('MAX("abc")')), 'nodata'],
+    ['AVERAGE skips text', () => ev('AVERAGE(LIST(4, "n/a", 2))'), 3],
+    ['AVERAGE of only text is No data', () => state(ev('AVERAGE("abc")')), 'nodata'],
+    // F24
+    ['RIGHT(x, 0) is empty', () => ev('RIGHT("abc", 0)'), ''],
+    ['RIGHT(x, 2)', () => ev('RIGHT("abc", 2)'), 'bc'],
+    ['LEFT(x, 0) is empty', () => ev('LEFT("abc", 0)'), ''],
+    // F25: months stop at the end of a shorter month.
+    ['DATEADD 1 month from Jan 31', () => ev('DATEADD("2026-01-31", 1, "months")'), '2026-02-28'],
+    ['DATEADD 1 month from Jan 31 in a leap year', () => ev('DATEADD("2028-01-31", 1, "months")'), '2028-02-29'],
+    ['DATEADD -1 month from Mar 31', () => ev('DATEADD("2026-03-31", -1, "months")'), '2026-02-28'],
+    ['DATEADD 12 months from Feb 29', () => ev('DATEADD("2028-02-29", 12, "months")'), '2029-02-28'],
+    ['DATEADD a time by a month keeps the time', () => ev('TEXT(DATEADD(t, 1, "months"), "yyyy-MM-dd HH:mm")', { t: new Date(2026, 0, 31, 10, 15).toISOString() }), '2026-02-28 10:15'],
+    // F26: Error beats Waiting beats No data, whichever side of an operator each is on.
+    ['Operator: No data then Waiting is Waiting', () => state(ev('a + b', { a: FP.fn.NODATA, b: FP.fn.WAITING })), 'waiting'],
+    ['Operator: Waiting then No data is Waiting', () => state(ev('a + b', { a: FP.fn.WAITING, b: FP.fn.NODATA })), 'waiting'],
+    ['Operator: No data then an error is the error', () => state(ev('a & b', { a: FP.fn.NODATA, b: ev('1/0') })), 'error'],
+    ['Operator: Waiting then an error is the error', () => state(ev('a * b', { a: FP.fn.WAITING, b: ev('1/0') })), 'error'],
+    ['Operator: No data and No data is No data', () => state(ev('a - b', { a: FP.fn.NODATA, b: FP.fn.NODATA })), 'nodata'],
+    // F27: an optional input of a library function may be left out; a required one may not.
+    ['An optional input can be left out (runs)', () => ev('Pad(5)'), 5],
+    ['An optional input can be given', () => ev('Pad(5, 2)'), 7],
+    ['An optional input left out passes the publish check', () => FP.fn.check({ name: 'UsesPad', output: 'number', inputs: [], formula: 'Pad(5)' }).length, 0],
+    ['A required input left out is still refused', () => FP.fn.check({ name: 'UsesPad2', inputs: [], formula: 'Pad()' })[0], 'Pad takes 1 to 2 inputs, not 0'],
+    ['Too many inputs are refused', () => FP.fn.check({ name: 'UsesPad3', inputs: [], formula: 'Pad(1, 2, 3)' })[0], 'Pad takes 1 to 2 inputs, not 3'],
+    ['A function with no optional inputs keeps its message', () => FP.fn.check({ name: 'UsesScrap', inputs: [], formula: 'ScrapPct(1)' })[0], 'ScrapPct takes 2 inputs, not 1'],
   ];
 
   const same = (got, want) => (typeof want === 'number' ? close(got, want) : JSON.stringify(got) === JSON.stringify(want));

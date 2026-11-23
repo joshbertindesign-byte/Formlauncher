@@ -40,11 +40,16 @@
     entry('docs', 'add', 'D3', at(2, 8), { title: 'QCP-30', kind: 'procedure', profile: ['P-305'] }),
   ];
 
+  const ZEROS = [
+    entry('zeros', 'add', 'Z1', at(1, 8), { code: '', tag: 'blank' }),
+    entry('zeros', 'add', 'Z2', at(1, 8), { code: 0, tag: 'zero' }),
+  ];
+
   const NOW = at(11, 12);
   const key = (s, asOf) => s + '@' + asOf.toISOString();
   function dataAt(asOf) {
     const d = {};
-    for (const [s, list] of [['spec-limits', SPEC], ['racks', RACKS], ['schedule', SCHEDULE], ['docs', DOCS]]) {
+    for (const [s, list] of [['spec-limits', SPEC], ['racks', RACKS], ['schedule', SCHEDULE], ['docs', DOCS], ['zeros', ZEROS]]) {
       d[key(s, asOf)] = FP.current.foldEntries(s, list, asOf);
     }
     return d;
@@ -74,6 +79,10 @@
       reads: { structure: 'schedule', from: 'items', match: { line: 'line' }, return: 'racksNeeded', window: 'always-current' } });
   }
 
+  function defineMore() {
+    FP.fn.define({ name: 'ByCode', kind: 'lookup', output: 'list', inputs: [{ name: 'code', type: 'any', required: false }],
+      reads: { structure: 'zeros', from: 'entries', match: { code: 'code' }, return: 'tag', summary: 'list', window: 'all' } });
+  }
   const wholeDay = { from: iso(at(11, 0)), to: iso(at(11, 23, 59)) };
   const morning = { from: iso(at(11, 7)), to: iso(at(11, 12)) };
 
@@ -104,6 +113,18 @@
     ['A user\'s PIN is never read (by name)', () => { const d = { [key('users', NOW)]: FP.current.foldEntries('users', [entry('users', 'add', 'U1', at(1, 8), { name: 'Ann', pin: 'x1' })], NOW) }; FP.fn.define({ name: 'TstPin', kind: 'lookup', output: 'any', inputs: [], reads: { structure: 'users', from: 'items', return: 'pin', summary: 'latest', window: 'all' } }); return describe(FP.fn.call('TstPin', {}, { asOf: NOW, now: NOW, data: d })); }, 'No data'],
     ['Refuses a bad structure', () => FP.fn.check({ name: 'BadL2', kind: 'lookup', inputs: [], reads: { structure: 'Racks!', return: 'qty' } })[0], 'Bad structure Racks!'],
     ['Refuses a declared output that does not match', () => FP.fn.check({ name: 'BadL3', kind: 'lookup', output: 'number', inputs: [], reads: { structure: 'racks', return: ['a', 'b'] } })[0], 'This lookup gives record, but the output is declared number'],
+    // F4: sum, average, min and max need one container to work on; over * or several containers they are refused.
+    ['Refuses sum over a whole item', () => FP.fn.check({ name: 'BadS1', kind: 'lookup', inputs: [], reads: { structure: 'racks', from: 'entries', return: '*', summary: 'sum' } }).join(' | '), 'summary sum needs one container to return, not * or several: use latest, first, count or list'],
+    ['Refuses average over several containers', () => FP.fn.check({ name: 'BadS2', kind: 'lookup', inputs: [], reads: { structure: 'racks', from: 'entries', return: ['a', 'b'], summary: 'average' } }).join(' | '), 'summary average needs one container to return, not * or several: use latest, first, count or list'],
+    ['Refuses min and max over several containers', () => ['min', 'max'].map(m => FP.fn.check({ name: 'BadS3', kind: 'lookup', inputs: [], reads: { structure: 'racks', from: 'entries', return: ['a', 'b'], summary: m } }).length).join(','), '1,1'],
+    ['Allows sum over one container', () => FP.fn.check({ name: 'OkS1', kind: 'lookup', inputs: [], reads: { structure: 'racks', from: 'entries', return: 'qty', summary: 'sum' } }).length, 0],
+    ['Allows latest, first, count and list over several containers', () => ['latest', 'first', 'count', 'list'].map(m => FP.fn.check({ name: 'OkS2', kind: 'lookup', inputs: [], reads: { structure: 'racks', from: 'entries', return: ['a', 'b'], summary: m } }).length).join(','), '0,0,0,0'],
+    // F28: a Waiting optional input is blank (matches anything); an empty value is not 0.
+    ['A Waiting optional input counts as blank', () => FP.fn.call('CurrentSpec', { profile: 'P-210', measurement: FP.fn.WAITING }, ctxAt(NOW)).id, 'P-210|lineal'],
+    ['A Waiting required input still waits', () => describe(FP.fn.call('CurrentSpec', { profile: FP.fn.WAITING, measurement: null }, ctxAt(NOW))), 'Waiting for profile'],
+    ['An optional input with No data counts as blank', () => FP.fn.call('CurrentSpec', { profile: 'P-210', measurement: FP.fn.NODATA }, ctxAt(NOW)).id, 'P-210|lineal'],
+    ['0 does not match an empty value', () => FP.fn.call('ByCode', { code: 0 }, ctxAt(NOW)).join(','), 'zero'],
+    ['An empty text matches anything (blank input)', () => FP.fn.call('ByCode', { code: '' }, ctxAt(NOW)).slice().sort().join(','), 'blank,zero'],
   ];
 
   const same = (got, want) => (typeof want === 'number' ? typeof got === 'number' && Math.abs(got - want) < 1e-9 : JSON.stringify(got) === JSON.stringify(want));
@@ -114,6 +135,7 @@
       const results = [];
       try {
         defineLibrary();
+        defineMore();
         for (const [name, fn, want] of CASES) {
           let got;
           try { got = fn(); } catch (e) { got = 'threw: ' + e.message; }
