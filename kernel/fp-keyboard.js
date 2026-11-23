@@ -25,30 +25,31 @@
   const FP = window.FP;
   if (!FP || !FP.forms) throw new Error('Load fp-forms.js before fp-keyboard.js');
 
-  const NUMPAD_W = 320, FULL_H = 300, BAR_H = 44;
+  const NUMPAD_W = 320, FULL_H = 344, BAR_H = 56;
   const CSS = `
   body{padding-right:var(--fp-kb-right,0px);padding-bottom:var(--fp-kb-bottom,0px)}
   .fpf-sheet{right:var(--fp-kb-right,0px);bottom:var(--fp-kb-bottom,0px)}
   .fpf-foot{bottom:var(--fp-kb-bottom,0px)}
-  .fpk{position:fixed;z-index:9500;background:var(--s-n-95);border-color:var(--l-n-83);border-style:solid;border-width:0;box-shadow:0 -4px 18px rgba(0,0,0,.12);font:18px/1 var(--font-sans,system-ui,"Segoe UI",sans-serif);color:var(--t-n-12);user-select:none;-webkit-user-select:none;touch-action:manipulation;display:flex;flex-direction:column}
+  .fpk{position:fixed;z-index:9500;background:var(--surface-2);border-color:var(--line-2);border-style:solid;border-width:0;box-shadow:0 -4px 18px rgba(0,0,0,.14);font:18px/1 var(--font-sans,system-ui,"Segoe UI",sans-serif);color:var(--fg);user-select:none;-webkit-user-select:none;touch-action:manipulation;display:flex;flex-direction:column}
   .fpk.right{top:0;right:0;bottom:0;width:${NUMPAD_W}px;border-left-width:1px}
   .fpk.bottom{left:0;right:0;bottom:0;height:${FULL_H}px;border-top-width:1px}
-  .fpk-bar{display:flex;align-items:center;gap:8px;height:${BAR_H}px;padding:0 8px 0 14px;font-size:14px;color:var(--t-n-42);flex:0 0 auto}
-  .fpk-bar b{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--t-n-12);font-size:15px}
-  .fpk-bar button{font:inherit;font-size:14px;font-weight:600;height:34px;padding:0 12px;border:1px solid var(--l-n-83);border-radius:8px;background:var(--s-n-100);color:var(--t-n-12);cursor:pointer}
+  .fpk-bar{display:flex;align-items:center;gap:8px;height:${BAR_H}px;padding:0 8px 0 14px;font-size:var(--fs-md,14px);color:var(--muted);flex:0 0 auto}
+  .fpk-bar b{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--fg);font-size:var(--fs-base,16px);font-weight:650}
+  .fpk-bar button{font:inherit;font-size:var(--fs-md,14px);font-weight:650;height:var(--touch,48px);min-width:var(--touch,48px);padding:0 14px;border:1.5px solid var(--line-2);border-radius:12px;background:var(--surface);color:var(--fg);cursor:pointer}
   .fpk-keys{flex:1;display:grid;gap:6px;padding:0 8px 8px}
   .fpk.right .fpk-keys{grid-template-columns:repeat(3,1fr);grid-auto-rows:1fr;align-content:end;max-height:520px;margin-top:auto}
   .fpk.bottom .fpk-keys{grid-template-columns:repeat(20,1fr);grid-auto-rows:1fr}
-  .fpk-keys button{font:inherit;font-size:20px;min-height:44px;border:0;border-radius:8px;background:var(--s-n-100);color:var(--t-n-12);box-shadow:0 1px 0 var(--d-n-77);cursor:pointer;padding:0}
-  .fpk-keys button:active,.fpk-keys button.down{background:var(--s-n-88)}
-  .fpk-keys button.fn{background:var(--s-n-88);font-size:16px;font-weight:600}
-  .fpk-keys button.go{background:var(--s-blue-42);color:var(--t-n-100);font-size:16px;font-weight:600}
-  .fpk-keys button.on{background:var(--s-blue-15);color:var(--t-n-100)}
+  .fpk-keys button{font:inherit;font-size:22px;min-height:var(--touch,48px);border:0;border-radius:12px;background:var(--surface);color:var(--fg);box-shadow:0 1px 0 var(--line-2);cursor:pointer;padding:0}
+  .fpk.right .fpk-keys button{min-height:var(--touch-lg,56px);font-size:24px;font-weight:600}
+  .fpk-keys button:active,.fpk-keys button.down{background:var(--line)}
+  .fpk-keys button.fn{background:var(--line);font-size:var(--fs-base,16px);font-weight:650}
+  .fpk-keys button.go{background:var(--accent);color:var(--accent-fg);font-size:var(--fs-base,16px);font-weight:650}
+  .fpk-keys button.on{background:var(--fg);color:var(--bg)}
   .fpk-keys .w2{grid-column:span 2}.fpk-keys .w3{grid-column:span 3}.fpk-keys .w4{grid-column:span 4}.fpk-keys .w8{grid-column:span 8}
   .fpk-keys .h2{grid-row:span 2}
   .fpk.idle .fpk-keys{opacity:.4;pointer-events:none}
   .fpk.idle .fpk-bar button{visibility:hidden}
-  .fpk.idle .fpk-bar b{color:var(--t-n-42);font-weight:500}`;
+  .fpk.idle .fpk-bar b{color:var(--muted);font-weight:500}`;
 
   let mode = 'auto';
   let lastPointer = { type: null, at: 0 };
@@ -189,7 +190,7 @@
     if (!panel) return;
     const side = (kind === 'numbers' || !target) && wide();
     panel.className = 'fpk ' + (side ? 'right' : 'bottom') + (target ? '' : ' idle');
-    if (!side) panel.style.height = kind === 'numbers' ? `${BAR_H + 4 * 56 + 8}px` : '';
+    if (!side) panel.style.height = kind === 'numbers' ? `${BAR_H + 4 * 62 + 8}px` : '';
     else panel.style.height = '';
     const root = document.documentElement.style;
     // Typing text on a form that keeps the pad's place: the full keyboard along the bottom, the place kept beside.

@@ -77,7 +77,38 @@
   .fpc-card-head{display:flex;justify-content:space-between;align-items:center;font-weight:600;margin-bottom:6px}
   .fpc-card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px 12px}
   .fpc-card-grid label{display:block;font-size:13px;color:var(--t-n-42);margin-bottom:3px}
-  .fpc-note{font-size:13px;color:var(--t-n-42);margin-top:4px}`;
+  .fpc-note{font-size:13px;color:var(--t-n-42);margin-top:4px}
+  /* ---------- UI Release B: the operator look ---------- */
+  .fpc-chips{gap:8px}
+  .fpc-chips button{min-height:var(--touch);padding:6px 18px;border:1.5px solid var(--line-2);background:var(--surface);color:var(--fg);font-weight:650}
+  .fpc-chips button.on{border-color:var(--kc,var(--accent));background:var(--kt,var(--accent-t));color:var(--kc,var(--accent))}
+  .fpc-chips button.on::before{content:"\\2713" / "";margin-right:6px;font-weight:700}
+  .fpc-big{min-width:var(--touch-lg);width:var(--touch-lg);height:var(--touch-lg);min-height:var(--touch-lg);border:1.5px solid var(--line-2);border-radius:14px;background:var(--surface);color:var(--fg);font-size:28px;line-height:1;display:grid;place-items:center;padding:0}
+  .fpc-big:active{background:var(--surface-2)}
+  .fpc-big+.fpc-num{flex:1}
+  .fpc-row input[type=range]~.fpc-num{font-size:24px;border:0;background:none;padding:0}
+  .fpc-num{min-width:64px;text-align:center;font-size:34px;font-weight:700;font-variant-numeric:tabular-nums;border:1px solid var(--line);border-radius:14px;padding:6px;background:var(--surface-2);color:var(--fg)}
+  .fpc-btn{min-height:var(--touch);padding:6px 18px;border:1.5px solid var(--line-2);border-radius:12px;background:var(--surface);color:var(--fg);font-weight:650}
+  .fpc-btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+  .fpc-stars button{min-width:var(--touch);min-height:var(--touch);color:var(--muted)}
+  .fpc-stars button.on{color:var(--warn)}
+  .fpc-photo{border:1.5px dashed var(--line-2);border-radius:12px;min-height:72px;padding:10px 12px;justify-content:center;flex-wrap:wrap;color:var(--muted);font-weight:600}
+  .fpc-sig{border:1.5px dashed var(--line-2);border-radius:12px}
+  .fpc-thumb{width:112px;height:112px;border-color:var(--line);background:var(--surface)}
+  .fpc-thumb button{width:var(--touch);height:var(--touch);top:0;right:0;border-radius:0 10px 0 12px}
+  .fpc-list{border-color:var(--line);background:var(--surface)}
+  .fpc-list button{min-height:var(--touch);background:var(--surface);color:var(--fg);border-bottom-color:var(--line)}
+  .fpc-list button:hover{background:var(--surface-2)}
+  .fpc-picked{min-height:var(--touch);border:1.5px solid var(--line-2);border-radius:12px;background:var(--surface-2);font-size:var(--fs-entry);font-weight:650}
+  .fpc-picked .fpc-ok{font-size:var(--fs-sm);color:var(--good)}
+  .fpc-picked .fpc-unv,.fpc-note,.fpc-table th,.fpc-card-grid label{color:var(--muted)}
+  .fpc-note{font-size:var(--fs-sm)}
+  .fpc-people{gap:8px}
+  .fpc-people button{min-height:var(--touch-lg);padding:6px 22px;border:1.5px solid var(--line-2);border-radius:12px;background:var(--surface);color:var(--fg);font-size:var(--fs-entry);font-weight:650}
+  .fpc-people button:active{background:var(--surface-2)}
+  .fpc-people button.sup{border-style:dashed;color:var(--accent)}
+  .fpc-table input,.fpc-table select{min-height:52px;font-size:var(--fs-entry)}
+  .fpc-card{border-radius:14px;border-color:var(--line);background:var(--surface)}`;
   if (!document.getElementById('fp-controls-css')) {
     const s = document.createElement('style');
     s.id = 'fp-controls-css';
@@ -244,7 +275,7 @@
     const hasCamera = !!(f.camera && navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
     const add = api.el('button', 'fpc-btn' + (hasCamera ? ' primary' : ''), hasCamera ? (f.buttonLabel || 'Take photo') : (f.buttonLabel || 'Add')); add.type = 'button';
     const choose = api.el('button', 'fpc-btn', f.fileLabel || 'Choose file'); choose.type = 'button';
-    const buttons = api.el('div', 'fpc-row');
+    const buttons = api.el('div', 'fpc-row fpc-photo');
     const thumbs = api.el('div', 'fpc-thumbs');
     const note = api.el('div', 'fpc-note');
     let files = [];

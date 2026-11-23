@@ -684,7 +684,7 @@
   /* ---------- Styles ---------- */
   const CSS = `
   .fpf [hidden]{display:none!important}
-  .fpf{container-type:inline-size;--ink:var(--t-n-12);--muted:var(--t-n-42);--line:var(--l-n-88);--accent:var(--s-blue-42);--accent-t:var(--t-blue-42);--good:var(--s-green-47);--good-t:var(--t-green-47);--bad:var(--s-red-40);--bad-t:var(--t-red-40);--warn:var(--d-amber-48);--warn-t:var(--t-amber-42);font:16px/1.45 var(--font-sans,system-ui,"Segoe UI",sans-serif);color:var(--ink)}
+  .fpf{container-type:inline-size;--ink:var(--fg);font:16px/1.45 var(--font-sans,system-ui,"Segoe UI",sans-serif);color:var(--ink)}
   .fpf-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:14px 16px;margin-bottom:14px}
   .fpf-cell{min-width:0;grid-column:span var(--pc,12)}
   @container (max-width:999px){.fpf-cell{grid-column:span var(--tablet,12)}}
@@ -694,16 +694,16 @@
   .fpf[data-device="phone"] .fpf-cell{grid-column:span var(--phone,12)}
   .fpf-head{font:inherit;font-weight:600;min-height:48px;padding:8px 16px;border:0;background:none;color:var(--muted);cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:8px}
   .fpf-count{display:none;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:var(--s-n-88);color:var(--ink);font-size:12px;font-weight:700;align-items:center;justify-content:center}
-  .fpf-count.n{display:inline-flex}.fpf-count.bad{background:var(--bad);color:var(--t-n-100)}
+  .fpf-count.n{display:inline-flex}.fpf-count.bad{background:var(--bad);color:var(--accent-fg)}
   .fpf-tabs{margin:0 0 14px}
   .fpf-tabbar{display:flex;gap:2px;overflow-x:auto;border-bottom:2px solid var(--line);margin-bottom:16px}
   .fpf-tabbar .fpf-head{border-bottom:3px solid transparent;margin-bottom:-2px;border-radius:8px 8px 0 0}
   .fpf-tabbar .fpf-head:hover{background:var(--s-n-95)}
-  .fpf-tabbar .fpf-head.on{color:var(--accent-t);border-bottom-color:var(--accent)}
+  .fpf-tabbar .fpf-head.on{color:var(--accent);border-bottom-color:var(--accent)}
   .fpf-stepbar{display:flex;gap:6px;overflow-x:auto;margin-bottom:16px}
   .fpf-stepbar .fpf-head{flex:1 1 0;min-width:0;padding:8px 12px;border-radius:10px;background:var(--s-n-95);color:var(--muted)}
-  .fpf-stepbar .fpf-head.done{background:var(--s-green-94);color:var(--good-t)}
-  .fpf-stepbar .fpf-head.on{background:var(--accent);color:var(--t-n-100)}
+  .fpf-stepbar .fpf-head.done{background:var(--s-green-94);color:var(--good)}
+  .fpf-stepbar .fpf-head.on{background:var(--accent);color:var(--accent-fg)}
   .fpf-stepbar .fpf-head:disabled{cursor:default}
   .fpf-head-label{overflow:hidden;text-overflow:ellipsis}
   .fpf-num{display:inline-flex;flex:none;width:26px;height:26px;border-radius:50%;align-items:center;justify-content:center;background:rgba(0,0,0,.1);font-size:13px}
@@ -729,7 +729,7 @@
   .fpf.compact .fpf-value,.fpf.compact .fpf-visual{min-height:44px}.fpf.compact .fpf-value{font-size:17px}
   .fpf.compact .fpf-msg{position:absolute;right:6px;top:100%;margin-top:-10px;z-index:3;min-height:0;padding:1px 8px;border-radius:6px;font-size:12px;font-weight:600;max-width:calc(100% - 12px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:var(--s-n-95);color:var(--muted)}
   .fpf.compact .fpf-msg:empty{display:none}
-  .fpf.compact .fpf-msg.bad{background:var(--bad);color:var(--t-n-100)}.fpf.compact .fpf-msg.warn{background:var(--s-amber-39b);color:var(--t-n-100)}
+  .fpf.compact .fpf-msg.bad{background:var(--bad);color:var(--accent-fg)}.fpf.compact .fpf-msg.warn{background:var(--s-amber-39b);color:var(--t-n-100)}
   .fpf.compact .fpf-msg.long{position:static;margin-top:4px;white-space:normal;max-width:none;display:block}
   .fpf.compact .fpf-section{padding:10px 12px 0;margin:0 0 12px}
   .fpf.compact .fpf-section>h3,.fpf.compact .fpf-pane>h3{margin:0 0 6px;font-size:14px}
@@ -747,48 +747,48 @@
   .fpf-section.closed{padding-bottom:4px}
   .fpf-back,.fpf-next{font:inherit;font-weight:700;min-height:52px;padding:10px 24px;border-radius:12px;cursor:pointer}
   .fpf-back{border:1px solid var(--l-n-83);background:var(--s-n-100);color:var(--ink)}
-  .fpf-next{border:0;background:var(--accent);color:var(--t-n-100)}.fpf-next:disabled{background:var(--s-n-68);cursor:not-allowed}
+  .fpf-next{border:0;background:var(--accent);color:var(--accent-fg)}.fpf-next:disabled{background:var(--s-n-68);cursor:not-allowed}
   .fpf-section{border:1px solid var(--line);border-radius:12px;padding:14px 16px 2px;margin:0 0 14px;background:var(--s-n-100)}
   .fpf-section>h3{margin:0 0 10px;font-size:15px;color:var(--muted);font-weight:600}
   .fpf-label{display:block;font-size:14px;font-weight:600;margin:0 0 6px}
   .fpf-hint{font-size:13px;color:var(--muted);margin:-3px 0 6px}
   .fpf-visual{min-height:48px}
-  .fpf-label .req{color:var(--bad-t);margin-left:3px}
+  .fpf-label .req{color:var(--bad);margin-left:3px}
   .fpf input,.fpf textarea,.fpf select{font:inherit;width:100%;box-sizing:border-box;min-height:48px;padding:10px 12px;border:1px solid var(--l-n-83);border-radius:10px;background:var(--s-n-100);color:inherit}
   .fpf textarea{min-height:90px;resize:vertical}
   .fpf .unitwrap{display:flex;align-items:center;gap:8px}.fpf .unit{color:var(--muted);white-space:nowrap}
   .fpf-seg{display:flex;flex-wrap:wrap;gap:6px}
   .fpf-seg button{font:inherit;flex:1 1 auto;min-width:76px;white-space:nowrap;min-height:48px;padding:8px 14px;border:1px solid var(--l-n-83);border-radius:10px;background:var(--s-n-100);cursor:pointer}
-  .fpf-seg button.on{background:var(--accent);border-color:var(--accent);color:var(--t-n-100)}
+  .fpf-seg button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
   .fpf-seg button.on.good{background:var(--good);border-color:var(--good)}.fpf-seg button.on.bad{background:var(--bad);border-color:var(--bad)}.fpf-seg button.on.warn{background:var(--warn);border-color:var(--warn)}
   .fpf-value{min-height:48px;display:flex;align-items:center;padding:0 2px;font-size:18px;font-weight:600}
   .fpf-tiles{display:flex;flex-wrap:wrap;gap:8px}
   .fpf-tile{font:inherit;font-weight:700;min-width:64px;min-height:52px;padding:6px 14px;border:1px solid var(--line);border-radius:10px;background:var(--s-n-100);color:var(--ink);cursor:pointer}
   .fpf-tile:hover{border-color:var(--accent)}
-  .fpf-tile.good{background:var(--s-green-94);border-color:var(--l-green-79);color:var(--good-t)}.fpf-tile.bad{background:var(--s-red-94);border-color:var(--l-red-78);color:var(--bad-t)}.fpf-tile.warn{background:var(--s-amber-95);border-color:var(--l-amber-81);color:var(--warn-t)}
+  .fpf-tile.good{background:var(--s-green-94);border-color:var(--l-green-79);color:var(--good)}.fpf-tile.bad{background:var(--s-red-94);border-color:var(--l-red-78);color:var(--bad)}.fpf-tile.warn{background:var(--s-amber-95);border-color:var(--l-amber-81);color:var(--warn)}
   .fpf-badge{display:inline-flex;align-items:center;min-height:40px;padding:4px 16px;border-radius:999px;font-weight:700;background:var(--s-n-95)}
-  .fpf-badge.good{background:var(--s-green-94);color:var(--good-t)}.fpf-badge.bad{background:var(--s-red-94);color:var(--bad-t)}.fpf-badge.warn{background:var(--s-amber-95);color:var(--warn-t)}
-  .fpf .waiting,.fpf .nodata,.fpf .blank{color:var(--muted);font-weight:400;font-size:15px}.fpf .error{color:var(--bad-t);font-weight:400;font-size:15px}
-  .fpf-msg{font-size:13px;margin-top:5px;min-height:1em}.fpf-msg.bad{color:var(--bad-t)}.fpf-msg.warn{color:var(--warn-t)}
+  .fpf-badge.good{background:var(--s-green-94);color:var(--good)}.fpf-badge.bad{background:var(--s-red-94);color:var(--bad)}.fpf-badge.warn{background:var(--s-amber-95);color:var(--warn)}
+  .fpf .waiting,.fpf .nodata,.fpf .blank{color:var(--muted);font-weight:400;font-size:15px}.fpf .error{color:var(--bad);font-weight:400;font-size:15px}
+  .fpf-msg{font-size:13px;margin-top:5px;min-height:1em}.fpf-msg.bad{color:var(--bad)}.fpf-msg.warn{color:var(--warn)}
   .fpf-text{color:var(--muted);white-space:pre-wrap}
   .fpf-foot{position:sticky;bottom:0;background:linear-gradient(rgba(244,246,248,0),var(--s-n-100) 30%);padding:18px 0 10px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-  .fpf-save{font:inherit;font-weight:700;min-height:52px;padding:10px 28px;border-radius:12px;border:0;background:var(--accent);color:var(--t-n-100);cursor:pointer}
+  .fpf-save{font:inherit;font-weight:700;min-height:52px;padding:10px 28px;border-radius:12px;border:0;background:var(--accent);color:var(--accent-fg);cursor:pointer}
   .fpf-save:disabled{background:var(--s-n-68);cursor:not-allowed}
-  .fpf-why{font-size:14px;color:var(--muted);flex:1 1 240px}.fpf-why.bad{color:var(--bad-t)}
+  .fpf-why{font-size:14px;color:var(--muted);flex:1 1 240px}.fpf-why.bad{color:var(--bad)}
   .fpf-as{flex:1 1 100%;font-size:13px;color:var(--muted);display:flex;align-items:center;gap:2px;flex-wrap:wrap}
   .fpf-as b{color:var(--ink);font-weight:600}
-  .fpf-notyou{font:inherit;font-size:13px;color:var(--accent-t);background:none;border:0;padding:10px 6px;margin:-10px 0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+  .fpf-notyou{font:inherit;font-size:13px;color:var(--accent);background:none;border:0;padding:10px 6px;margin:-10px 0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
   .fpf-media-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--l-n-95)}
-  .fpf-media-title{font:inherit;font-weight:600;text-align:left;border:0;background:none;color:var(--accent-t);cursor:pointer;padding:6px 0;flex:1 1 auto}
+  .fpf-media-title{font:inherit;font-weight:600;text-align:left;border:0;background:none;color:var(--accent);cursor:pointer;padding:6px 0;flex:1 1 auto}
   .fpf-media-where{font-size:13px;color:var(--muted)}
-  .fpf-media-report{font:inherit;font-size:13px;border:0;background:none;color:var(--accent-t);text-decoration:underline;cursor:pointer;padding:4px 6px;white-space:nowrap}
+  .fpf-media-report{font:inherit;font-size:13px;border:0;background:none;color:var(--accent);text-decoration:underline;cursor:pointer;padding:4px 6px;white-space:nowrap}
   .fpf-media-report:disabled{color:var(--muted);text-decoration:none;cursor:default;white-space:normal}
   .fpf-ack-gone{flex:1 1 100%;font-size:14px;color:var(--t-red-40);padding:4px 0}
   .fpf-media-open{font:inherit;min-height:44px;padding:6px 14px;border:1px solid var(--l-n-83);border-radius:10px;background:var(--s-n-100);cursor:pointer}
   .fpf-media-frame iframe{width:100%;border:1px solid var(--line);border-radius:10px;margin-top:10px;background:var(--s-n-100)}
   .fpf-media-frame img{max-width:100%;border-radius:10px;margin-top:10px}
   .fpf-value:has(.fpf-media){display:block;font-size:16px;font-weight:400}
-  .fpf-btn{font:inherit;font-weight:700;min-height:52px;padding:10px 22px;border-radius:12px;border:2px solid var(--accent);background:var(--s-n-100);color:var(--accent-t);cursor:pointer}
+  .fpf-btn{font:inherit;font-weight:700;min-height:52px;padding:10px 22px;border-radius:12px;border:2px solid var(--accent);background:var(--s-n-100);color:var(--accent);cursor:pointer}
   .fpf-btn:disabled{border-color:var(--l-n-68);color:var(--t-n-61);cursor:not-allowed}
   .fpf-btncell .fpf-btn,.fpf-btncell .fpf-save{width:100%}
   .fpf-btncell .fpf-label{visibility:hidden}
@@ -815,9 +815,9 @@
   .fpf-ack .t{flex:1 1 220px;font-weight:600}
   .fpf-ack .t small{display:block;font-weight:400;color:var(--muted)}
   .fpf-ack button{font:inherit;min-height:44px;padding:6px 14px;border:1px solid var(--l-n-83);border-radius:10px;background:var(--s-n-100);cursor:pointer}
-  .fpf-ack button.ok{background:var(--accent);border-color:var(--accent);color:var(--t-n-100);font-weight:600}
+  .fpf-ack button.ok{background:var(--accent);border-color:var(--accent);color:var(--accent-fg);font-weight:600}
   .fpf-ack button:disabled{opacity:.5;cursor:not-allowed}
-  .fpf-ack .ok-done{color:var(--good-t);font-weight:600}
+  .fpf-ack .ok-done{color:var(--good);font-weight:600}
   .fpf-ack-text{flex:1 1 100%;max-height:180px;overflow:auto;border:1px solid var(--l-n-88);border-radius:10px;padding:10px 12px;background:var(--s-n-100);white-space:pre-wrap;line-height:1.5}
   .fpf-locked{opacity:.45}
   .fpp{display:none}
@@ -874,7 +874,67 @@
   .fpf-dialog-btns{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-top:12px}
   .fpf-link{background:none;border:0;color:var(--t-blue-42);text-decoration:underline;font:inherit;cursor:pointer;margin-right:auto;min-height:44px}
   .fpf-notice{background:var(--s-amber-97);border:1px solid var(--l-amber-86b);border-radius:12px;padding:12px 14px;margin:0 0 14px;font-size:16px}
-  .fpf-notice .fpf-dialog-btns{justify-content:flex-start}`;
+  .fpf-notice .fpf-dialog-btns{justify-content:flex-start}
+  /* ---------- UI Release B: the operator look (big fields, kind colour, save bar, toast) ---------- */
+  .fpf-label{font-size:var(--fs-base);font-weight:650}
+  .fpf-label .req{color:var(--bad)}
+  .fpf-hint{font-size:var(--fs-sm);color:var(--muted)}
+  .fpf input,.fpf textarea,.fpf select{min-height:52px;padding:10px 14px;font-size:var(--fs-entry);border:1.5px solid var(--line-2);border-radius:12px;background:var(--surface);color:var(--fg)}
+  .fpf input:focus,.fpf textarea:focus,.fpf select:focus{outline:2px solid var(--focus);outline-offset:1px}
+  .fpf textarea{min-height:96px}
+  .fpf input[type=checkbox],.fpf input[type=radio]{min-height:0;width:auto}
+  .fpf .unit{font-size:var(--fs-entry)}
+  .fpf-value{font-size:var(--fs-entry)}
+  .fpf-seg{gap:8px}
+  .fpf-seg button,.fpf-tile{min-height:52px;font-weight:650;font-size:var(--fs-base);border:1.5px solid var(--line-2);border-radius:12px;background:var(--surface);color:var(--fg);display:inline-flex;align-items:center;justify-content:center;gap:8px}
+  .fpf-seg button.on,.fpf-tile.on{border-color:var(--kc,var(--accent));background:var(--kt,var(--accent-t));color:var(--kc,var(--accent))}
+  .fpf-seg button.on::before{content:"\\2713" / "";font-weight:700}
+  .fpf-seg button.on.good{border-color:var(--good);background:var(--k-runs-t);color:var(--good)}
+  .fpf-seg button.on.bad{border-color:var(--bad);background:var(--k-case-t);color:var(--bad)}
+  .fpf-seg button.on.warn{border-color:var(--warn);background:var(--k-inv-t);color:var(--warn)}
+  .fpf-tile.good{background:var(--k-runs-t);border-color:var(--good);color:var(--good)}.fpf-tile.bad{background:var(--k-case-t);border-color:var(--bad);color:var(--bad)}.fpf-tile.warn{background:var(--k-inv-t);border-color:var(--warn);color:var(--warn)}
+  .fpf-tile:hover{border-color:var(--kc,var(--accent))}
+  .fpf-section{border-radius:14px;background:var(--surface);border-color:var(--line)}
+  .fpf-section>h3,.fpf-pane>h3{font-size:var(--fs-base);font-weight:650}
+  .fpf-notice{background:var(--k-inv-t);border-color:var(--warn);color:var(--fg)}
+  .fpf-notyou{min-height:var(--touch);min-width:var(--touch);padding:0 12px;margin:-8px 0;color:var(--accent)}
+  .fpf-foot{position:sticky;bottom:0;z-index:5;margin:0 calc(-1 * var(--fpf-pad,0px));padding:14px var(--fpf-pad,16px);background:var(--surface-2);border-top:1px solid var(--line);gap:12px 16px}
+  .fpf-save,.fpf-btn,.fpf-back,.fpf-next{min-height:var(--touch-lg);padding:0 28px;font-size:var(--fs-entry);font-weight:650;border-radius:14px}
+  .fpf-save{border:0;background:var(--accent);color:var(--accent-fg)}
+  .fpf-save:not(:disabled)::before{content:"\\2713" / "";margin-right:8px;font-weight:700}
+  .fpf-save:disabled,.fpf-next:disabled{background:var(--surface);color:var(--muted);border:1.5px solid var(--line-2)}
+  .fpf-btn{border:1.5px solid var(--accent);background:var(--surface);color:var(--accent)}
+  .fpf-btn:disabled{border-color:var(--line-2);color:var(--muted)}
+  .fpf-back{border:1.5px solid var(--line-2);background:var(--surface);color:var(--fg)}
+  .fpf-next{border:0;background:var(--accent);color:var(--accent-fg)}
+  .fpf-why{font-size:var(--fs-md);color:var(--muted)}.fpf-why.bad{color:var(--bad);font-weight:600}
+  .fpf-as{font-size:var(--fs-sm);color:var(--muted)}
+  .fpf-head{font-weight:650}
+  .fpf-stepbar .fpf-head{background:var(--surface-2);border:1px solid var(--line);color:var(--muted)}
+  .fpf-stepbar .fpf-head.done{background:var(--k-runs-t);color:var(--good)}
+  .fpf-stepbar .fpf-head.on{background:var(--kc,var(--accent));border-color:var(--kc,var(--accent));color:var(--accent-fg)}
+  .fpf-tabbar .fpf-head.on{color:var(--kc,var(--accent));border-bottom-color:var(--kc,var(--accent))}
+  .fpf-card{border-radius:16px;border-color:var(--line);background:var(--surface)}
+  .fpf-card-head b{font-weight:650}.fpf-card-head span{color:var(--muted)}
+  .fpf-card-act{border:1.5px solid var(--line-2);border-radius:12px;background:var(--surface);color:var(--accent)}
+  .fpf-queue{border-color:var(--line-2);background:var(--surface-2)}
+  .fpf-queue-row button,.fpf-media-open,.fpf-ack button{min-height:var(--touch);border:1.5px solid var(--line-2);border-radius:12px;background:var(--surface);color:var(--fg)}
+  .fpf-ack button.ok{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+  .fpf-media-title,.fpf-media-report{min-height:var(--touch)}
+  .fpf-link{color:var(--accent);min-height:var(--touch)}
+  .fpf-dialog{background:var(--surface);color:var(--fg);border-radius:16px}
+  .fpf-fold{min-height:var(--touch);color:var(--fg)}
+  .fpf-toast{left:50%;right:auto;top:auto;bottom:calc(104px + var(--fp-kb-bottom,0px));transform:translateX(-50%);display:flex;align-items:center;gap:12px;background:var(--fg);color:var(--bg);padding:14px 20px;border-radius:14px;font-weight:600;font-size:var(--fs-entry);box-shadow:var(--shadow);max-width:calc(100vw - 32px);pointer-events:none}
+  .fpf-toast.saved{top:auto;bottom:calc(104px + var(--fp-kb-bottom,0px));font-size:var(--fs-entry);padding:14px 20px}
+  .fpf-toast .tick{flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--good);color:var(--surface);font-size:18px}
+  .fpf-toast.bad{background:var(--surface);color:var(--bad);border:2px solid var(--bad)}
+  .fpf-toast.bad .tick{background:var(--bad);color:var(--surface)}
+  .fpf.compact input,.fpf.compact textarea,.fpf.compact select{min-height:var(--touch);padding:8px 12px;font-size:var(--fs-entry)}
+  .fpf.compact textarea{min-height:80px}
+  .fpf.compact .fpf-seg button,.fpf.compact .fpf-tile{min-height:var(--touch)}
+  .fpf.compact .fpf-save,.fpf.compact .fpf-btn,.fpf.compact .fpf-back,.fpf.compact .fpf-next{min-height:var(--touch-lg);padding:0 24px}
+  .fpf.compact .fpf-label{font-size:var(--fs-md);font-weight:650}
+  .fpf.compact .fpf-section>h3,.fpf.compact .fpf-pane>h3{font-size:var(--fs-md)}`;
 
   function el(tag, cls, text) { return FP.dom.el(tag, cls, text); }   // one copy, in fp-core (0.50)
 
@@ -2552,7 +2612,7 @@
           await FP.approvals.hold({ form: formRef, title: sub ? `${sub.title || title}` : title, summary, entries: result.entries, submissionId: result.submissionId, site: opts.site });
           result.held = true;
         } else result = await FP.entry.submit(addAll);
-        if (result.held) b = Object.assign({}, b, { savedMessage: 'Sent for a supervisor\'s approval: it is saved when one approves it.' });
+        if (result.held) b = Object.assign({}, b, { savedMessage: `Sent for approval · ${savedWhat(plan)}. It is saved when a supervisor approves it.` });
         noteSaved(plan);
         FP.current.clearCache();
         saving = false;
@@ -2560,7 +2620,7 @@
           // Part of the record saved: it stays on screen, and later saves go to the same items.
           scope.forEach(n => { edited.delete(n); if (ui[n]) ui[n].touched = false; });
           if (!edited.size && !queue.length) dirty = false;
-          toast(savedText(b.savedMessage || 'Saved', snap), true);
+          toast(b.savedMessage ? savedText(b.savedMessage, snap) : `Saved · ${savedWhat(plan)}`, true);
           await recalc();
           if (opts.onSaved) opts.onSaved(result);
           return result;
@@ -2583,7 +2643,7 @@
           dirty = false;
           stayed = true;
           await FP.kv.del(draftKey()).catch(() => {});
-          toast(savedText(b.savedMessage || def.savedMessage || 'Saved', snap), true);
+          toast(b.savedMessage || def.savedMessage ? savedText(b.savedMessage || def.savedMessage, snap) : `Saved · ${savedWhat(plan)}`, true);
           await recalc();
           paintFoot(problemsNow());
           if (opts.onSaved) opts.onSaved(result);
@@ -2595,7 +2655,7 @@
         edited.clear();
         dirty = false;
         await FP.kv.del(draftKey()).catch(() => {});
-        toast(savedText(b.savedMessage || def.savedMessage || 'Saved', snap), true);
+        toast(b.savedMessage || def.savedMessage ? savedText(b.savedMessage || def.savedMessage, snap) : `Saved · ${savedWhat(plan)}`, true);
         if (parent) { parent.applyBack(childValues, { input: childInput, raw: childRaw, ids: savedIds, how: 'saved' }); parent.close(true); if (opts.onSaved) opts.onSaved(result); return result; }
         if (then === 'close') { if (opts.onSaved) opts.onSaved(result); opts.onClose(result); return result; }
         await recalc();
@@ -2610,6 +2670,7 @@
       } catch (e) {
         saving = false;
         paintFoot(problemsNow(), e.code === 'session-required' ? e.message : `Not saved: ${e.message || e}`);
+        if (e.code !== 'session-required') toast(`Not saved: ${e.message || e}`, false, 'bad');
         return null;
       }
     }
@@ -2833,7 +2894,7 @@
         seenAt.set(`${st}|${h.spec.item.id}`, h.now.lastAt);
       });
       await recalc();
-      paintFoot(problemsNow(), `Not saved: what ${hits.map(h => h.who.split(' on ')[0].split(' at ')[0]).join(', ')} saved is back on screen.`);
+      paintFoot(problemsNow(), `Not saved: what ${hits.map(h => h.who.split(' on ')[0].split(' at ')[0]).join(', ')} saved is back on screen. Look it over, then save again.`);
       return false;
     }
 
@@ -3085,12 +3146,29 @@
       });
     }
 
-    function toast(text, saved) {
+    /* A confirmation that reads for 4 seconds: a tick and what was saved, or (kind "bad") a refusal with its reason. */
+    function toast(text, saved, kind) {
       document.querySelectorAll('.fpf-toast.saved').forEach(x => x.remove());
-      const t = el('div', 'fpf-toast' + (saved ? ' saved' : ''), (saved ? '✓ ' : '') + text);
-      t.setAttribute('role', 'status');
+      const t = el('div', 'fpf-toast' + (saved ? ' saved' : '') + (kind === 'bad' ? ' bad' : ''));
+      const tick = el('span', 'tick');
+      const g = FP.icons && FP.icons.svg(kind === 'bad' ? 'alert' : 'check');
+      if (g) tick.appendChild(g); else tick.textContent = kind === 'bad' ? '!' : '✓';
+      if (saved || kind) t.append(tick);
+      t.append(el('span', null, text));
+      t.setAttribute('role', kind === 'bad' ? 'alert' : 'status');
       document.body.appendChild(t);
-      setTimeout(() => t.remove(), saved ? 3500 : 1800);
+      setTimeout(() => t.remove(), saved || kind ? 4000 : 1800);
+    }
+    /* What a save names (0.66): the form's title and the record's ID when it has one ("Rack R-1042"); the title alone otherwise. */
+    function savedWhat(plan) {
+      let id = null;
+      try {
+        const main = FP.kinds && FP.kinds.formLook ? FP.kinds.formLook(def).structure : null;
+        const specs = (plan || []).filter(x => x && x.item && x.item.id != null && x.item.structure !== 'submissions');
+        const own = specs.find(x => main && x.item.structure === main) || specs[0];
+        if (own) id = String(own.item.id);
+      } catch (_) { id = null; }
+      return `${title}${id ? ' ' + id : ''}`;
     }
     // The saved message (0.46) can name what was saved: 'Check saved: {run}, {slot}' shows the values as they read on screen.
     function savedText(msg, snap) {
