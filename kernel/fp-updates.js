@@ -111,7 +111,10 @@
       const v = moduleVersion(m, t);
       if (v !== version) problems.push(`${m}.js says ${v || 'no version'}, not ${version}`);
     });
-    ['boot.js', 'shell-launcher.html', 'shell-editor.html'].forEach(n => { if (!files.has(n)) problems.push(`${n} is missing`); });
+    ['boot.js', 'shell-launcher.html', 'shell-editor.html'].forEach(n => {
+      if (!files.has(n)) problems.push(`${n} is missing`);
+      else if (!manifest.files[n]) problems.push(`${n} has no checksum in release.json`);
+    });
     return { version, manifest, files, problems };
   }
 
@@ -121,6 +124,17 @@
     const t = await FP.files.readText(RUNTIME, 'releases.js').catch(() => null);
     const m = t && /window\.FP_RELEASES = (\{[\s\S]*\});/.exec(t);
     try { return m ? JSON.parse(m[1]) : null; } catch (_) { return null; }
+  }
+  /* Like installed(), but throws when releases.js is there and can't be read: treating that as "nothing installed" would
+   * make an install delete the other releases (a half-synced file is the usual cause). A missing file is a first install. */
+  async function installedStrict() {
+    const t = await FP.files.readText(RUNTIME, 'releases.js').catch(() => null);
+    if (t == null) return null;
+    const m = /window\.FP_RELEASES = (\{[\s\S]*\});/.exec(t);
+    let cfg = null;
+    try { cfg = m ? JSON.parse(m[1]) : null; } catch (_) { cfg = null; }
+    if (!cfg || !cfg.current) throw new Error('Not installed: runtime/releases.js is there but can\'t be read (it may still be syncing). Wait for OneDrive to finish, then try again; nothing was changed.');
+    return cfg;
   }
   const releasesText = cfg => `/* Which release of the platform runs, written by the installer. Don't edit: use Updates in the editor. */
 window.FP_RELEASES = ${JSON.stringify(cfg)};
@@ -160,17 +174,18 @@ window.FP_RELEASES = ${JSON.stringify(cfg)};
     opts = opts || {};
     const step = (text, part, version) => { if (opts.onStep) { try { opts.onStep({ text, part, version }); } catch (_) { /* the display only */ } } };
     await requireAdmin();
+    if (!(window.crypto && crypto.subtle)) throw new Error('Not installed: this browser can\'t check the release\'s files here (no secure context), and an unchecked release is never installed. Open the editor from Edge or Chrome.');
     step(`Reading ${name}`, 0.02);
     const f = await FP.files.readFile(UPDATES, name);
     if (!f) throw new Error(`updates/${name} isn't there.`);
     step('Checking every file in the release', 0.06);
     const r = await inspect(f);
     if (r.problems.length) throw new Error(`Not installed: ${r.problems.join('; ')}.`);
-    const cfg = (await installed()) || { current: null, kept: [], load: {} };
+    const cfg = (await installedStrict()) || { current: null, kept: [], load: {} };
     if (cfg.current && cmp(r.version, cfg.current) <= 0 && !opts.allowOlder) throw new Error(`Not installed: ${r.version} isn't newer than ${cfg.current}, which is running. To go back to an older release, use Go back.`);
     const dir = RUNTIME.concat(r.version);
     // 1. The release's own folder: every file, then the zip itself as the record of what was installed.
-    const js = Array.from(r.files).filter(([n]) => /\.js$/.test(n) && n !== 'boot.js');
+    const js = Array.from(r.files).filter(([n]) => /\.js$/.test(n) && n !== 'boot.js' && Object.prototype.hasOwnProperty.call(r.manifest.files, n));   // only what release.json names (and so checked)
     for (let i = 0; i < js.length; i++) {
       step(`Writing file ${i + 1} of ${js.length}: ${js[i][0]}`, 0.1 + 0.65 * (i / js.length), r.version);
       await FP.files.writeText(dir, js[i][0], new Blob([js[i][1]]));

@@ -73,7 +73,10 @@
 
     async rename(id, name) {
       await mustAdmin();
-      await FP.entry.record({ entry: `${STRUCTURE}.rename`, item: { structure: STRUCTURE, id: normalize(id) }, form: { id: 'sites', version: 1 }, values: { name: String(name).trim() } });
+      id = normalize(id);
+      if (!(await list()).some(x => x.id === id)) throw new Error(`There is no site ${id}.`);
+      if (!name || !String(name).trim()) throw new Error('Give the site a name, e.g. Abilene.');
+      await FP.entry.record({ entry: `${STRUCTURE}.rename`, item: { structure: STRUCTURE, id }, form: { id: 'sites', version: 1 }, values: { name: String(name).trim() } });
       FP.current.clearCache();
     },
 

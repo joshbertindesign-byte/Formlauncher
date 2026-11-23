@@ -172,7 +172,15 @@ window.addEventListener('unhandledrejection', function (e) { window.__fpReport('
     const saved = el('span', 'fpl-meta');
     const dot = el('span', 'fpl-dot');
     const outbox = el('span', null, 'Saved');
-    saved.append(dot, outbox);
+    // Folder permission can lapse mid-session (F19): a Reconnect button asks the browser again, then saves what is waiting.
+    const reconnect = button('Reconnect', 'fpl-reconnect'); reconnect.id = 'reconnect'; reconnect.hidden = true;
+    reconnect.onclick = async () => {
+      reconnect.disabled = true;
+      try { await FP.folder.reauthorize(); if (FP.outbox) await FP.outbox.flush(); } catch (e) { outbox.title = e.message; }
+      reconnect.disabled = false;
+      if (FP.outbox) showOutbox();
+    };
+    saved.append(dot, outbox, reconnect);
     const term = el('span', 'fpl-meta term');
     const printBtn = button('Print'); printBtn.hidden = true;
     const editorBtn = button('Editor'); editorBtn.hidden = true;
@@ -212,7 +220,11 @@ window.addEventListener('unhandledrejection', function (e) { window.__fpReport('
     if (shortcut) oneForm = true;
     let formId = launch.form || q.get('form') || null;
     const want = launch.version != null ? launch.version : q.get('version');
-    let pinned = want != null && want !== '' && want !== 'latest' ? Number(want) : null;
+    // A version is a positive whole number; anything else is ignored (the latest runs) with a note once the page is up.
+    const goodVersion = v => (/^[1-9]\d{0,8}$/.test(String(v).trim()) ? Number(v) : null);
+    let badVersion = null;
+    let pinned = null;
+    if (want != null && want !== '' && want !== 'latest') { pinned = goodVersion(want); if (pinned == null) badVersion = String(want); }
     let inst = null;
     // Forms shown on the home screen (0.47, a form set to home: a line board), and what one asked the next form to start with.
     let boards = [];
@@ -233,6 +245,7 @@ window.addEventListener('unhandledrejection', function (e) { window.__fpReport('
       if (s.pending > 0) { dot.className = 'fpl-dot ' + (s.state === 'waiting' ? 'bad' : 'wait'); outbox.textContent = `${s.pending} waiting to save`; }
       else { dot.className = 'fpl-dot'; outbox.textContent = 'All saved'; }
       if (s.state === 'waiting' && s.lastError) outbox.title = s.lastError;
+      reconnect.hidden = !(s.pending > 0 && s.state === 'waiting' && /permission|reconnect/i.test(String(s.lastError || '')));
     }
     async function showUser() {
       const u = await FP.users.current();
@@ -865,7 +878,8 @@ window.addEventListener('unhandledrejection', function (e) { window.__fpReport('
           return { instance: () => null, home: () => {}, open: () => {} };
         }
         formId = sc.form;
-        pinned = sc.version == null || sc.version === 'latest' ? null : Number(sc.version);
+        pinned = sc.version == null || sc.version === 'latest' ? null : goodVersion(sc.version);
+        if (sc.version != null && sc.version !== 'latest' && pinned == null) badVersion = String(sc.version);
         titleText = formId;
       }
       await FP.defs.load();
@@ -881,6 +895,7 @@ window.addEventListener('unhandledrejection', function (e) { window.__fpReport('
       if (FP.users.watchSignIn) FP.users.watchSignIn(async u => { if (!u) await signInAgain(); else await afterSignIn(); });
       started = true;
       if (formId) await openForm(); else await goHome();
+      if (badVersion != null) say(`"${badVersion}" isn't a version number (a whole number, 1 or more), so the latest version is shown. Ask for a new shortcut if you meant a particular version.`, 'info');
       // What this terminal's forms are due (0.54): worked out once a minute; misses are recorded as they happen.
       if (FP.due && !oneForm) FP.due.watch(() => ({ group: place.group, forms: place.forms }));
       // A new release of the platform: reload onto it once nothing unsaved is on screen.

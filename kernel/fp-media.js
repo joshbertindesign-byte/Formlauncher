@@ -34,6 +34,8 @@
   const LIBDIR = 'library';   // media/library: the library's own files (0.61)
   const SKIP = new Set(Object.values(CAPTURE_DIRS).concat(LIBDIR));
   const MAX = 25 * 1024 * 1024;
+  const RESERVED = /^(con|prn|aux|nul|com[0-9]|lpt[0-9])$/i;
+  const isSkip = name => SKIP.has(String(name || '').toLowerCase());   // Windows folder names ignore case
 
   /* ---------- Names and paths ---------- */
   /* A file name Windows and OneDrive accept, keeping the extension. */
@@ -42,6 +44,7 @@
     const dot = s.lastIndexOf('.');
     let base = dot > 0 ? s.slice(0, dot) : s, ext = dot > 0 ? s.slice(dot).slice(0, 12) : '';
     base = base.replace(/^[.\s-]+|[.\s]+$/g, '').slice(0, 90) || 'file';
+    if (RESERVED.test(base)) base = '_' + base;   // Windows can't have a file called CON, NUL, COM1 ... even with an extension
     return base + ext;
   }
   /* A path inside media/: "a/b/c.pdf", no .. or empty parts. */
@@ -118,7 +121,7 @@
     try { d = await dirOf(parts, false); } catch (e) { if (e && e.name === 'NotFoundError') return { path: join(parts), folders, files }; throw e; }
     for await (const [name, h] of d.entries()) {
       if (name.startsWith('.') || name.startsWith('~$')) continue;
-      if (h.kind === 'directory') { if (!(parts.length === 0 && SKIP.has(name))) folders.push(name); continue; }
+      if (h.kind === 'directory') { if (!(parts.length === 0 && isSkip(name))) folders.push(name); continue; }
       const f = await h.getFile().catch(() => null);
       files.push({ path: join(parts.concat(name)), name, size: f ? f.size : null, lastModified: f ? f.lastModified : null, image: isImage(name) });
     }
@@ -131,7 +134,7 @@
     if (!blob) throw new Error('Choose a file.');
     if (blob.size > MAX) throw new Error(`That file is ${Math.round(blob.size / 1048576)} MB; the most is ${Math.round(MAX / 1048576)} MB.`);
     const parts = split(folder);
-    if (parts.length && SKIP.has(parts[0])) throw new Error(`media/${parts[0]} is where forms save what they capture; pick another folder.`);
+    if (parts.length && isSkip(parts[0])) throw new Error(`media/${parts[0]} is where forms save what they capture; pick another folder.`);
     let n = safeName(name || blob.name || 'file');
     const dot = n.lastIndexOf('.');
     const base = dot > 0 ? n.slice(0, dot) : n, ext = dot > 0 ? n.slice(dot) : '';
@@ -169,7 +172,7 @@
         d.body.appendChild(fr);
       }
     }
-    setTimeout(() => URL.revokeObjectURL(r.url), 60000);
+    // The blob URL is not revoked: a viewer that reloads the PDF (or a slow tab) needs it for as long as this page lives.
     return Object.assign(r, { opened: !!w || !r.active });
   }
 
@@ -212,8 +215,9 @@
       if (m && typeof m === 'object' && m.entry != null) {
         if (typeof m.entry !== 'string' || !m.entry) p.push(`${w}: say which library entry`);
         else if (seen.has('entry:' + m.entry)) p.push(`${w}: that library entry is on the list twice`);
-        else if (libCache.loaded && !libCache.byId.has(m.entry)) p.push(`${w}: there is no library entry ${m.entry}`);
-        else if (libCache.loaded && !libCache.byId.get(m.entry).active) p.push(`${w}: ${libCache.byId.get(m.entry).name} is retired from the library`);
+        else if (!libCache.loaded) { p.push(`${w}: the media library hasn't been read on this terminal yet, so ${m.entry} can't be checked; try again in a moment`); library.load().catch(() => null); }
+        else if (!libCache.byId.has(m.entry)) p.push(`${w}: there is no library entry ${m.entry}`);
+        else if (!libCache.byId.get(m.entry).active) p.push(`${w}: ${libCache.byId.get(m.entry).name} is retired from the library`);
         seen.add('entry:' + m.entry);
         return;
       }
@@ -226,7 +230,7 @@
       const path = join(split(m.path));
       if (seen.has(path.toLowerCase())) p.push(`${w}: ${path} is on the list twice`);
       seen.add(path.toLowerCase());
-      if (SKIP.has(split(m.path)[0])) p.push(split(m.path)[0] === LIBDIR ? `${w}: a file of the library is named by its entry` : `${w}: media/${split(m.path)[0]} holds what forms capture; attach files from another folder`);
+      if (isSkip(split(m.path)[0])) p.push(split(m.path)[0].toLowerCase() === LIBDIR ? `${w}: a file of the library is named by its entry` : `${w}: media/${split(m.path)[0]} holds what forms capture; attach files from another folder`);
       try { cleanTags(m.tags); } catch (e) { p.push(`${w}: ${e.message}`); }
     });
     return p;
@@ -247,7 +251,7 @@
       history: Array.isArray(v.history) ? v.history : [], note: v.note || '', from: v.from || '', active: v.active !== false, firstAt: it.firstAt, lastAt: it.lastAt };
   };
   async function mustPublisher() {
-    if (FP.users && !(await FP.users.can('publisher'))) throw new Error('Only a publisher or an admin can change the media library.');
+    if (!FP.users || !(await FP.users.can('publisher'))) throw new Error('Only a publisher or an admin can change the media library.');
   }
   const recLib = (action, id, values) => FP.entry.record({ entry: `${LIB}.${action}`, item: { structure: LIB, id }, form: { id: 'media-library', version: 1 }, values });
   const sameName = (a, b) => String(a || '').trim().toLowerCase() === String(b || '').trim().toLowerCase();
@@ -333,6 +337,38 @@
       FP.current.clearCache(); await library.load({ fresh: true });
       return libCache.byId.get(id);
     },
+    /* An entry that came in a pack (F5): made here under the id it has in the pack, so the forms that name it work as they
+     * are. When an active entry with the same internal name is here already, that one is used instead (how: 'remapped',
+     * and the pack's forms are pointed at it); one with the same id is left alone (how: 'same'). blob is the file the pack
+     * carried, or null; file says whether the entry's file is in this folder afterwards. */
+    async importEntry(x, blob) {
+      await mustPublisher();
+      await library.load({ fresh: true });
+      if (!x || !/^M-[A-Za-z0-9-]{1,80}$/.test(String(x.id || ''))) throw new Error('A library entry in the pack has no usable ID.');
+      const have = libCache.byId.get(x.id);
+      if (have) return { entry: have, how: 'same', file: !!(await stat(have.path)) };
+      const dup = libCache.list.find(e => e.active && sameName(e.name, x.name));
+      if (dup) return { entry: dup, how: 'remapped', file: !!(await stat(dup.path)) };
+      const name = checkName(String(x.name || x.id).slice(0, 90));
+      const folder = join(folderOk(x.folder || ''));
+      let path = x.path ? join(split(x.path)) : '';
+      if (blob) path = await putFile(blob, folder, name, extFrom(blob, x.path));
+      await recLib('add', x.id, { name, path, folder, tags: cleanTags(x.tags || {}), type: x.type || typeOf(path), size: x.size == null ? null : x.size, revision: x.revision || 1,
+        revisedAt: new Date().toISOString(), revisedBy: null, history: [], note: x.note ? String(x.note).slice(0, 500) : '', active: true, from: 'pack' });
+      FP.current.clearCache(); await library.load({ fresh: true });
+      return { entry: libCache.byId.get(x.id), how: 'new', file: !!blob || !!(path && await stat(path)) };
+    },
+    /* A tag name that came in a pack: added when it isn't here; a link to a list is kept only when that list is a structure here. */
+    async importTag(name, list) {
+      await mustPublisher();
+      if (!TAG_RE.test(name || '')) throw new Error(`${name || 'That'} can't be a tag name.`);
+      if (!libCache.loaded) await library.load();
+      if (libCache.tags.some(t => t.name === name)) return false;
+      const ok = list && FP.structures.has(list) && FP.structures.get(list).kind === 'list';
+      await FP.entry.record({ entry: `${LIBTAGS}.set`, item: { structure: LIBTAGS, id: name }, form: { id: 'media-library', version: 1 }, values: { list: ok ? list : '', active: true } });
+      FP.current.clearCache(); await library.load({ fresh: true });
+      return true;
+    },
     /* A file already in the media folder, brought into the library (copied; the file stays where it was). */
     async adopt(path, o) {
       const f = await file(path);
@@ -358,7 +394,7 @@
      * and the old one is kept in the entry's history. */
     async revise(id, blob, note) {
       await mustPublisher();
-      if (!libCache.loaded) await library.load();
+      await library.load({ fresh: true });   // another terminal may have revised it since this one last read
       const e = libCache.byId.get(id);
       if (!e) throw new Error('That library entry is gone.');
       const rev = (e.revision || 1) + 1;
@@ -389,7 +425,8 @@
     usedBy(id) {
       const e = libCache.byId.get(id);
       if (!e || !FP.defs) return [];
-      return FP.defs.list('form').filter(d => !d.retired && d.def && listOf(d.def).some(m => m.entry === id)).map(d => d.id);
+      const shows = def => (Array.isArray(def.media) ? def.media : []).some(m => m && typeof m === 'object' && (m.entry === id || (m.library && typeof m.library === 'object' && !Array.isArray(m.library) && matches(e.tags, m.library))));
+      return Array.from(new Set(FP.defs.list('form').filter(d => !d.retired && d.def && shows(d.def)).map(d => d.id)));
     },
   };
 
