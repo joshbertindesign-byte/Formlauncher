@@ -1,5 +1,277 @@
 {
  "map": {
+  "d:#006300": {
+   "dE": 0.0,
+   "token": "d-green-36"
+  },
+  "d:#008300": {
+   "dE": 0.0,
+   "token": "d-green-47b"
+  },
+  "d:#0891b2": {
+   "dE": 0.0,
+   "token": "d-teal-56"
+  },
+  "d:#0b0b0b": {
+   "dE": 0.0,
+   "token": "d-n-3"
+  },
+  "d:#0b7a75": {
+   "dE": 0.0,
+   "token": "d-teal-46"
+  },
+  "d:#0ca30c": {
+   "dE": 0.0,
+   "token": "d-green-58b"
+  },
+  "d:#0e7490": {
+   "dE": 0.0,
+   "token": "d-teal-45"
+  },
+  "d:#0e9f6e": {
+   "dE": 0.0,
+   "token": "d-green-58"
+  },
+  "d:#0f8b8d": {
+   "dE": 0.0,
+   "token": "d-teal-52"
+  },
+  "d:#111111": {
+   "dE": 2.0,
+   "token": "d-n-3"
+  },
+  "d:#1a7f37": {
+   "dE": 0.0,
+   "token": "d-green-47"
+  },
+  "d:#1b1f24": {
+   "dE": 0.0,
+   "token": "d-n-12"
+  },
+  "d:#1b2633": {
+   "dE": 0.0,
+   "token": "d-blue-15"
+  },
+  "d:#1baf7a": {
+   "dE": 0.0,
+   "token": "d-green-64"
+  },
+  "d:#1f5fbf": {
+   "dE": 0.0,
+   "token": "d-blue-42"
+  },
+  "d:#1f7a3a": {
+   "dE": 0.0,
+   "token": "d-green-45"
+  },
+  "d:#1f9d55": {
+   "dE": 0.0,
+   "token": "d-green-57"
+  },
+  "d:#2a78d6": {
+   "dE": 0.0,
+   "token": "d-blue-50"
+  },
+  "d:#475569": {
+   "dE": 0.0,
+   "token": "d-n-36"
+  },
+  "d:#52514e": {
+   "dE": 0.0,
+   "token": "d-n-34"
+  },
+  "d:#5b6573": {
+   "dE": 0.0,
+   "token": "d-n-42"
+  },
+  "d:#6250d6": {
+   "dE": 0.0,
+   "token": "d-blue-43"
+  },
+  "d:#64748b": {
+   "dE": 0.0,
+   "token": "d-n-48"
+  },
+  "d:#6b7280": {
+   "dE": 0.0,
+   "token": "d-n-48b"
+  },
+  "d:#7c3aed": {
+   "dE": 0.0,
+   "token": "d-violet-43"
+  },
+  "d:#86b6ef": {
+   "dE": 0.0,
+   "token": "d-blue-73"
+  },
+  "d:#898781": {
+   "dE": 0.0,
+   "token": "d-n-56"
+  },
+  "d:#8a5a00": {
+   "dE": 0.0,
+   "token": "d-amber-42"
+  },
+  "d:#9333ea": {
+   "dE": 0.0,
+   "token": "d-violet-45"
+  },
+  "d:#94a3b8": {
+   "dE": 0.0,
+   "token": "d-n-66"
+  },
+  "d:#9a6700": {
+   "dE": 0.0,
+   "token": "d-amber-48"
+  },
+  "d:#9ccfb0": {
+   "dE": 0.0,
+   "token": "d-green-79"
+  },
+  "d:#9fd3dc": {
+   "dE": 0.0,
+   "token": "d-teal-81"
+  },
+  "d:#a78bfa": {
+   "dE": 0.0,
+   "token": "d-violet-65"
+  },
+  "d:#b42318": {
+   "dE": 0.0,
+   "token": "d-red-40"
+  },
+  "d:#b45309": {
+   "dE": 0.0,
+   "token": "d-amber-47"
+  },
+  "d:#b8c0ca": {
+   "dE": 0.0,
+   "token": "d-n-77"
+  },
+  "d:#c3c2b7": {
+   "dE": 0.0,
+   "token": "d-n-78"
+  },
+  "d:#c7d7ef": {
+   "dE": 0.0,
+   "token": "d-blue-85"
+  },
+  "d:#c7e3ea": {
+   "dE": 0.0,
+   "token": "d-teal-88"
+  },
+  "d:#c98500": {
+   "dE": 0.0,
+   "token": "d-amber-61"
+  },
+  "d:#c9d0d9": {
+   "dE": 0.0,
+   "token": "d-n-83"
+  },
+  "d:#cfe0f7": {
+   "dE": 3.2,
+   "token": "d-blue-85"
+  },
+  "d:#d03b3b": {
+   "dE": 0.0,
+   "token": "d-red-48"
+  },
+  "d:#d6ccfb": {
+   "dE": 0.0,
+   "token": "d-violet-84"
+  },
+  "d:#d6dbe1": {
+   "dE": 1.2,
+   "token": "d-n-88"
+  },
+  "d:#d9dee5": {
+   "dE": 0.0,
+   "token": "d-n-88"
+  },
+  "d:#e1e0d9": {
+   "dE": 0.0,
+   "token": "d-n-89"
+  },
+  "d:#e34948": {
+   "dE": 2.8,
+   "token": "d-red-54"
+  },
+  "d:#e3e7ec": {
+   "dE": 3.4,
+   "token": "d-n-88"
+  },
+  "d:#e5484d": {
+   "dE": 0.0,
+   "token": "d-red-54"
+  },
+  "d:#e5f4e4": {
+   "dE": 0.0,
+   "token": "d-green-95"
+  },
+  "d:#e87ba4": {
+   "dE": 0.0,
+   "token": "d-red-65"
+  },
+  "d:#eb6834": {
+   "dE": 0.0,
+   "token": "d-red-60"
+  },
+  "d:#eda100": {
+   "dE": 0.0,
+   "token": "d-amber-72"
+  },
+  "d:#eef1f5": {
+   "dE": 0.0,
+   "token": "d-n-95"
+  },
+  "d:#f6c3a8": {
+   "dE": 0.0,
+   "token": "d-amber-83"
+  },
+  "d:#f6f7f9": {
+   "dE": 2.5,
+   "token": "d-n-95"
+  },
+  "d:#fab219": {
+   "dE": 0.0,
+   "token": "d-amber-77"
+  },
+  "d:#fcfcfb": {
+   "dE": 0.0,
+   "token": "d-n-99"
+  },
+  "d:#fde3e0": {
+   "dE": 0.0,
+   "token": "d-red-92"
+  },
+  "d:#fde9c8": {
+   "dE": 0.0,
+   "token": "d-amber-93"
+  },
+  "d:#fff1e6": {
+   "dE": 0.0,
+   "token": "d-amber-96b"
+  },
+  "d:#fff3d6": {
+   "dE": 0.0,
+   "token": "d-amber-96"
+  },
+  "d:#ffffff": {
+   "dE": 1.2,
+   "token": "d-n-99"
+  },
+  "l:#000000": {
+   "dE": 0.0,
+   "token": "l-n-0"
+  },
+  "l:#0e7490": {
+   "dE": 0.0,
+   "token": "l-teal-45"
+  },
+  "l:#1a7f37": {
+   "dE": 0.0,
+   "token": "l-green-47"
+  },
   "l:#1b2633": {
    "dE": 0.0,
    "token": "l-blue-15"
@@ -12,9 +284,29 @@
    "dE": 0.0,
    "token": "l-blue-50"
   },
+  "l:#333333": {
+   "dE": 0.0,
+   "token": "l-n-21"
+  },
+  "l:#4a525c": {
+   "dE": 6.2,
+   "token": "l-n-38"
+  },
+  "l:#4a5a6c": {
+   "dE": 0.0,
+   "token": "l-n-38"
+  },
+  "l:#64748b": {
+   "dE": 0.0,
+   "token": "l-n-48"
+  },
+  "l:#666666": {
+   "dE": 0.0,
+   "token": "l-n-43"
+  },
   "l:#888888": {
-   "dE": 14.3,
-   "token": "l-n-68"
+   "dE": 6.5,
+   "token": "l-n-63"
   },
   "l:#8a93a3": {
    "dE": 7.0,
@@ -29,8 +321,12 @@
    "token": "l-n-68"
   },
   "l:#999999": {
-   "dE": 10.2,
-   "token": "l-n-68"
+   "dE": 0.0,
+   "token": "l-n-63"
+  },
+  "l:#9a3f06": {
+   "dE": 0.0,
+   "token": "l-amber-39"
   },
   "l:#9aa4b2": {
    "dE": 1.1,
@@ -44,21 +340,41 @@
    "dE": 0.0,
    "token": "l-n-68"
   },
+  "l:#9db3ea": {
+   "dE": 7.4,
+   "token": "l-blue-75"
+  },
   "l:#9db8dc": {
-   "dE": 13.8,
-   "token": "l-blue-85"
+   "dE": 4.5,
+   "token": "l-blue-75"
   },
   "l:#9ebce8": {
-   "dE": 15.4,
-   "token": "l-blue-85"
+   "dE": 0.0,
+   "token": "l-blue-75"
+  },
+  "l:#9fd19c": {
+   "dE": 0.0,
+   "token": "l-green-79"
   },
   "l:#b42318": {
    "dE": 0.0,
    "token": "l-red-40"
   },
+  "l:#b45309": {
+   "dE": 0.0,
+   "token": "l-amber-47"
+  },
+  "l:#b5dcbc": {
+   "dE": 0.0,
+   "token": "l-green-84"
+  },
   "l:#b8c2cf": {
    "dE": 3.1,
    "token": "l-n-79"
+  },
+  "l:#b9b0f0": {
+   "dE": 0.0,
+   "token": "l-blue-75b"
   },
   "l:#b9c6d8": {
    "dE": 0.0,
@@ -69,12 +385,16 @@
    "token": "l-red-40"
   },
   "l:#c3c2b7": {
-   "dE": 12.0,
-   "token": "l-n-83"
+   "dE": 0.0,
+   "token": "l-n-78"
   },
   "l:#c7d7ef": {
    "dE": 0.0,
    "token": "l-blue-85"
+  },
+  "l:#c9a24a": {
+   "dE": 0.0,
+   "token": "l-amber-69"
   },
   "l:#c9d0d9": {
    "dE": 0.0,
@@ -89,8 +409,12 @@
    "token": "l-n-83"
   },
   "l:#cf222e": {
-   "dE": 11.2,
-   "token": "l-red-40"
+   "dE": 0.0,
+   "token": "l-red-45"
+  },
+  "l:#d4a72c": {
+   "dE": 0.0,
+   "token": "l-amber-71"
   },
   "l:#d5dbe3": {
    "dE": 1.3,
@@ -100,13 +424,29 @@
    "dE": 7.2,
    "token": "l-blue-85"
   },
+  "l:#d97706": {
+   "dE": 0.0,
+   "token": "l-amber-60"
+  },
   "l:#d9dee5": {
    "dE": 0.0,
    "token": "l-n-88"
   },
+  "l:#e1dafc": {
+   "dE": 0.0,
+   "token": "l-violet-89"
+  },
   "l:#e3e7ec": {
    "dE": 3.4,
    "token": "l-n-88"
+  },
+  "l:#e7b56b": {
+   "dE": 0.0,
+   "token": "l-amber-77"
+  },
+  "l:#ebc66a": {
+   "dE": 0.0,
+   "token": "l-amber-81"
   },
   "l:#eef1f5": {
    "dE": 0.0,
@@ -116,9 +456,25 @@
    "dE": 3.3,
    "token": "l-red-78"
   },
+  "l:#f0b48a": {
+   "dE": 0.0,
+   "token": "l-amber-78"
+  },
   "l:#f0b4b4": {
    "dE": 5.6,
    "token": "l-red-78"
+  },
+  "l:#f0d58a": {
+   "dE": 0.0,
+   "token": "l-amber-86"
+  },
+  "l:#f0d9b0": {
+   "dE": 0.0,
+   "token": "l-amber-88"
+  },
+  "l:#f1d39a": {
+   "dE": 0.0,
+   "token": "l-amber-86b"
   },
   "l:#f3b0a8": {
    "dE": 0.0,
@@ -127,6 +483,18 @@
   "l:#ffffff": {
    "dE": 5.5,
    "token": "l-n-95"
+  },
+  "s:#000000": {
+   "dE": 0.0,
+   "token": "s-n-0"
+  },
+  "s:#0f1419": {
+   "dE": 7.3,
+   "token": "s-n-0"
+  },
+  "s:#111111": {
+   "dE": 5.1,
+   "token": "s-n-0"
   },
   "s:#1a7f37": {
    "dE": 0.0,
@@ -144,9 +512,37 @@
    "dE": 0.0,
    "token": "s-blue-22"
   },
+  "s:#2a2f36": {
+   "dE": 0.0,
+   "token": "s-n-19"
+  },
   "s:#2a78d6": {
-   "dE": 10.8,
-   "token": "s-blue-42"
+   "dE": 0.0,
+   "token": "s-blue-50"
+  },
+  "s:#2fbf5b": {
+   "dE": 0.0,
+   "token": "s-green-68"
+  },
+  "s:#8a4b00": {
+   "dE": 0.0,
+   "token": "s-amber-39b"
+  },
+  "s:#8a94a3": {
+   "dE": 6.7,
+   "token": "s-n-68"
+  },
+  "s:#9a3f06": {
+   "dE": 0.0,
+   "token": "s-amber-39"
+  },
+  "s:#9aa6b5": {
+   "dE": 0.0,
+   "token": "s-n-68"
+  },
+  "s:#b42318": {
+   "dE": 0.0,
+   "token": "s-red-40"
   },
   "s:#cfd8e3": {
    "dE": 3.4,
@@ -172,9 +568,17 @@
    "dE": 0.0,
    "token": "s-green-94"
   },
+  "s:#ddd3fb": {
+   "dE": 0.0,
+   "token": "s-violet-86"
+  },
   "s:#dfe3e9": {
    "dE": 1.9,
    "token": "s-n-88"
+  },
+  "s:#e0a100": {
+   "dE": 0.0,
+   "token": "s-amber-70"
   },
   "s:#e3edfb": {
    "dE": 0.0,
@@ -183,6 +587,10 @@
   "s:#e4e6ea": {
    "dE": 3.5,
    "token": "s-n-88"
+  },
+  "s:#e5484d": {
+   "dE": 0.0,
+   "token": "s-red-54"
   },
   "s:#e5f4e4": {
    "dE": 3.0,
@@ -195,6 +603,10 @@
   "s:#e6edfc": {
    "dE": 1.2,
    "token": "s-blue-93"
+  },
+  "s:#e6f3f5": {
+   "dE": 0.0,
+   "token": "s-teal-95"
   },
   "s:#e6f4ea": {
    "dE": 1.1,
@@ -267,6 +679,10 @@
   "s:#f1f6fd": {
    "dE": 2.4,
    "token": "s-n-95"
+  },
+  "s:#f2c94c": {
+   "dE": 0.0,
+   "token": "s-amber-82"
   },
   "s:#f3f7fd": {
    "dE": 2.3,
@@ -341,12 +757,12 @@
    "token": "s-red-94"
   },
   "s:#fdf0d0": {
-   "dE": 8.3,
-   "token": "s-amber-97"
+   "dE": 0.0,
+   "token": "s-amber-95"
   },
   "s:#fdf3d8": {
-   "dE": 5.4,
-   "token": "s-amber-97"
+   "dE": 3.0,
+   "token": "s-amber-95"
   },
   "s:#fff1e0": {
    "dE": 2.8,
@@ -355,6 +771,10 @@
   "s:#fff1e6": {
    "dE": 4.0,
    "token": "s-amber-97"
+  },
+  "s:#fff3b0": {
+   "dE": 0.0,
+   "token": "s-yellow-95"
   },
   "s:#fff5f4": {
    "dE": 0.5,
@@ -397,36 +817,36 @@
    "token": "s-n-100"
   },
   "t:#000000": {
-   "dE": 12.2,
-   "token": "t-n-12"
+   "dE": 0.0,
+   "token": "t-n-0"
   },
   "t:#006300": {
-   "dE": 15.1,
-   "token": "t-green-47"
+   "dE": 0.0,
+   "token": "t-green-36"
   },
   "t:#0b4f5c": {
    "dE": 0.0,
    "token": "t-teal-30"
   },
   "t:#0e7490": {
-   "dE": 17.5,
-   "token": "t-teal-30"
+   "dE": 0.0,
+   "token": "t-teal-45"
   },
   "t:#15803d": {
    "dE": 2.8,
    "token": "t-green-47"
   },
   "t:#163a9c": {
-   "dE": 16.7,
-   "token": "t-blue-42"
+   "dE": 0.0,
+   "token": "t-blue-28"
   },
   "t:#18794e": {
-   "dE": 16.3,
-   "token": "t-green-47"
+   "dE": 0.0,
+   "token": "t-green-45"
   },
   "t:#1a5c1a": {
-   "dE": 15.7,
-   "token": "t-green-47"
+   "dE": 0.0,
+   "token": "t-green-34"
   },
   "t:#1a7f37": {
    "dE": 0.0,
@@ -439,6 +859,14 @@
   "t:#1b2633": {
    "dE": 0.0,
    "token": "t-blue-15"
+  },
+  "t:#1d3f73": {
+   "dE": 0.0,
+   "token": "t-blue-27"
+  },
+  "t:#1d4f86": {
+   "dE": 7.2,
+   "token": "t-blue-27"
   },
   "t:#1f5fbf": {
    "dE": 0.0,
@@ -472,6 +900,10 @@
    "dE": 5.8,
    "token": "t-n-31"
   },
+  "t:#5a4300": {
+   "dE": 0.0,
+   "token": "t-amber-30"
+  },
   "t:#5b21b6": {
    "dE": 0.0,
    "token": "t-violet-31"
@@ -489,20 +921,28 @@
    "token": "t-n-43"
   },
   "t:#6b4a00": {
-   "dE": 12.4,
-   "token": "t-amber-42"
+   "dE": 7.1,
+   "token": "t-amber-30"
   },
   "t:#7a1a12": {
    "dE": 0.0,
    "token": "t-red-27"
   },
   "t:#7a4a00": {
-   "dE": 8.3,
-   "token": "t-amber-42"
+   "dE": 7.8,
+   "token": "t-amber-39"
+  },
+  "t:#7c3aed": {
+   "dE": 0.0,
+   "token": "t-violet-43"
+  },
+  "t:#8a3c06": {
+   "dE": 0.0,
+   "token": "t-amber-35"
   },
   "t:#8a4b00": {
-   "dE": 9.8,
-   "token": "t-amber-42"
+   "dE": 0.0,
+   "token": "t-amber-39"
   },
   "t:#8a5a00": {
    "dE": 0.0,
@@ -525,16 +965,20 @@
    "token": "t-n-61"
   },
   "t:#a1261c": {
-   "dE": 10.0,
-   "token": "t-red-40"
+   "dE": 0.0,
+   "token": "t-red-36"
   },
   "t:#b42318": {
    "dE": 0.0,
    "token": "t-red-40"
   },
+  "t:#b45309": {
+   "dE": 0.0,
+   "token": "t-amber-47"
+  },
   "t:#c2410c": {
-   "dE": 13.9,
-   "token": "t-red-40"
+   "dE": 0.0,
+   "token": "t-red-46"
   },
   "t:#c6d0dc": {
    "dE": 0.0,
@@ -548,13 +992,442 @@
    "dE": 5.6,
    "token": "t-n-83"
   },
+  "t:#e0a100": {
+   "dE": 0.0,
+   "token": "t-amber-70"
+  },
   "t:#ffffff": {
    "dE": 0.0,
    "token": "t-n-100"
   }
  },
- "near": 18.0,
+ "near": 8.0,
  "tokens": {
+  "d-amber-42": {
+   "day": "#8a5a00",
+   "family": "amber",
+   "role": "d",
+   "uses": 1
+  },
+  "d-amber-47": {
+   "day": "#b45309",
+   "family": "amber",
+   "role": "d",
+   "uses": 12
+  },
+  "d-amber-48": {
+   "day": "#9a6700",
+   "family": "amber",
+   "role": "d",
+   "uses": 1
+  },
+  "d-amber-61": {
+   "day": "#c98500",
+   "family": "amber",
+   "role": "d",
+   "uses": 4
+  },
+  "d-amber-72": {
+   "day": "#eda100",
+   "family": "amber",
+   "role": "d",
+   "uses": 1
+  },
+  "d-amber-77": {
+   "day": "#fab219",
+   "family": "amber",
+   "role": "d",
+   "uses": 1
+  },
+  "d-amber-83": {
+   "day": "#f6c3a8",
+   "family": "amber",
+   "role": "d",
+   "uses": 1
+  },
+  "d-amber-93": {
+   "day": "#fde9c8",
+   "family": "amber",
+   "role": "d",
+   "uses": 1
+  },
+  "d-amber-96": {
+   "day": "#fff3d6",
+   "family": "amber",
+   "role": "d",
+   "uses": 2
+  },
+  "d-amber-96b": {
+   "day": "#fff1e6",
+   "family": "amber",
+   "role": "d",
+   "uses": 1
+  },
+  "d-blue-15": {
+   "day": "#1b2633",
+   "family": "blue",
+   "role": "d",
+   "uses": 3
+  },
+  "d-blue-42": {
+   "day": "#1f5fbf",
+   "family": "blue",
+   "role": "d",
+   "uses": 4
+  },
+  "d-blue-43": {
+   "day": "#6250d6",
+   "family": "blue",
+   "role": "d",
+   "uses": 1
+  },
+  "d-blue-50": {
+   "day": "#2a78d6",
+   "family": "blue",
+   "role": "d",
+   "uses": 18
+  },
+  "d-blue-73": {
+   "day": "#86b6ef",
+   "family": "blue",
+   "role": "d",
+   "uses": 1
+  },
+  "d-blue-85": {
+   "day": "#c7d7ef",
+   "family": "blue",
+   "role": "d",
+   "uses": 4
+  },
+  "d-green-36": {
+   "day": "#006300",
+   "family": "green",
+   "role": "d",
+   "uses": 1
+  },
+  "d-green-45": {
+   "day": "#1f7a3a",
+   "family": "green",
+   "role": "d",
+   "uses": 1
+  },
+  "d-green-47": {
+   "day": "#1a7f37",
+   "family": "green",
+   "role": "d",
+   "uses": 5
+  },
+  "d-green-47b": {
+   "day": "#008300",
+   "family": "green",
+   "role": "d",
+   "uses": 1
+  },
+  "d-green-57": {
+   "day": "#1f9d55",
+   "family": "green",
+   "role": "d",
+   "uses": 2
+  },
+  "d-green-58": {
+   "day": "#0e9f6e",
+   "family": "green",
+   "role": "d",
+   "uses": 1
+  },
+  "d-green-58b": {
+   "day": "#0ca30c",
+   "family": "green",
+   "role": "d",
+   "uses": 1
+  },
+  "d-green-64": {
+   "day": "#1baf7a",
+   "family": "green",
+   "role": "d",
+   "uses": 1
+  },
+  "d-green-79": {
+   "day": "#9ccfb0",
+   "family": "green",
+   "role": "d",
+   "uses": 2
+  },
+  "d-green-95": {
+   "day": "#e5f4e4",
+   "family": "green",
+   "role": "d",
+   "uses": 5
+  },
+  "d-n-12": {
+   "day": "#1b1f24",
+   "family": "n",
+   "role": "d",
+   "uses": 4
+  },
+  "d-n-3": {
+   "day": "#0b0b0b",
+   "family": "n",
+   "role": "d",
+   "uses": 3
+  },
+  "d-n-34": {
+   "day": "#52514e",
+   "family": "n",
+   "role": "d",
+   "uses": 1
+  },
+  "d-n-36": {
+   "day": "#475569",
+   "family": "n",
+   "role": "d",
+   "uses": 2
+  },
+  "d-n-42": {
+   "day": "#5b6573",
+   "family": "n",
+   "role": "d",
+   "uses": 4
+  },
+  "d-n-48": {
+   "day": "#64748b",
+   "family": "n",
+   "role": "d",
+   "uses": 10
+  },
+  "d-n-48b": {
+   "day": "#6b7280",
+   "family": "n",
+   "role": "d",
+   "uses": 1
+  },
+  "d-n-56": {
+   "day": "#898781",
+   "family": "n",
+   "role": "d",
+   "uses": 1
+  },
+  "d-n-66": {
+   "day": "#94a3b8",
+   "family": "n",
+   "role": "d",
+   "uses": 9
+  },
+  "d-n-77": {
+   "day": "#b8c0ca",
+   "family": "n",
+   "role": "d",
+   "uses": 1
+  },
+  "d-n-78": {
+   "day": "#c3c2b7",
+   "family": "n",
+   "role": "d",
+   "uses": 1
+  },
+  "d-n-83": {
+   "day": "#c9d0d9",
+   "family": "n",
+   "role": "d",
+   "uses": 6
+  },
+  "d-n-88": {
+   "day": "#d9dee5",
+   "family": "n",
+   "role": "d",
+   "uses": 6
+  },
+  "d-n-89": {
+   "day": "#e1e0d9",
+   "family": "n",
+   "role": "d",
+   "uses": 1
+  },
+  "d-n-95": {
+   "day": "#eef1f5",
+   "family": "n",
+   "role": "d",
+   "uses": 7
+  },
+  "d-n-99": {
+   "day": "#fcfcfb",
+   "family": "n",
+   "role": "d",
+   "uses": 2
+  },
+  "d-red-40": {
+   "day": "#b42318",
+   "family": "red",
+   "role": "d",
+   "uses": 10
+  },
+  "d-red-48": {
+   "day": "#d03b3b",
+   "family": "red",
+   "role": "d",
+   "uses": 2
+  },
+  "d-red-54": {
+   "day": "#e5484d",
+   "family": "red",
+   "role": "d",
+   "uses": 8
+  },
+  "d-red-60": {
+   "day": "#eb6834",
+   "family": "red",
+   "role": "d",
+   "uses": 6
+  },
+  "d-red-65": {
+   "day": "#e87ba4",
+   "family": "red",
+   "role": "d",
+   "uses": 1
+  },
+  "d-red-92": {
+   "day": "#fde3e0",
+   "family": "red",
+   "role": "d",
+   "uses": 2
+  },
+  "d-teal-45": {
+   "day": "#0e7490",
+   "family": "teal",
+   "role": "d",
+   "uses": 18
+  },
+  "d-teal-46": {
+   "day": "#0b7a75",
+   "family": "teal",
+   "role": "d",
+   "uses": 1
+  },
+  "d-teal-52": {
+   "day": "#0f8b8d",
+   "family": "teal",
+   "role": "d",
+   "uses": 1
+  },
+  "d-teal-56": {
+   "day": "#0891b2",
+   "family": "teal",
+   "role": "d",
+   "uses": 1
+  },
+  "d-teal-81": {
+   "day": "#9fd3dc",
+   "family": "teal",
+   "role": "d",
+   "uses": 2
+  },
+  "d-teal-88": {
+   "day": "#c7e3ea",
+   "family": "teal",
+   "role": "d",
+   "uses": 2
+  },
+  "d-violet-43": {
+   "day": "#7c3aed",
+   "family": "violet",
+   "role": "d",
+   "uses": 13
+  },
+  "d-violet-45": {
+   "day": "#9333ea",
+   "family": "violet",
+   "role": "d",
+   "uses": 4
+  },
+  "d-violet-65": {
+   "day": "#a78bfa",
+   "family": "violet",
+   "role": "d",
+   "uses": 1
+  },
+  "d-violet-84": {
+   "day": "#d6ccfb",
+   "family": "violet",
+   "role": "d",
+   "uses": 1
+  },
+  "l-amber-39": {
+   "day": "#9a3f06",
+   "family": "amber",
+   "rare": true,
+   "role": "l",
+   "uses": 1
+  },
+  "l-amber-47": {
+   "day": "#b45309",
+   "family": "amber",
+   "rare": true,
+   "role": "l",
+   "uses": 2
+  },
+  "l-amber-60": {
+   "day": "#d97706",
+   "family": "amber",
+   "rare": true,
+   "role": "l",
+   "uses": 1
+  },
+  "l-amber-69": {
+   "day": "#c9a24a",
+   "family": "amber",
+   "rare": true,
+   "role": "l",
+   "uses": 1
+  },
+  "l-amber-71": {
+   "day": "#d4a72c",
+   "family": "amber",
+   "rare": true,
+   "role": "l",
+   "uses": 1
+  },
+  "l-amber-77": {
+   "day": "#e7b56b",
+   "family": "amber",
+   "rare": true,
+   "role": "l",
+   "uses": 1
+  },
+  "l-amber-78": {
+   "day": "#f0b48a",
+   "family": "amber",
+   "rare": true,
+   "role": "l",
+   "uses": 1
+  },
+  "l-amber-81": {
+   "day": "#ebc66a",
+   "family": "amber",
+   "rare": true,
+   "role": "l",
+   "uses": 1
+  },
+  "l-amber-86": {
+   "day": "#f0d58a",
+   "family": "amber",
+   "rare": true,
+   "role": "l",
+   "uses": 2
+  },
+  "l-amber-86b": {
+   "day": "#f1d39a",
+   "family": "amber",
+   "rare": true,
+   "role": "l",
+   "uses": 2
+  },
+  "l-amber-88": {
+   "day": "#f0d9b0",
+   "family": "amber",
+   "rare": true,
+   "role": "l",
+   "uses": 2
+  },
   "l-blue-15": {
    "day": "#1b2633",
    "family": "blue",
@@ -573,17 +1446,101 @@
    "role": "l",
    "uses": 4
   },
+  "l-blue-75": {
+   "day": "#9ebce8",
+   "family": "blue",
+   "rare": true,
+   "role": "l",
+   "uses": 2
+  },
+  "l-blue-75b": {
+   "day": "#b9b0f0",
+   "family": "blue",
+   "rare": true,
+   "role": "l",
+   "uses": 1
+  },
   "l-blue-85": {
    "day": "#c7d7ef",
    "family": "blue",
    "role": "l",
    "uses": 5
   },
+  "l-green-47": {
+   "day": "#1a7f37",
+   "family": "green",
+   "rare": true,
+   "role": "l",
+   "uses": 1
+  },
+  "l-green-79": {
+   "day": "#9fd19c",
+   "family": "green",
+   "rare": true,
+   "role": "l",
+   "uses": 2
+  },
+  "l-green-84": {
+   "day": "#b5dcbc",
+   "family": "green",
+   "rare": true,
+   "role": "l",
+   "uses": 1
+  },
+  "l-n-0": {
+   "day": "#000000",
+   "family": "n",
+   "rare": true,
+   "role": "l",
+   "uses": 1
+  },
+  "l-n-21": {
+   "day": "#333333",
+   "family": "n",
+   "rare": true,
+   "role": "l",
+   "uses": 1
+  },
+  "l-n-38": {
+   "day": "#4a5a6c",
+   "family": "n",
+   "rare": true,
+   "role": "l",
+   "uses": 3
+  },
+  "l-n-43": {
+   "day": "#666666",
+   "family": "n",
+   "rare": true,
+   "role": "l",
+   "uses": 1
+  },
+  "l-n-48": {
+   "day": "#64748b",
+   "family": "n",
+   "rare": true,
+   "role": "l",
+   "uses": 1
+  },
+  "l-n-63": {
+   "day": "#999999",
+   "family": "n",
+   "rare": true,
+   "role": "l",
+   "uses": 1
+  },
   "l-n-68": {
    "day": "#9aa6b5",
    "family": "n",
    "role": "l",
    "uses": 4
+  },
+  "l-n-78": {
+   "day": "#c3c2b7",
+   "family": "n",
+   "rare": true,
+   "role": "l",
+   "uses": 2
   },
   "l-n-79": {
    "day": "#b9c6d8",
@@ -615,11 +1572,67 @@
    "role": "l",
    "uses": 8
   },
+  "l-red-45": {
+   "day": "#cf222e",
+   "family": "red",
+   "rare": true,
+   "role": "l",
+   "uses": 1
+  },
   "l-red-78": {
    "day": "#f3b0a8",
    "family": "red",
    "role": "l",
    "uses": 7
+  },
+  "l-teal-45": {
+   "day": "#0e7490",
+   "family": "teal",
+   "rare": true,
+   "role": "l",
+   "uses": 2
+  },
+  "l-violet-89": {
+   "day": "#e1dafc",
+   "family": "violet",
+   "rare": true,
+   "role": "l",
+   "uses": 1
+  },
+  "s-amber-39": {
+   "day": "#9a3f06",
+   "family": "amber",
+   "rare": true,
+   "role": "s",
+   "uses": 1
+  },
+  "s-amber-39b": {
+   "day": "#8a4b00",
+   "family": "amber",
+   "rare": true,
+   "role": "s",
+   "uses": 1
+  },
+  "s-amber-70": {
+   "day": "#e0a100",
+   "family": "amber",
+   "rare": true,
+   "role": "s",
+   "uses": 2
+  },
+  "s-amber-82": {
+   "day": "#f2c94c",
+   "family": "amber",
+   "rare": true,
+   "role": "s",
+   "uses": 3
+  },
+  "s-amber-95": {
+   "day": "#fdf0d0",
+   "family": "amber",
+   "rare": true,
+   "role": "s",
+   "uses": 2
   },
   "s-amber-97": {
    "day": "#fff7e6",
@@ -645,6 +1658,13 @@
    "role": "s",
    "uses": 22
   },
+  "s-blue-50": {
+   "day": "#2a78d6",
+   "family": "blue",
+   "rare": true,
+   "role": "s",
+   "uses": 1
+  },
   "s-blue-93": {
    "day": "#e3edfb",
    "family": "blue",
@@ -656,6 +1676,13 @@
    "family": "green",
    "role": "s",
    "uses": 4
+  },
+  "s-green-68": {
+   "day": "#2fbf5b",
+   "family": "green",
+   "rare": true,
+   "role": "s",
+   "uses": 1
   },
   "s-green-94": {
    "day": "#dcf3e2",
@@ -669,11 +1696,32 @@
    "role": "s",
    "uses": 4
   },
+  "s-n-0": {
+   "day": "#000000",
+   "family": "n",
+   "rare": true,
+   "role": "s",
+   "uses": 2
+  },
   "s-n-100": {
    "day": "#ffffff",
    "family": "n",
    "role": "s",
    "uses": 146
+  },
+  "s-n-19": {
+   "day": "#2a2f36",
+   "family": "n",
+   "rare": true,
+   "role": "s",
+   "uses": 1
+  },
+  "s-n-68": {
+   "day": "#9aa6b5",
+   "family": "n",
+   "rare": true,
+   "role": "s",
+   "uses": 3
   },
   "s-n-88": {
    "day": "#d9dee5",
@@ -693,11 +1741,67 @@
    "role": "s",
    "uses": 7
   },
+  "s-red-40": {
+   "day": "#b42318",
+   "family": "red",
+   "rare": true,
+   "role": "s",
+   "uses": 3
+  },
+  "s-red-54": {
+   "day": "#e5484d",
+   "family": "red",
+   "rare": true,
+   "role": "s",
+   "uses": 2
+  },
   "s-red-94": {
    "day": "#fde8e6",
    "family": "red",
    "role": "s",
    "uses": 15
+  },
+  "s-teal-95": {
+   "day": "#e6f3f5",
+   "family": "teal",
+   "rare": true,
+   "role": "s",
+   "uses": 2
+  },
+  "s-violet-86": {
+   "day": "#ddd3fb",
+   "family": "violet",
+   "rare": true,
+   "role": "s",
+   "uses": 1
+  },
+  "s-yellow-95": {
+   "day": "#fff3b0",
+   "family": "yellow",
+   "rare": true,
+   "role": "s",
+   "uses": 1
+  },
+  "t-amber-30": {
+   "day": "#5a4300",
+   "family": "amber",
+   "rare": true,
+   "role": "t",
+   "uses": 1
+  },
+  "t-amber-35": {
+   "day": "#8a3c06",
+   "family": "amber",
+   "rare": true,
+   "role": "t",
+   "uses": 1
+  },
+  "t-amber-39": {
+   "day": "#8a4b00",
+   "family": "amber",
+   "rare": true,
+   "role": "t",
+   "uses": 3
   },
   "t-amber-42": {
    "day": "#8a5a00",
@@ -705,11 +1809,39 @@
    "role": "t",
    "uses": 4
   },
+  "t-amber-47": {
+   "day": "#b45309",
+   "family": "amber",
+   "rare": true,
+   "role": "t",
+   "uses": 2
+  },
+  "t-amber-70": {
+   "day": "#e0a100",
+   "family": "amber",
+   "rare": true,
+   "role": "t",
+   "uses": 1
+  },
   "t-blue-15": {
    "day": "#1b2633",
    "family": "blue",
    "role": "t",
    "uses": 13
+  },
+  "t-blue-27": {
+   "day": "#1d3f73",
+   "family": "blue",
+   "rare": true,
+   "role": "t",
+   "uses": 3
+  },
+  "t-blue-28": {
+   "day": "#163a9c",
+   "family": "blue",
+   "rare": true,
+   "role": "t",
+   "uses": 2
   },
   "t-blue-42": {
    "day": "#1f5fbf",
@@ -717,11 +1849,39 @@
    "role": "t",
    "uses": 10
   },
+  "t-green-34": {
+   "day": "#1a5c1a",
+   "family": "green",
+   "rare": true,
+   "role": "t",
+   "uses": 1
+  },
+  "t-green-36": {
+   "day": "#006300",
+   "family": "green",
+   "rare": true,
+   "role": "t",
+   "uses": 1
+  },
+  "t-green-45": {
+   "day": "#18794e",
+   "family": "green",
+   "rare": true,
+   "role": "t",
+   "uses": 1
+  },
   "t-green-47": {
    "day": "#1a7f37",
    "family": "green",
    "role": "t",
    "uses": 5
+  },
+  "t-n-0": {
+   "day": "#000000",
+   "family": "n",
+   "rare": true,
+   "role": "t",
+   "uses": 2
   },
   "t-n-100": {
    "day": "#ffffff",
@@ -783,11 +1943,25 @@
    "role": "t",
    "uses": 13
   },
+  "t-red-36": {
+   "day": "#a1261c",
+   "family": "red",
+   "rare": true,
+   "role": "t",
+   "uses": 2
+  },
   "t-red-40": {
    "day": "#b42318",
    "family": "red",
    "role": "t",
    "uses": 17
+  },
+  "t-red-46": {
+   "day": "#c2410c",
+   "family": "red",
+   "rare": true,
+   "role": "t",
+   "uses": 1
   },
   "t-teal-30": {
    "day": "#0b4f5c",
@@ -795,11 +1969,25 @@
    "role": "t",
    "uses": 7
   },
+  "t-teal-45": {
+   "day": "#0e7490",
+   "family": "teal",
+   "rare": true,
+   "role": "t",
+   "uses": 2
+  },
   "t-violet-31": {
    "day": "#5b21b6",
    "family": "violet",
    "role": "t",
    "uses": 4
+  },
+  "t-violet-43": {
+   "day": "#7c3aed",
+   "family": "violet",
+   "rare": true,
+   "role": "t",
+   "uses": 1
   }
  },
  "tol": 3.5,
@@ -869,60 +2057,5 @@
   "#fff1e6": 1,
   "#fff3d6": 2,
   "#ffffff": 1
- },
- "unmapped": {
-  "l": {
-   "#000000": 1,
-   "#0e7490": 2,
-   "#1a7f37": 1,
-   "#333333": 1,
-   "#4a525c": 1,
-   "#4a5a6c": 3,
-   "#64748b": 1,
-   "#666666": 1,
-   "#9a3f06": 1,
-   "#9db3ea": 1,
-   "#9fd19c": 2,
-   "#b45309": 2,
-   "#b5dcbc": 1,
-   "#b9b0f0": 1,
-   "#c9a24a": 1,
-   "#d4a72c": 1,
-   "#d97706": 1,
-   "#e1dafc": 1,
-   "#e7b56b": 1,
-   "#ebc66a": 1,
-   "#f0b48a": 1,
-   "#f0d58a": 2,
-   "#f0d9b0": 2,
-   "#f1d39a": 2
-  },
-  "s": {
-   "#000000": 2,
-   "#0f1419": 1,
-   "#111111": 1,
-   "#2a2f36": 1,
-   "#2fbf5b": 1,
-   "#8a4b00": 1,
-   "#8a94a3": 1,
-   "#9a3f06": 1,
-   "#9aa6b5": 3,
-   "#b42318": 3,
-   "#ddd3fb": 1,
-   "#e0a100": 2,
-   "#e5484d": 2,
-   "#e6f3f5": 2,
-   "#f2c94c": 3,
-   "#fff3b0": 1
-  },
-  "t": {
-   "#1d3f73": 3,
-   "#1d4f86": 1,
-   "#5a4300": 1,
-   "#7c3aed": 1,
-   "#8a3c06": 1,
-   "#b45309": 2,
-   "#e0a100": 1
-  }
  }
 }

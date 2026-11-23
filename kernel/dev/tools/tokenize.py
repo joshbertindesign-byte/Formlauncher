@@ -2,6 +2,7 @@
 """Move the runtime's hard-coded colours onto theme tokens (UI refresh, step 3).
 
   python3 dev/tools/tokenize.py map                 read every colour in the runtime, write dev/tools/colour-map.json (the token table)
+  python3 dev/tools/tokenize.py lookup HEX..        which token(s) a colour became, by role
   python3 dev/tools/tokenize.py theme               write the day tokens from the map into fp-theme.js
   python3 dev/tools/tokenize.py apply FILE [FILE..] rewrite the colour literals of those files to var(--token); print what it left
   python3 dev/tools/tokenize.py check [FILE..]      list the colour literals still in the runtime files (default: all) outside the exceptions
@@ -10,9 +11,10 @@ A token is (role, family, lightness): `--s-n-100` a surface in the neutral famil
 `--l-n-81` a line (border), `--s-blue-93` a blue tint, `--a-blue-42` the accent. The role comes from the CSS property the colour is
 written after (color -> text, background -> surface, border/outline -> line); the same colour in two roles is two tokens that
 have the same day value and can differ at night. Colours close to each other (CIE76 distance <= TOL) share a token, named for
-the most used one; a rare colour with no close core token goes to the nearest in its role and family if within NEAR, else is
-left and listed. Colours that are not in `property: value` form (a JS object key, an attribute, canvas drawing) are never
-guessed: they are left for a person (the list says where).
+the most used one; a rare colour with no core token within NEAR in its role and family gets a token of its own (nothing is
+approximated visibly, nothing dropped). Colours that are not in `property: value` form (a JS object key, an attribute, canvas
+drawing) are role d, data: they get tokens too (`--d-*`) but are never rewritten automatically; a person replaces each one
+(a CSS value with var(), drawing code with FP.theme.token) and `lookup` says which token.
 """
 import re, sys, os, json, glob, math, colorsys, collections
 
@@ -21,7 +23,7 @@ KERNEL = os.path.abspath(os.path.join(HERE, '..', '..'))
 MAP = os.path.join(HERE, 'colour-map.json')
 FILES = sorted(glob.glob(os.path.join(KERNEL, 'fp-*.js'))) + [os.path.join(KERNEL, f) for f in ('launcher.html', 'editor.html', 'shell-launcher.html', 'shell-editor.html', 'kernel-test.html')]
 THEME = os.path.join(KERNEL, 'fp-theme.js')
-TOL, NEAR, MIN_CORE = 3.5, 18.0, 4
+TOL, NEAR, MIN_CORE = 3.5, 8.0, 4
 HEX = re.compile(r'#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})\b(?![0-9a-fA-F])')
 
 TEXT = ('color', 'caret-color', 'fill', 'text-decoration-color', '-webkit-text-fill-color', 'column-rule-color')
@@ -73,7 +75,7 @@ def build_map():
     for f in FILES:
         if os.path.abspath(f) == THEME: continue
         for _, _, h, prop in occurrences(open(f).read()): uses[role_of(prop)][h] += 1
-    tokens, mapping, left = {}, {}, collections.defaultdict(collections.Counter)
+    tokens, mapping = {}, {}
     for role in ('t', 's', 'l'):
         byfam = collections.defaultdict(list)
         for h, c in uses[role].items(): byfam[family(h)].append((h, c))
@@ -94,13 +96,36 @@ def build_map():
                 for m in k['members']:
                     best = min(((dE(m, t['day']), n) for n, t in tokens.items() if t['role'] == role and t['family'] == fam), default=None)
                     if best and best[0] <= NEAR: mapping[f'{role}:{m}'] = {'token': best[1], 'dE': round(best[0], 1)}
-                    else: left[role][m] += uses[role][m]
+                    else:
+                        L = round(lab(m)[0]); name = f'{role}-{fam}-{L}'
+                        while name in tokens: name += 'b'
+                        tokens[name] = {'day': m, 'uses': uses[role][m], 'role': role, 'family': fam, 'rare': True}
+                        mapping[f'{role}:{m}'] = {'token': name, 'dE': 0.0}
+    # role d: colours in drawing code and tables (not property: value form): every colour a token, near ones shared
+    byfam = collections.defaultdict(list)
+    for h, c in uses[None].items(): byfam[family(h)].append((h, c))
+    for fam, lst in byfam.items():
+        lst.sort(key=lambda x: -x[1]); clusters = []
+        for h, c in lst:
+            for k in clusters:
+                if dE(h, k['hex']) <= TOL: k['members'].append(h); k['n'] += c; break
+            else: clusters.append({'hex': h, 'n': c, 'members': [h]})
+        for k in clusters:
+            L = round(lab(k['hex'])[0]); name = f'd-{fam}-{L}'
+            while name in tokens: name += 'b'
+            tokens[name] = {'day': k['hex'], 'uses': k['n'], 'role': 'd', 'family': fam}
+            for m in k['members']: mapping[f'd:{m}'] = {'token': name, 'dE': round(dE(m, k['hex']), 1)}
     unknown = {h: c for h, c in uses[None].items()}
-    json.dump({'tol': TOL, 'near': NEAR, 'tokens': tokens, 'map': mapping,
-               'unmapped': {r: dict(c) for r, c in left.items()}, 'unknownContext': unknown}, open(MAP, 'w'), indent=1, sort_keys=True)
+    json.dump({'tol': TOL, 'near': NEAR, 'tokens': tokens, 'map': mapping, 'unknownContext': unknown}, open(MAP, 'w'), indent=1, sort_keys=True)
     n_use = sum(sum(c.values()) for r, c in uses.items() if r)
-    print(f'{len(tokens)} tokens; {len(mapping)} (role, colour) pairs mapped; unmapped: {sum(sum(c.values()) for c in left.values())} uses; colours in unknown contexts: {sum(unknown.values())} uses ({len(unknown)} distinct)')
+    print(f'{len(tokens)} tokens ({sum(1 for t in tokens.values() if t.get("rare"))} rare, one-colour); {len(mapping)} (role, colour) pairs mapped; colours in drawing code and tables (role d): {sum(unknown.values())} uses, {len(unknown)} distinct')
     print(f'role uses: text {sum(uses["t"].values())}, surface {sum(uses["s"].values())}, line {sum(uses["l"].values())}, other {sum(uses[None].values())}')
+
+def lookup(h):
+    mp = load_map()['map']; h = norm(h if h.startswith('#') else '#' + h)
+    found = {k.split(':')[0]: v for k, v in mp.items() if k.endswith(':' + h)}
+    for r, v in sorted(found.items()): print(f'{h} as {dict(t="text", s="surface", l="line", d="data").get(r, r)}: --{v["token"]}')
+    if not found: print(f'{h}: not in the map')
 
 def theme():
     """Write the colour tokens into fp-theme.js between its TOKENS markers: day values from the map; the night block is filled by step 4."""
@@ -134,6 +159,8 @@ if __name__ == '__main__':
     cmd = sys.argv[1] if len(sys.argv) > 1 else ''
     if cmd == 'map': build_map()
     elif cmd == 'theme': theme()
+    elif cmd == 'lookup':
+        for h in sys.argv[2:]: lookup(h)
     elif cmd == 'apply':
         for f in sys.argv[2:]:
             n, left = apply(f)

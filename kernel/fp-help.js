@@ -169,22 +169,22 @@
   .fph{display:grid;grid-template-columns:220px minmax(0,1fr);gap:16px;align-items:start}
   @media (max-width:900px){.fph{grid-template-columns:1fr}}
   .fph-nav{position:sticky;top:52px;display:flex;flex-direction:column;gap:4px}
-  .fph-nav button{font:inherit;text-align:left;padding:8px 10px;border:1px solid #e3e7ec;border-radius:8px;background:#fff;cursor:pointer}
-  .fph-nav button.on{border-color:#1f5fbf;background:#e8f0fb;font-weight:600}
+  .fph-nav button{font:inherit;text-align:left;padding:8px 10px;border:1px solid var(--l-n-88);border-radius:8px;background:var(--s-n-100);cursor:pointer}
+  .fph-nav button.on{border-color:var(--l-blue-42);background:var(--s-blue-93);font-weight:600}
   .fph-body{min-width:0;font-size:14px;line-height:1.5}
   .fph-body h2{margin:0 0 6px;font-size:20px}
-  .fph-body h3{margin:18px 0 6px;font-size:15px;text-transform:uppercase;letter-spacing:.04em;color:#5b6573}
-  .fph-body p.intro{color:#3b4552;margin:0 0 10px}
-  .fph-body pre{background:#f4f6f8;border:1px solid #e3e7ec;border-radius:8px;padding:10px 12px;font:13px/1.45 Consolas,"Cascadia Mono",monospace;overflow-x:auto}
+  .fph-body h3{margin:18px 0 6px;font-size:15px;text-transform:uppercase;letter-spacing:.04em;color:var(--t-n-42)}
+  .fph-body p.intro{color:var(--t-n-29);margin:0 0 10px}
+  .fph-body pre{background:var(--s-n-100);border:1px solid var(--l-n-88);border-radius:8px;padding:10px 12px;font:13px/1.45 Consolas,"Cascadia Mono",monospace;overflow-x:auto}
   .fph-body table{border-collapse:collapse;width:100%;margin:4px 0 8px}
-  .fph-body td{border-top:1px solid #eef1f5;padding:5px 8px;vertical-align:top}
-  .fph-body td:first-child{font-family:Consolas,"Cascadia Mono",monospace;font-size:13px;white-space:nowrap;color:#1f5fbf;width:1%}
-  .fph-item{border:1px solid #e3e7ec;border-radius:8px;padding:8px 12px;margin:0 0 8px;background:#fff}
+  .fph-body td{border-top:1px solid var(--l-n-95);padding:5px 8px;vertical-align:top}
+  .fph-body td:first-child{font-family:Consolas,"Cascadia Mono",monospace;font-size:13px;white-space:nowrap;color:var(--t-blue-42);width:1%}
+  .fph-item{border:1px solid var(--l-n-88);border-radius:8px;padding:8px 12px;margin:0 0 8px;background:var(--s-n-100)}
   .fph-item b{font-family:Consolas,"Cascadia Mono",monospace}
-  .fph-item .t{color:#3b4552}
-  .fph-item code{display:block;margin-top:4px;color:#5b21b6;font:12px Consolas,monospace;white-space:pre-wrap}
-  .fph-item table td:first-child{color:#0b4f5c}
-  .fph mark{background:#fff3b0}`;
+  .fph-item .t{color:var(--t-n-29)}
+  .fph-item code{display:block;margin-top:4px;color:var(--t-violet-31);font:12px Consolas,monospace;white-space:pre-wrap}
+  .fph-item table td:first-child{color:var(--t-teal-30)}
+  .fph mark{background:var(--s-yellow-95)}`;
   function injectCss() { if (document.getElementById('fp-help-css')) return; const s = el('style'); s.id = 'fp-help-css'; s.textContent = CSS; document.head.appendChild(s); }
 
   const hit = (q, ...parts) => !q || parts.some(x => String(x || '').toLowerCase().includes(q));
@@ -218,12 +218,12 @@
     const list = chapters().filter(c => !want || want.includes(c.id));
     const body = list.map(c => chapterHtml(c, '')).join('');
     return `<!doctype html><html><head><meta charset="utf-8"><title>Form Platform reference ${esc(FP.version)}</title><style>
-body{font:14px/1.5 var(--font-sans,system-ui,"Segoe UI",sans-serif);color:#1b2633;max-width:900px;margin:24px auto;padding:0 16px}
-h1{font-size:24px}h2{font-size:20px;border-bottom:2px solid #d9dee5;padding-bottom:4px;margin-top:28px}h3{font-size:14px;text-transform:uppercase;letter-spacing:.04em;color:#5b6573}
-pre{background:#f4f6f8;border:1px solid #e3e7ec;border-radius:6px;padding:10px;font:12px/1.45 Consolas,monospace}
-table{border-collapse:collapse;width:100%}td{border-top:1px solid #eef1f5;padding:4px 8px;vertical-align:top}td:first-child{font-family:Consolas,monospace;white-space:nowrap;color:#1f5fbf;width:1%}
-.fph-item{border:1px solid #e3e7ec;border-radius:6px;padding:6px 10px;margin:0 0 6px;break-inside:avoid}.fph-item b{font-family:Consolas,monospace}.fph-item code{display:block;color:#5b21b6;font:12px Consolas,monospace;white-space:pre-wrap}
-.fpe-hint{color:#5b6573;font-size:12px}
+body{font:14px/1.5 var(--font-sans,system-ui,"Segoe UI",sans-serif);color:var(--t-blue-15);max-width:900px;margin:24px auto;padding:0 16px}
+h1{font-size:24px}h2{font-size:20px;border-bottom:2px solid var(--l-n-88);padding-bottom:4px;margin-top:28px}h3{font-size:14px;text-transform:uppercase;letter-spacing:.04em;color:var(--t-n-42)}
+pre{background:var(--s-n-100);border:1px solid var(--l-n-88);border-radius:6px;padding:10px;font:12px/1.45 Consolas,monospace}
+table{border-collapse:collapse;width:100%}td{border-top:1px solid var(--l-n-95);padding:4px 8px;vertical-align:top}td:first-child{font-family:Consolas,monospace;white-space:nowrap;color:var(--t-blue-42);width:1%}
+.fph-item{border:1px solid var(--l-n-88);border-radius:6px;padding:6px 10px;margin:0 0 6px;break-inside:avoid}.fph-item b{font-family:Consolas,monospace}.fph-item code{display:block;color:var(--t-violet-31);font:12px Consolas,monospace;white-space:pre-wrap}
+.fpe-hint{color:var(--t-n-42);font-size:12px}
 @media print{body{margin:0;max-width:none;font-size:11px;line-height:1.35}h2{margin-top:10px}pre{font-size:10px;padding:6px}td{padding:2px 6px}}
 </style></head><body><h1>${want && list.length === 1 ? esc(list[0].title) : 'Form Platform reference'}</h1><p>Kernel ${esc(FP.version)} · made ${esc(new Date().toLocaleString())} from the platform itself.</p>${body}</body></html>`;
   }

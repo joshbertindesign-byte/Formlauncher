@@ -230,21 +230,21 @@ window.FP_RELEASES = ${JSON.stringify(cfg)};
    * the panel has shown how it went. */
   const PCSS = `
   .fpu-veil{position:fixed;inset:0;z-index:10050;background:rgba(15,23,32,.45);display:flex;align-items:center;justify-content:center;padding:16px;font:16px/1.45 var(--font-sans,system-ui,"Segoe UI",sans-serif)}
-  .fpu-card{background:#fff;color:#1b1f24;border-radius:14px;padding:22px 24px 18px;width:min(460px,100%);box-shadow:0 20px 50px rgba(0,0,0,.3)}
+  .fpu-card{background:var(--s-n-100);color:var(--t-n-12);border-radius:14px;padding:22px 24px 18px;width:min(460px,100%);box-shadow:0 20px 50px rgba(0,0,0,.3)}
   .fpu-card h2{margin:0 0 6px;font-size:19px;display:flex;align-items:center;gap:12px}
-  .fpu-spin{width:22px;height:22px;box-sizing:border-box;border:3px solid #c7d7ef;border-top-color:#1f5fbf;border-radius:50%;animation:fpu-spin .8s linear infinite;flex:none}
+  .fpu-spin{width:22px;height:22px;box-sizing:border-box;border:3px solid var(--l-blue-85);border-top-color:var(--l-blue-42);border-radius:50%;animation:fpu-spin .8s linear infinite;flex:none}
   @keyframes fpu-spin{to{transform:rotate(360deg)}}
   @media (prefers-reduced-motion:reduce){.fpu-spin{animation-duration:2.5s}}
-  .fpu-mark{width:22px;height:22px;border-radius:50%;flex:none;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:700}
-  .fpu-card.ok .fpu-mark{background:#1a7f37}.fpu-card.bad .fpu-mark{background:#b42318}
-  .fpu-step{color:#5b6573;font-size:14px;min-height:21px;overflow-wrap:anywhere}
-  .fpu-bar{height:8px;border-radius:999px;background:#e6e9ee;overflow:hidden;margin:12px 0 8px}
-  .fpu-bar i{display:block;height:100%;width:2%;background:#1f5fbf;transition:width .25s}
-  .fpu-card.ok .fpu-bar i{background:#1a7f37}.fpu-card.bad .fpu-bar i{background:#b42318}
-  .fpu-note{font-size:13px;color:#5b6573;margin:0}
-  .fpu-card.bad .fpu-step{color:#b42318}
+  .fpu-mark{width:22px;height:22px;border-radius:50%;flex:none;display:inline-flex;align-items:center;justify-content:center;color:var(--t-n-100);font-size:14px;font-weight:700}
+  .fpu-card.ok .fpu-mark{background:var(--s-green-47)}.fpu-card.bad .fpu-mark{background:var(--s-red-40)}
+  .fpu-step{color:var(--t-n-42);font-size:14px;min-height:21px;overflow-wrap:anywhere}
+  .fpu-bar{height:8px;border-radius:999px;background:var(--s-n-95);overflow:hidden;margin:12px 0 8px}
+  .fpu-bar i{display:block;height:100%;width:2%;background:var(--s-blue-42);transition:width .25s}
+  .fpu-card.ok .fpu-bar i{background:var(--s-green-47)}.fpu-card.bad .fpu-bar i{background:var(--s-red-40)}
+  .fpu-note{font-size:13px;color:var(--t-n-42);margin:0}
+  .fpu-card.bad .fpu-step{color:var(--t-red-40)}
   .fpu-foot{display:flex;justify-content:flex-end;margin-top:12px}
-  .fpu-foot button{font:inherit;font-weight:600;min-height:44px;padding:6px 18px;border-radius:10px;border:1px solid #c9d0d9;background:#fff;cursor:pointer}`;
+  .fpu-foot button{font:inherit;font-weight:600;min-height:44px;padding:6px 18px;border-radius:10px;border:1px solid var(--l-n-83);background:var(--s-n-100);cursor:pointer}`;
   let busy = false, holdUntil = 0;
   function installPanel() {
     if (!document.getElementById('fp-updates-css')) { const st = document.createElement('style'); st.id = 'fp-updates-css'; st.textContent = PCSS; document.head.appendChild(st); }

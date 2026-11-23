@@ -53,7 +53,7 @@
   .fpv-key.box{width:10px;height:10px;border-radius:2px}
   .fpv-note{margin-top:8px;font-size:14px;color:${INK.secondary};display:flex;gap:8px;align-items:baseline}
   .fpv-note b{font-weight:700}
-  .fpv-flag{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;color:#fff;font-size:12px;font-weight:700;flex:none}
+  .fpv-flag{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;color:var(--t-n-100);font-size:12px;font-weight:700;flex:none}
   .fpv details{margin-top:8px;font-size:13px;color:${INK.secondary}}
   .fpv summary{cursor:pointer;min-height:32px;display:flex;align-items:center}
   .fpv-table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
@@ -62,7 +62,7 @@
   .fpv-table td.num,.fpv-table th.num{text-align:right}
   .fpv-scroll{max-height:320px;overflow:auto}
   .fpv-scroll .fpv-table th{position:sticky;top:0;z-index:1;background:${INK.surface}}
-  .fpv-tip{position:fixed;z-index:9600;pointer-events:none;background:#fff;border:1px solid rgba(11,11,11,.12);border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.14);padding:8px 10px;font:13px/1.35 var(--font-sans,system-ui,"Segoe UI",sans-serif);color:${INK.primary};max-width:280px}
+  .fpv-tip{position:fixed;z-index:9600;pointer-events:none;background:var(--s-n-100);border:1px solid rgba(11,11,11,.12);border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.14);padding:8px 10px;font:13px/1.35 var(--font-sans,system-ui,"Segoe UI",sans-serif);color:${INK.primary};max-width:280px}
   .fpv-tip .h{color:${INK.secondary};margin-bottom:4px}
   .fpv-tip .r{display:flex;align-items:center;gap:8px}
   .fpv-tip .r b{font-weight:700}
@@ -71,8 +71,8 @@
   .fpv-big{font-size:38px;font-weight:600;line-height:1.1;color:${INK.primary}}
   .fpv-big small{font-size:18px;font-weight:500;color:${INK.secondary};margin-left:4px}
   .fpv-delta{font-size:15px;font-weight:600}
-  .fpv-chip{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:600;padding:3px 10px 3px 4px;border-radius:999px;background:#f0efec}
-  .fpv-meter{position:relative;height:14px;border-radius:7px;background:#e6e9ee;margin:10px 0 4px}
+  .fpv-chip{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:600;padding:3px 10px 3px 4px;border-radius:999px;background:var(--s-n-95)}
+  .fpv-meter{position:relative;height:14px;border-radius:7px;background:var(--s-n-95);margin:10px 0 4px}
   .fpv-meter i{position:absolute;left:0;top:0;bottom:0;border-radius:7px}
   .fpv-meter u{position:absolute;top:-4px;bottom:-4px;width:2px;background:${INK.surface}}
   .fpv-scale{position:relative;height:18px;font-size:12px;color:${INK.muted}}
@@ -86,7 +86,7 @@
   .fpv-par .cum{color:${INK.muted};font-variant-numeric:tabular-nums;text-align:right;min-width:44px}
   .fpv-par .head{color:${INK.muted};font-size:12px}
   .fpv-board{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px}
-  .fpv-tile{background:#fff;border:1px solid rgba(11,11,11,.1);border-left:5px solid #c3c2b7;border-radius:10px;padding:8px 10px;min-height:64px}
+  .fpv-tile{background:var(--s-n-100);border:1px solid rgba(11,11,11,.1);border-left:5px solid var(--l-n-78);border-radius:10px;padding:8px 10px;min-height:64px}
   .fpv-tile b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;font-size:15px;overflow:hidden;overflow-wrap:anywhere}
   .fpv-tile .sub{font-size:13px;color:${INK.secondary};overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .fpv-tile .st{display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:600;margin-top:4px}
@@ -99,20 +99,20 @@
   .fpv-pivot tr.sub td.k{padding-left:24px;color:${INK.secondary}}
   .fpv-pivot tr.lvl td{font-weight:600}
   .fpv-pivot tr.tot td{font-weight:700;border-top:1px solid ${INK.axis}}
-  .fpv-pivot td.best{background:#e6f4ea;color:#006300;font-weight:700}
+  .fpv-pivot td.best{background:var(--s-green-96);color:var(--t-green-36);font-weight:700}
   .fpv-pivot td.muted{color:${INK.muted}}
   .fpv-sum{display:flex;flex-wrap:wrap;gap:6px 16px;margin:0 0 10px;font-size:14px;color:${INK.secondary}}
   .fpv-sum b{color:${INK.primary}}
-  .fpv-records tr.row{cursor:pointer}.fpv-records tr.row:hover td{background:#f4f6f8}
-  .fpv-tile.pick{cursor:pointer}.fpv-tile.sel{outline:3px solid #1f5fbf;outline-offset:-1px;background:#f3f7fd}
-  .fpv-records tr.sel td{background:#e7f0fd;box-shadow:inset 0 -2px 0 #1f5fbf}
+  .fpv-records tr.row{cursor:pointer}.fpv-records tr.row:hover td{background:var(--s-n-100)}
+  .fpv-tile.pick{cursor:pointer}.fpv-tile.sel{outline:3px solid var(--l-blue-42);outline-offset:-1px;background:var(--s-n-95)}
+  .fpv-records tr.sel td{background:var(--s-blue-93);box-shadow:inset 0 -2px 0 #1f5fbf}
   .fpv-tree,.fpv-tree ul{list-style:none;margin:0;padding:0}
   .fpv-tree ul{margin-left:18px;border-left:2px solid ${INK.grid};padding-left:8px}
   .fpv-tnode{display:flex;align-items:flex-start;gap:6px;padding:3px 0}
   .fpv-tnode .tg{flex:none;width:32px;min-height:32px;border:0;background:none;font:inherit;font-size:16px;color:${INK.secondary};cursor:pointer}
   .fpv-tnode .tg[disabled]{cursor:default;color:transparent}
-  .fpv-tnode .bd{flex:1 1 auto;min-width:0;border-left:4px solid #c3c2b7;border-radius:8px;padding:4px 10px;background:#fff;border-top:1px solid rgba(11,11,11,.08);border-right:1px solid rgba(11,11,11,.08);border-bottom:1px solid rgba(11,11,11,.08)}
-  .fpv-tnode .bd.pick{cursor:pointer}.fpv-tnode .bd.sel{outline:3px solid #1f5fbf;outline-offset:-1px;background:#f3f7fd}
+  .fpv-tnode .bd{flex:1 1 auto;min-width:0;border-left:4px solid var(--l-n-78);border-radius:8px;padding:4px 10px;background:var(--s-n-100);border-top:1px solid rgba(11,11,11,.08);border-right:1px solid rgba(11,11,11,.08);border-bottom:1px solid rgba(11,11,11,.08)}
+  .fpv-tnode .bd.pick{cursor:pointer}.fpv-tnode .bd.sel{outline:3px solid var(--l-blue-42);outline-offset:-1px;background:var(--s-n-95)}
   .fpv-tnode b{font-size:15px}.fpv-tnode .lv{font-size:12px;color:${INK.secondary};margin-left:6px}
   .fpv-tnode .sub{font-size:13px;color:${INK.secondary}}
   .fpv-tnode .st{font-size:12px;font-weight:600;margin-left:6px}
@@ -120,9 +120,9 @@
   .fpv-tbranch .n{font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px}
   .fpv-tbranch.err{color:${TONE_TEXT.bad};text-transform:none;letter-spacing:0}
   .fpv-tmore{font-size:13px;color:${INK.secondary};padding:2px 0 4px 38px}
-  .fpv-records td.info{width:40px;text-align:center}.fpv-info{font:inherit;font-size:18px;min-width:36px;min-height:36px;border:0;background:none;color:#1f5fbf;cursor:pointer}
-  .fpv-records tr.more td{background:#f8f9fa;color:${INK.secondary};white-space:pre-wrap}
-  .fpv-empty{color:#5b6573;font-size:15px}`;
+  .fpv-records td.info{width:40px;text-align:center}.fpv-info{font:inherit;font-size:18px;min-width:36px;min-height:36px;border:0;background:none;color:var(--t-blue-42);cursor:pointer}
+  .fpv-records tr.more td{background:var(--s-n-100);color:${INK.secondary};white-space:pre-wrap}
+  .fpv-empty{color:var(--t-n-42);font-size:15px}`;
   function injectCss() {
     if (document.getElementById('fp-visuals-css')) return;
     const st = document.createElement('style');

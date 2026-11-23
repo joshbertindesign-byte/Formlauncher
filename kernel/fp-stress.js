@@ -804,16 +804,16 @@
   /* ---------- The page (Admin › Stress test) ---------- */
   const CSS = `
   .fps{display:flex;flex-direction:column;gap:12px}
-  .fps-suites{display:flex;flex-wrap:wrap;gap:8px}.fps-suites label{display:flex;gap:6px;align-items:flex-start;border:1px solid #d9dee5;border-radius:10px;padding:8px 10px;background:#fff;max-width:330px;font-size:14px}
-  .fps-suites small{display:block;color:#5b6573}
+  .fps-suites{display:flex;flex-wrap:wrap;gap:8px}.fps-suites label{display:flex;gap:6px;align-items:flex-start;border:1px solid var(--l-n-88);border-radius:10px;padding:8px 10px;background:var(--s-n-100);max-width:330px;font-size:14px}
+  .fps-suites small{display:block;color:var(--t-n-42)}
   .fps-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-  .fps-row button{font:inherit;font-size:14px;min-height:40px;padding:6px 14px;border-radius:10px;border:1px solid #c9d0d9;background:#fff;cursor:pointer}
-  .fps-row button.primary{background:#1f5fbf;border-color:#1f5fbf;color:#fff;font-weight:600}.fps-row button:disabled{opacity:.5}
-  .fps-say{font-size:14px;color:#3b4552;min-height:20px}
-  .fps-table{width:100%;border-collapse:collapse;font-size:13.5px;background:#fff}
-  .fps-table td,.fps-table th{border-bottom:1px solid #eef1f5;padding:6px 8px;text-align:left;vertical-align:top}
-  .fps-table td.r{font-weight:700;white-space:nowrap}.fps-table td.t{white-space:nowrap}.fps-pass{color:#1a7f37}.fps-warn{color:#9a6700}.fps-fail{color:#b42318}.fps-stopped{color:#5b6573}
-  .fps-bench{border:1px dashed #c9d0d9;border-radius:10px;max-height:320px;overflow:auto;padding:6px;background:#fbfcfd}
+  .fps-row button{font:inherit;font-size:14px;min-height:40px;padding:6px 14px;border-radius:10px;border:1px solid var(--l-n-83);background:var(--s-n-100);cursor:pointer}
+  .fps-row button.primary{background:var(--s-blue-42);border-color:var(--l-blue-42);color:var(--t-n-100);font-weight:600}.fps-row button:disabled{opacity:.5}
+  .fps-say{font-size:14px;color:var(--t-n-29);min-height:20px}
+  .fps-table{width:100%;border-collapse:collapse;font-size:13.5px;background:var(--s-n-100)}
+  .fps-table td,.fps-table th{border-bottom:1px solid var(--l-n-95);padding:6px 8px;text-align:left;vertical-align:top}
+  .fps-table td.r{font-weight:700;white-space:nowrap}.fps-table td.t{white-space:nowrap}.fps-pass{color:var(--t-green-47)}.fps-warn{color:var(--t-amber-42)}.fps-fail{color:var(--t-red-40)}.fps-stopped{color:var(--t-n-42)}
+  .fps-bench{border:1px dashed var(--l-n-83);border-radius:10px;max-height:320px;overflow:auto;padding:6px;background:var(--s-n-100)}
   .fps-bench:empty{display:none}
   .fps-sum{font-weight:600}`;
   function render(host) {

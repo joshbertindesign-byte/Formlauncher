@@ -192,18 +192,18 @@
   const CSS = `
     .fp-gate{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;
       padding:16px;background:rgba(15,20,25,.55);font:16px/1.45 var(--font-sans,system-ui,"Segoe UI",sans-serif)}
-    .fp-gate-card{width:100%;max-width:420px;background:#fff;color:#1b1f24;border-radius:14px;
+    .fp-gate-card{width:100%;max-width:420px;background:var(--s-n-100);color:var(--t-n-12);border-radius:14px;
       padding:24px;box-shadow:0 10px 40px rgba(0,0,0,.25)}
     .fp-gate-card h1{font-size:20px;margin:0 0 8px}
-    .fp-gate-card p{margin:0 0 16px;color:#5b6573}
-    .fp-gate-card input{font:inherit;width:100%;padding:12px;border:1px solid #c9d0d9;border-radius:10px;
+    .fp-gate-card p{margin:0 0 16px;color:var(--t-n-42)}
+    .fp-gate-card input{font:inherit;width:100%;padding:12px;border:1px solid var(--l-n-83);border-radius:10px;
       margin:0 0 12px;text-transform:uppercase}
     .fp-gate-card button{font:inherit;font-weight:600;width:100%;padding:14px;border-radius:10px;border:0;
-      background:#1f5fbf;color:#fff;cursor:pointer;margin-top:4px}
-    .fp-gate-card button.fp-secondary{background:#eef1f5;color:#1b1f24}
+      background:var(--s-blue-42);color:var(--t-n-100);cursor:pointer;margin-top:4px}
+    .fp-gate-card button.fp-secondary{background:var(--s-n-95);color:var(--t-n-12)}
     .fp-gate-msg{min-height:1.4em;margin-top:10px;font-size:14px}
-    .fp-gate-msg.fp-bad{color:#b42318}
-    .fp-gate-msg.fp-warn{color:#9a5b00}`;
+    .fp-gate-msg.fp-bad{color:var(--t-red-40)}
+    .fp-gate-msg.fp-warn{color:var(--t-amber-42)}`;
 
   function injectCss() {
     if (document.getElementById('fp-gate-css')) return;
