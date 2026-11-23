@@ -53,7 +53,7 @@
   .fpc-thumb{position:relative;width:96px;height:96px;border-radius:10px;overflow:hidden;border:1px solid var(--l-n-88);background:var(--s-n-100);display:flex;align-items:center;justify-content:center;font-size:12px;text-align:center;padding:4px}
   .fpc-thumb img{width:100%;height:100%;object-fit:cover}
   .fpc-thumb button{position:absolute;top:3px;right:3px;width:28px;height:28px;border-radius:50%;border:0;background:rgba(0,0,0,.6);color:var(--t-n-100);cursor:pointer}
-  .fpc-sig{width:100%;height:170px;border:1px solid var(--l-n-83);border-radius:10px;background:var(--s-n-100);touch-action:none;display:block}
+  .fpc-sig{width:100%;height:170px;border:1px solid var(--l-n-83);border-radius:10px;background:var(--pad-bg,#fff);touch-action:none;display:block}/* theme-exception: pad fallback */
   .fpc-list{border:1px solid var(--l-n-88);border-radius:10px;margin-top:6px;max-height:260px;overflow:auto;background:var(--s-n-100)}
   .fpc-list button{display:block;width:100%;text-align:left;font:inherit;min-height:44px;padding:8px 12px;border:0;border-bottom:1px solid var(--l-n-95);background:var(--s-n-100);cursor:pointer}
   .fpc-list button:hover{background:var(--s-n-100)}
@@ -382,7 +382,7 @@
         const w = Math.round(r.width * devicePixelRatio), h = Math.round(r.height * devicePixelRatio);
         if (c.width === w && c.height === h) return;
         c.width = w; c.height = h;
-        const g = ctx(); g.lineWidth = 2.5 * devicePixelRatio; g.lineCap = 'round'; g.lineJoin = 'round'; g.strokeStyle = (FP.theme && FP.theme.token('d-n-3')) || '#111';
+        const g = ctx(); g.lineWidth = 2.5 * devicePixelRatio; g.lineCap = 'round'; g.lineJoin = 'round'; g.strokeStyle = (FP.theme && FP.theme.token('pad-ink')) || '#111'; // theme-exception: '#111' only when FP.theme is absent (a unit-test stub)
         if (data) { const img = new Image(); img.onload = () => ctx().drawImage(img, 0, 0, c.width, c.height); img.src = data; }
       };
       const pt = e => { const r = c.getBoundingClientRect(); return [(e.clientX - r.left) * devicePixelRatio, (e.clientY - r.top) * devicePixelRatio]; };
@@ -828,5 +828,5 @@
   });
 
   /* Registered last, so a module that failed partway never reports as loaded. */
-  (window.FP.modules = window.FP.modules || {})['fp-controls'] = '0.63.1';
+  (window.FP.modules = window.FP.modules || {})['fp-controls'] = '0.64.0';
 })();

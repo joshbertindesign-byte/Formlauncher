@@ -64,6 +64,8 @@ def occurrences(text):
     `property: value` form (CSS text, also inside JS strings and objects with the same key names)."""
     out = []
     for m in HEX.finditer(text):
+        ls = text.rfind('\n', 0, m.start()) + 1; le = text.find('\n', m.end()); line = text[ls:le if le >= 0 else len(text)]
+        if 'theme-exception' in line: continue   # a documented exception: the line says why (e.g. a fallback when FP.theme is absent)
         before = text[max(0, m.start() - 80):m.start()]
         pm = re.search(r'(?:^|[\s;{(,"\'`])([a-z][a-z-]*)\s*:\s*[^;{}]*$', before)
         prop = pm.group(1) if pm else None
@@ -157,8 +159,15 @@ def night_of(role, fam, hexv):
     elif role == 'l':
         if fam == 'n': L2 = 17 + (100 - L) * 0.9 if L >= 60 else L * 0.9
         else: L2 = 30 + (100 - L) * 0.1 if L >= 75 else L; chroma_keep = 0.8 if L >= 75 else 1.0
-    else:   # d: drawing colours: lifted a little so they hold on a dark ground
-        L2 = L + (68 - L) * 0.3 if L < 68 else L
+    else:   # d: colours in tables and drawing code: used as fills, as text and as marks, so by lightness
+        if fam == 'n':
+            if L >= 95: L2 = 8 + (L - 95) * 1.2                       # near-white tiles and cards: dark surfaces
+            elif L >= 85: L2 = 16 + (95 - L) * 0.45
+            elif L >= 70: L2 = 17 + (100 - L) * 0.9                    # light greys (axes, rules, tracks)
+            else: L2 = max(22, min(95, 103.4 - 0.867 * L))             # ink and muted text: light text
+        elif L >= 85: L2 = 16 + (100 - L) * 0.6; chroma_keep = 2.4     # tints: a deep tint of the same hue
+        elif L < 45: L2 = max(68, min(88, 100 - 0.6 * L))              # dark coloured text and rules: lightened to read on dark
+        else: L2 = L + (68 - L) * 0.3 if L < 68 else L                 # strong marks: lifted a little
     if abs(L2 - L) < 0.5 and chroma_keep == 1.0: return hexv
     a2, b2 = a * chroma_keep, b * chroma_keep
     if fam == 'n' and role in ('s', 'l') and math.hypot(a2, b2) < 3: a2, b2 = -0.8, -4.0     # night neutrals share one cool slate cast, so white and slate surfaces agree
@@ -171,6 +180,8 @@ def night():
         v = night_of(t['role'], t['family'], t['day'])
         if v != t['day']: rows.append(f"  --{n}:{v};")
     text = re.sub(r'(/\*TOKENS-NIGHT\*/\n)(?:[^\n]*\n)*?(/\*END\*/)', lambda m: m.group(1) + '\n'.join(rows) + '\n' + m.group(2), text, count=1, flags=re.S)
+    prows = [f"  --{n}:{t['day']};" for n, t in sorted(mp['tokens'].items()) if night_of(t['role'], t['family'], t['day']) != t['day']]
+    text = re.sub(r'(/\*TOKENS-PRINT\*/\n)(?:[^\n]*\n)*?(/\*END\*/)', lambda m: m.group(1) + '\n'.join(prows) + '\n' + m.group(2), text, count=1, flags=re.S)
     open(THEME, 'w').write(text); print(f'{len(rows)} night tokens written to fp-theme.js (the rest keep their day value)')
 
 def theme():

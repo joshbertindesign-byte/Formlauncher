@@ -275,5 +275,5 @@ table{border-collapse:collapse;width:100%}td{border-top:1px solid var(--l-n-95);
   FP.editor.help = help;
 
   /* Registered last, so a module that failed partway never reports as loaded. */
-  (window.FP.modules = window.FP.modules || {})['fp-help'] = '0.63.1';
+  (window.FP.modules = window.FP.modules || {})['fp-help'] = '0.64.0';
 })();

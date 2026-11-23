@@ -21,7 +21,7 @@
   const FP = window.FP;
   if (!FP || !FP.defs || !FP.forms) throw new Error('Load fp-defs.js before fp-launcher.js');
 
-  const VERSION = '0.63.1';
+  const VERSION = '0.64.0';
   /* The runtime, in load order. */
   const KERNEL = ['fp-config', 'fp-theme', 'fp-fonts', 'fp-core', 'fp-identity', 'fp-entry', 'fp-session', 'fp-formula', 'fp-current', 'fp-kinds', 'fp-sites', 'fp-lookup',
     'fp-users', 'fp-media', 'fp-sources', 'fp-forms', 'fp-controls', 'fp-visuals', 'fp-keyboard', 'fp-defs', 'fp-due', 'fp-launcher', 'fp-updates'];
@@ -34,7 +34,7 @@ window.__fpReport = function (msg) {
   var show = function () {
     var b = document.getElementById('fp-problems');
     if (!b) { b = document.createElement('div'); b.id = 'fp-problems';
-      b.style.cssText = 'position:sticky;top:0;z-index:10000;background:var(--s-red-94);color:var(--t-red-27);border-bottom:2px solid var(--l-red-40);padding:12px 16px;font:14px/1.45 var(--font-sans,system-ui,"Segoe UI",sans-serif);white-space:pre-wrap';
+      b.style.cssText = 'position:sticky;top:0;z-index:10000;background:var(--s-red-94,#fde8e6);color:var(--t-red-27,#7a1a12);border-bottom:2px solid var(--l-red-40,#b42318);padding:12px 16px;font:14px/1.45 var(--font-sans,system-ui,"Segoe UI",sans-serif);white-space:pre-wrap'; /* theme-exception: the banner must show even when the theme did not load */
       document.body.prepend(b); }
     b.textContent = 'Problem found. This page will not work until it is fixed:\\n- ' + window.__fpProblems.join('\\n- ');
   };
@@ -185,7 +185,8 @@ window.addEventListener('unhandledrejection', function (e) { window.__fpReport('
     const printBtn = button('Print'); printBtn.hidden = true;
     const editorBtn = button('Editor'); editorBtn.hidden = true;
     const who = button('Sign in');
-    bar.append(menuBtn, homeBtn, titleEl, saved, term, printBtn, editorBtn, who);
+    const themeBtn = button('Night'); themeBtn.className += ' fpl-themebtn'; if (FP.theme && FP.theme.toggle) FP.theme.toggle(themeBtn); else themeBtn.hidden = true;
+    bar.append(menuBtn, homeBtn, titleEl, saved, term, printBtn, editorBtn, themeBtn, who);
     // A simulated terminal (0.52.1) says so, so it is never taken for the real one.
     if (FP.simulated) { const sb = el('span', 'fpl-sim', `Simulated ${FP.simulated}`); sb.title = 'This tab runs as that terminal, on a test folder'; bar.insertBefore(sb, saved); }
     const main = el('main', 'fpl-main');
@@ -915,6 +916,7 @@ window.addEventListener('unhandledrejection', function (e) { window.__fpReport('
     return `<!doctype html>
 <html lang="en">
 <head>
+<script>try{if(localStorage.getItem('fp-theme')==='night')document.documentElement.setAttribute('data-theme','night')}catch(e){}</script><style>:root[data-theme="night"]{color-scheme:dark;background:#13171c}/* theme-exception: first paint, before the theme file loads */</style>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Forms</title>
@@ -1045,5 +1047,5 @@ ${preamble('Check the runtime folder (next to this file) has finished syncing.')
   FP.launcher = { start };
 
   /* Registered last, so a module that failed partway never reports as loaded. */
-  (window.FP.modules = window.FP.modules || {})['fp-launcher'] = '0.63.1';
+  (window.FP.modules = window.FP.modules || {})['fp-launcher'] = '0.64.0';
 })();

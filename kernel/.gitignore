@@ -28,3 +28,4 @@ dev/tests/dummies/.seed-clock
 # Screenshot harness: the baseline images are committed; each run writes to out*/ (not committed)
 !dev/shots/baseline/*.png
 dev/shots/out*/
+!dev/shots/baseline-night/*.png

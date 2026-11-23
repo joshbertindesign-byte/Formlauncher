@@ -697,7 +697,8 @@
     // Help: the reference made from the platform itself (fields, formulas, what publish checks).
     const helpBtn = btn('? Help', 'fpe-adminbtn fpe-helpbtn');
     helpBtn.title = 'Every kind of field, every function, what publish checks';
-    bar.append(title, ver, term, helpBtn, adminBtn, who);
+    const themeBtn = btn('Night', 'fpe-adminbtn fpe-themebtn'); if (FP.theme && FP.theme.toggle) FP.theme.toggle(themeBtn); else themeBtn.hidden = true;
+    bar.append(title, ver, term, helpBtn, adminBtn, themeBtn, who);
     const app = el('div', 'fpe-app');
     const lib = el('div', 'fpe-lib');
     const right = el('div', 'fpe-panel');
@@ -1303,5 +1304,5 @@
   FP.editor = { start, editStructure, editFunction, panel, ui: { el, btn, input, select, formulaInput, chips, toast, sitesPicker } };
 
   /* Registered last, so a module that failed partway never reports as loaded. */
-  (window.FP.modules = window.FP.modules || {})['fp-editor'] = '0.63.1';
+  (window.FP.modules = window.FP.modules || {})['fp-editor'] = '0.64.0';
 })();
