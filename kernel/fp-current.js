@@ -53,18 +53,31 @@
 
   /* ---------- Structure definitions (step 9 loads these from published files) ---------- */
   const defs = new Map();
+  // Retired structures (0.65): kept read-only so their entries still read with their own rules. They are not in has()
+  // or list() (so pickers and forms treat them as gone); get() still gives them, flagged retired: true.
+  const retiredDefs = new Map();
   FP.structures = {
     define(def) {
       if (!def || !def.id) throw new Error('A structure needs an id.');
       const d = Object.assign({ version: 1, containers: {}, calculated: {}, status: [] }, def);
+      retiredDefs.delete(d.id);
       defs.set(d.id, d);
       cache.delete(d.id);
       return d;
     },
-    get: id => defs.get(id) || { id, version: 0, containers: {}, calculated: {}, status: [] },
+    defineRetired(def) {
+      if (!def || !def.id) throw new Error('A structure needs an id.');
+      const d = Object.assign({ version: 1, containers: {}, calculated: {}, status: [] }, def, { retired: true });
+      defs.delete(d.id);
+      retiredDefs.set(d.id, d);
+      cache.delete(d.id);
+      return d;
+    },
+    get: id => defs.get(id) || retiredDefs.get(id) || { id, version: 0, containers: {}, calculated: {}, status: [] },
     has: id => defs.has(id),
+    isRetired: id => retiredDefs.has(id),
     list: () => Array.from(defs.values()),
-    remove(id) { cache.delete(id); return defs.delete(id); },
+    remove(id) { cache.delete(id); retiredDefs.delete(id); return defs.delete(id); },
   };
 
   /* ---------- Reading files ---------- */

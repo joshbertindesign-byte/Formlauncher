@@ -67,6 +67,14 @@
     return validId(r.id) ? null : `ref ${role}: bad item ID`;
   }
 
+  /* A retired structure takes no new entries (0.65); its old entries still read. */
+  function retiredCheck(structure) {
+    if (structure && FP.structures && FP.structures.isRetired && FP.structures.isRetired(structure)) {
+      const d = FP.structures.get(structure);
+      throw new Error(`${(d && d.label) || structure} is retired: it takes no new entries.`);
+    }
+  }
+
   FP.entry = {
     newId,
 
@@ -88,6 +96,7 @@
       if (structureOf && FP.defs && FP.defs.usedHere && !FP.defs.usedHere('structure', structureOf, spec.site)) {
         throw new Error(`${structureOf} is not used at site ${spec.site || FP.identity.site}.`);
       }
+      retiredCheck(structureOf);
       const clock = spec.at || new Date();
       const after = spec.after ? Date.parse(spec.after) : NaN;
       const at = !isNaN(after) && clock.getTime() <= after ? new Date(after + 1) : clock;
@@ -311,6 +320,7 @@
     for (const e of entries) {
       const problems = FP.entry.validate(e);
       if (problems.length) throw new Error('Invalid entry: ' + problems.join(', '));
+      retiredCheck(e.item && e.item.structure);
     }
     await FP.outboxStore.addMany(entries);
     publish();
