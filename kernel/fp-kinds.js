@@ -271,6 +271,39 @@
     return p;
   }
 
+
+  /* ---------- Identity (UI refresh, Release B): the colour and glyph of a kind of data ----------
+   * Colour marks the kind of data, so a form takes the colour of the structure it mainly saves to. Derived only: no setting on the
+   * form, so the script notation and the control catalog are unchanged. Tones and glyph names are those of fp-icons.js. */
+  const LOOK = {
+    runs: { tone: 'runs', glyph: 'play', label: 'Runs' }, inventory: { tone: 'inv', glyph: 'box', label: 'Inventory' },
+    records: { tone: 'rec', glyph: 'check', label: 'Records' }, cases: { tone: 'case', glyph: 'flag', label: 'Cases' },
+    orders: { tone: 'ord', glyph: 'list', label: 'Orders' }, list: { tone: 'list', glyph: 'list', label: 'List' },
+  };
+  const NEUTRAL = { tone: null, glyph: 'doc', label: '' };
+  /* A structure's look: { tone, glyph, label, kind } (kind is the structure's own kind, or null for an old one that has none). */
+  function look(structureId) {
+    const d = structureId && FP.structures && FP.structures.get ? FP.structures.get(structureId) : null;
+    const k = d && d.kind;
+    return Object.assign({ kind: k || null }, k && LOOK[k] ? LOOK[k] : { tone: null, glyph: 'table', label: '' });
+  }
+  /* The structure a form mainly saves to: the one holding its item ID (a source whose item ID the form enters or makes), otherwise the first
+   * source it writes to (the rule is in the code below). Returns the structure id or null (a form that saves nothing, such as a board). */
+  function mainStructure(def) {
+    const sources = (def && Array.isArray(def.sources) ? def.sources : []).filter(x => x && x.kind === 'item' && x.structure);
+    const writes = x => x.values && Object.values(x.values).some(v => v === 'write' || v === 'both' || (v && typeof v === 'object' && v.write));
+    const holds = x => writes(x) && x.id && (x.id.field || x.id.generate);
+    // The form's own record: the first source whose item ID it enters or makes and that is not just carrying values on (a source with `carry`
+    // is a record updated as a side effect, such as a run's totals); else the first such source; else the first it writes to.
+    const first = sources.find(x => holds(x) && !x.carry) || sources.find(holds) || sources.find(writes);
+    return first ? String(first.structure).split('~')[0] : null;
+  }
+  /* A form's look: its main structure's look, or a neutral one when it saves nothing. */
+  function formLook(def) {
+    const st = mainStructure(def);
+    return st ? Object.assign(look(st), { structure: st }) : Object.assign({ kind: null, structure: null }, NEUTRAL);
+  }
+
   FP.kinds = {
     NAMES,
     get: k => KINDS[k] || null,
@@ -287,6 +320,7 @@
     lists: () => FP.structures.list().filter(s => s.kind === 'list').map(s => s.id),
     here: () => Object.assign({}, here, { items: here.items.slice() }),
     setHere,
+    look, formLook, mainStructure,
   };
 
   (window.FP.modules = window.FP.modules || {})['fp-kinds'] = '0.65.0';

@@ -138,6 +138,15 @@ def lab_to_hex(L, a, b):
     enc = lambda c: 12.92 * c if c <= 0.0031308 else 1.055 * max(c, 0) ** (1 / 2.4) - 0.055
     return '#%02x%02x%02x' % tuple(max(0, min(255, round(enc(c) * 255))) for c in (r, g, bl))
 
+def day_of(t):
+    """The day value of a token: the colour found in the runtime, except that neutral surfaces and lines are warmed a little (UI Release B:
+    "slightly warm neutrals"): the same lightness, a faint warm cast instead of the cool slate. Text and colours are untouched."""
+    h = t['day']
+    if t['role'] in ('s', 'l') and t['family'] == 'n':
+        L, a, b = lab(h)
+        if 60 <= L < 99.5: return lab_to_hex(L, -0.1, 1.6 if L > 85 else 1.0)
+    return h
+
 def night_of(role, fam, hexv):
     """The night value of a day token, by rule (Lab lightness remapped, hue and most of the chroma kept). See the table in the docs."""
     L, a, b = lab(hexv); chroma_keep = 1.0
@@ -177,17 +186,17 @@ def night():
     mp = load_map(); text = open(THEME).read()
     rows = []
     for n, t in sorted(mp['tokens'].items()):
-        v = night_of(t['role'], t['family'], t['day'])
-        if v != t['day']: rows.append(f"  --{n}:{v};")
+        v = night_of(t['role'], t['family'], day_of(t))
+        if v != day_of(t): rows.append(f"  --{n}:{v};")
     text = re.sub(r'(/\*TOKENS-NIGHT\*/\n)(?:[^\n]*\n)*?(/\*END\*/)', lambda m: m.group(1) + '\n'.join(rows) + '\n' + m.group(2), text, count=1, flags=re.S)
-    prows = [f"  --{n}:{t['day']};" for n, t in sorted(mp['tokens'].items()) if night_of(t['role'], t['family'], t['day']) != t['day']]
+    prows = [f"  --{n}:{day_of(t)};" for n, t in sorted(mp['tokens'].items()) if night_of(t['role'], t['family'], day_of(t)) != day_of(t)]
     text = re.sub(r'(/\*TOKENS-PRINT\*/\n)(?:[^\n]*\n)*?(/\*END\*/)', lambda m: m.group(1) + '\n'.join(prows) + '\n' + m.group(2), text, count=1, flags=re.S)
     open(THEME, 'w').write(text); print(f'{len(rows)} night tokens written to fp-theme.js (the rest keep their day value)')
 
 def theme():
     """Write the colour tokens into fp-theme.js between its TOKENS markers: day values from the map; the night block is filled by step 4."""
     mp = load_map(); text = open(THEME).read()
-    day = '\n'.join(f"  --{n}:{t['day']};" for n, t in sorted(mp['tokens'].items()))
+    day = '\n'.join(f"  --{n}:{day_of(t)};" for n, t in sorted(mp['tokens'].items()))
     text = re.sub(r'(/\*TOKENS-DAY\*/\n)(?:[^\n]*\n)*?(/\*END\*/)', lambda m: m.group(1) + day + '\n' + m.group(2), text, count=1, flags=re.S)
     open(THEME, 'w').write(text); print(f'{len(mp["tokens"])} day tokens written to fp-theme.js')
 

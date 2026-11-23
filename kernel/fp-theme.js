@@ -36,7 +36,12 @@
   --shadow:0 1px 2px rgba(20,25,30,.06),0 4px 14px rgba(20,25,30,.06);
   /* the drawing pad is the same in both modes: a white writing surface and a dark pen, so saved signatures and sketches stay legible */
   --pad-bg:#ffffff;--pad-ink:#111111;
-  /* the six kinds of data (used by the new look; Runs green, Inventory amber, Records blue, Cases red, Orders violet, Lists grey) */
+  /* the semantic palette (UI Release B): what the restyled screens say. Warm neutrals, one blue accent, white surfaces. */
+  --bg:#f2f2ef;--surface:#ffffff;--surface-2:#f7f7f5;--line:#e1e0db;--line-2:#cfcdc6;
+  --fg:#1c2128;--muted:#5d6570;--accent:#1f5fbf;--accent-t:#e4edfb;--accent-fg:#ffffff;
+  --head:#1a212b;--head-fg:#f1f3f5;--head-line:#323c49;
+  --good:#1f7a4d;--warn:#9a5600;--bad:#b3261e;--focus:#1f5fbf;
+  /* the six kinds of data (Runs green, Inventory amber, Records blue, Cases red, Orders violet, Lists grey): -t is the tint */
   --k-runs:#1f7a4d;--k-runs-t:#e1f2e8;--k-inv:#9a5600;--k-inv-t:#fbedd6;--k-rec:#1f5fbf;--k-rec-t:#e4edfb;
   --k-case:#b3261e;--k-case-t:#fbe5e3;--k-ord:#6b3fc0;--k-ord-t:#ece5fa;--k-list:#4b5663;--k-list-t:#e8e9ec;
 /*TOKENS-DAY*/
@@ -123,13 +128,13 @@
   --l-n-38:#4a5a6c;
   --l-n-43:#666666;
   --l-n-48:#64748b;
-  --l-n-63:#999999;
-  --l-n-68:#9aa6b5;
-  --l-n-78:#c3c2b7;
-  --l-n-79:#b9c6d8;
-  --l-n-83:#c9d0d9;
-  --l-n-88:#d9dee5;
-  --l-n-95:#eef1f5;
+  --l-n-63:#9a9997;
+  --l-n-68:#a5a5a3;
+  --l-n-78:#c2c1c0;
+  --l-n-79:#c5c5c3;
+  --l-n-83:#d0cfcd;
+  --l-n-88:#dfddda;
+  --l-n-95:#f2f1ee;
   --l-red-40:#b42318;
   --l-red-45:#cf222e;
   --l-red-78:#f3b0a8;
@@ -153,10 +158,10 @@
   --s-n-0:#000000;
   --s-n-100:#ffffff;
   --s-n-19:#2a2f36;
-  --s-n-68:#9aa6b5;
-  --s-n-88:#d9dee5;
-  --s-n-95:#eef1f5;
-  --s-n-98:#fff6f5;
+  --s-n-68:#a5a5a3;
+  --s-n-88:#dfddda;
+  --s-n-95:#f2f1ee;
+  --s-n-98:#f9f8f5;
   --s-red-40:#b42318;
   --s-red-54:#e5484d;
   --s-red-94:#fde8e6;
@@ -199,6 +204,13 @@
 }
 :root[data-theme="night"]{
   color-scheme:dark;
+  --bg:#13171c;--surface:#1c2229;--surface-2:#222930;--line:#303943;--line-2:#415060;
+  --fg:#e8ebef;--muted:#9aa5b1;--accent:#6fa3ff;--accent-t:#172a47;--accent-fg:#0d1624;
+  --head:#0e1217;--head-fg:#e8ebef;--head-line:#2a323c;
+  --good:#5fd199;--warn:#f0b45a;--bad:#ff8f86;--focus:#6fa3ff;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.35);
+  --k-runs:#5fd199;--k-runs-t:#17331f;--k-inv:#f0b45a;--k-inv-t:#3a2a10;--k-rec:#7fb0ff;--k-rec-t:#172a47;
+  --k-case:#ff8f86;--k-case-t:#47201d;--k-ord:#b79cff;--k-ord-t:#2a2050;--k-list:#aeb8c4;--k-list-t:#2a313a;
 /*TOKENS-NIGHT*/
   --d-amber-42:#e9ac59;
   --d-amber-47:#ff944d;
@@ -266,11 +278,11 @@
   --l-n-43:#575c62;
   --l-n-48:#58687f;
   --l-n-63:#72787e;
-  --l-n-68:#636e7c;
-  --l-n-78:#57574d;
-  --l-n-79:#495564;
-  --l-n-83:#464c54;
-  --l-n-88:#3d4147;
+  --l-n-68:#686e74;
+  --l-n-78:#52575d;
+  --l-n-79:#4f545a;
+  --l-n-83:#474c52;
+  --l-n-88:#3d4247;
   --l-n-95:#2f3439;
   --l-red-78:#6c403b;
   --l-violet-89:#4b475d;
@@ -286,10 +298,10 @@
   --s-green-96:#1b3221;
   --s-n-100:#1f2429;
   --s-n-19:#1a1f26;
-  --s-n-68:#333e4b;
-  --s-n-88:#2b2f34;
-  --s-n-95:#13181d;
-  --s-n-98:#221c1c;
+  --s-n-68:#393e43;
+  --s-n-88:#2a2f34;
+  --s-n-95:#14181d;
+  --s-n-98:#191e23;
   --s-red-94:#492624;
   --s-teal-95:#163236;
   --s-violet-86:#332e7c;
@@ -327,6 +339,13 @@
 }
 @media print{:root[data-theme="night"]{
   color-scheme:light;
+  --bg:#f2f2ef;--surface:#ffffff;--surface-2:#f7f7f5;--line:#e1e0db;--line-2:#cfcdc6;
+  --fg:#1c2128;--muted:#5d6570;--accent:#1f5fbf;--accent-t:#e4edfb;--accent-fg:#ffffff;
+  --head:#1a212b;--head-fg:#f1f3f5;--head-line:#323c49;
+  --good:#1f7a4d;--warn:#9a5600;--bad:#b3261e;--focus:#1f5fbf;
+  --shadow:0 1px 2px rgba(20,25,30,.06),0 4px 14px rgba(20,25,30,.06);
+  --k-runs:#1f7a4d;--k-runs-t:#e1f2e8;--k-inv:#9a5600;--k-inv-t:#fbedd6;--k-rec:#1f5fbf;--k-rec-t:#e4edfb;
+  --k-case:#b3261e;--k-case-t:#fbe5e3;--k-ord:#6b3fc0;--k-ord-t:#ece5fa;--k-list:#4b5663;--k-list-t:#e8e9ec;
 /*TOKENS-PRINT*/
   --d-amber-42:#8a5a00;
   --d-amber-47:#b45309;
@@ -393,13 +412,13 @@
   --l-n-38:#4a5a6c;
   --l-n-43:#666666;
   --l-n-48:#64748b;
-  --l-n-63:#999999;
-  --l-n-68:#9aa6b5;
-  --l-n-78:#c3c2b7;
-  --l-n-79:#b9c6d8;
-  --l-n-83:#c9d0d9;
-  --l-n-88:#d9dee5;
-  --l-n-95:#eef1f5;
+  --l-n-63:#9a9997;
+  --l-n-68:#a5a5a3;
+  --l-n-78:#c2c1c0;
+  --l-n-79:#c5c5c3;
+  --l-n-83:#d0cfcd;
+  --l-n-88:#dfddda;
+  --l-n-95:#f2f1ee;
   --l-red-78:#f3b0a8;
   --l-violet-89:#e1dafc;
   --s-amber-70:#e0a100;
@@ -414,10 +433,10 @@
   --s-green-96:#eaf6ec;
   --s-n-100:#ffffff;
   --s-n-19:#2a2f36;
-  --s-n-68:#9aa6b5;
-  --s-n-88:#d9dee5;
-  --s-n-95:#eef1f5;
-  --s-n-98:#fff6f5;
+  --s-n-68:#a5a5a3;
+  --s-n-88:#dfddda;
+  --s-n-95:#f2f1ee;
+  --s-n-98:#f9f8f5;
   --s-red-94:#fde8e6;
   --s-teal-95:#e6f3f5;
   --s-violet-86:#ddd3fb;

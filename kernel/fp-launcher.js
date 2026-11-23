@@ -23,7 +23,7 @@
 
   const VERSION = '0.65.0';
   /* The runtime, in load order. */
-  const KERNEL = ['fp-config', 'fp-theme', 'fp-fonts', 'fp-core', 'fp-identity', 'fp-entry', 'fp-session', 'fp-formula', 'fp-current', 'fp-kinds', 'fp-sites', 'fp-lookup',
+  const KERNEL = ['fp-config', 'fp-theme', 'fp-fonts', 'fp-icons', 'fp-core', 'fp-identity', 'fp-entry', 'fp-session', 'fp-formula', 'fp-current', 'fp-kinds', 'fp-sites', 'fp-lookup',
     'fp-users', 'fp-media', 'fp-sources', 'fp-forms', 'fp-controls', 'fp-visuals', 'fp-keyboard', 'fp-defs', 'fp-due', 'fp-launcher', 'fp-updates'];
   const LAUNCHERS = ['launchers'];
 

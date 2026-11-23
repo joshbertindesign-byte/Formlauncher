@@ -55,8 +55,27 @@ const audit = async (p, name) => {
   console.log(`  contrast ${name.padEnd(22)} ${r.failing.length} of ${r.checked} text elements below the minimum`);
 };
 
+
+// The touch-target check (Release B): interactive elements smaller than 48 px in either direction. It is a measure for the operator screens
+// (06, 07, 08, 10), where the target is 48 to 56 px; on the editor and Admin it is information only. Written to <OUT>/targets.json.
+const targetsLog = [];
+const targets = async (p, name) => {
+  const r = await p.evaluate(() => {
+    const out = []; let n = 0;
+    for (const el of document.body.querySelectorAll('button, input:not([type=hidden]):not([type=checkbox]):not([type=radio]), select, textarea, a[href], [role=button], [role=tab]')) {
+      const cs = getComputedStyle(el), rc = el.getBoundingClientRect();
+      if (cs.visibility === 'hidden' || cs.display === 'none' || rc.width < 2 || rc.height < 2 || rc.bottom < 0 || rc.top > innerHeight || el.disabled) continue;
+      n++;
+      if (Math.min(rc.width, rc.height) < 48) out.push({ el: el.tagName.toLowerCase() + (el.className && typeof el.className === 'string' ? '.' + el.className.trim().split(/\\s+/)[0] : ''), text: (el.textContent || el.value || el.placeholder || '').trim().slice(0, 30), w: Math.round(rc.width), h: Math.round(rc.height) });
+    }
+    return { n, small: out };
+  }).catch(e => ({ n: 0, small: [], error: e.message }));
+  targetsLog.push({ screen: name, interactive: r.n, below48: r.small });
+  console.log(`  targets  ${name.padEnd(22)} ${r.small.length} of ${r.n} interactive elements under 48 px`);
+};
+
 const shot = async (p, name, note) => {
-  try { await p.screenshot({ path: path.join(OUT, `${name}.png`), fullPage: false }); console.log('shot', name.padEnd(22), note || ''); await audit(p, name); }
+  try { await p.screenshot({ path: path.join(OUT, `${name}.png`), fullPage: false }); console.log('shot', name.padEnd(22), note || ''); await audit(p, name); await targets(p, name); }
   catch (e) { failed.push(`${name}: ${e.message}`); console.error('FAILED', name, e.message); }
 };
 
@@ -134,6 +153,7 @@ const shot = async (p, name, note) => {
     await shot(p, '10-launcher-needs', 'T02 Add a need');
   });
   fs.writeFileSync(path.join(OUT, 'contrast.json'), JSON.stringify(contrast, null, 1));
+  fs.writeFileSync(path.join(OUT, 'targets.json'), JSON.stringify(targetsLog, null, 1));
   console.log(`contrast (${MODE}): ${contrast.reduce((n, c) => n + c.failing.length, 0)} failing of ${contrast.reduce((n, c) => n + c.checked, 0)} text elements; details in ${path.join(OUT, 'contrast.json')}`);
   console.log(failed.length ? `${failed.length} shot(s) failed` : `done: ${fs.readdirSync(OUT).filter(f => f.endsWith('.png')).length} screenshots in ${OUT}`);
   if (failed.length) process.exit(1);
