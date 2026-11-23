@@ -529,13 +529,14 @@
         Object.entries(f.fill || {}).forEach(([field, container]) => api.setField(field, it.values[container] == null ? null : it.values[container]));
         api.fire();
       }
-      search.onfocus = () => { paintList(); };
+      search.onfocus = () => { items = null; paintList(); };   // read again each time: an item saved since shows
       search.oninput = () => { paintList(); };
       search.onkeydown = async e => {
         if (e.key !== 'Enter') return;
         e.preventDefault();
         if (!items) await loadItems();
         const q = search.value.trim().toLowerCase();
+        if (!q) return;   // nothing typed: Enter picks nothing (it used to pick the most recent item)
         const exact = items.find(it => it.id.toLowerCase() === q) || items.find(it => text(it).toLowerCase().includes(q));
         if (exact) { choose(exact); api.next(); }
       };
@@ -545,7 +546,7 @@
         get: () => value,
         set: v => {
           value = v == null ? null : String(v);
-          if (!value) { picked.hidden = true; search.hidden = false; search.value = ''; return; }
+          if (!value) { picked.hidden = true; search.hidden = false; search.value = ''; items = null; return; }
           label.textContent = value; picked.hidden = false; search.hidden = true;
           (items ? Promise.resolve() : loadItems()).then(() => { const it = items.find(x => x.id === value); if (it) label.textContent = text(it); }).catch(() => {});
         },
@@ -675,10 +676,12 @@
     describe: { label: 'Table', category: 'entry', value: 'a list of rows ({ row, column: value })', help: 'A fixed grid, a list people add rows to, or repeating cards.',
       settings: [
         S('columns', 'list', 'Columns', { required: true, of: [S('name', 'name', 'Name', { required: true }), S('label', 'text', 'Label'), S('control', 'choice', 'Control', { options: CELLS }),
-          S('options', 'options', 'Options'), S('unit', 'text', 'Unit'), S('required', 'boolean', 'Required'), S('edit', 'boolean', 'Can be changed', { help: 'For rows from a list: people change this value, and each changed row saves to its own item.' })] }),
+          S('options', 'options', 'Options'), S('unit', 'text', 'Unit'), S('required', 'boolean', 'Required'),
+          S('limits', 'object', 'Allowed range', { help: 'For a number column: a value outside it cannot be saved.', of: [S('min', 'number', 'Lowest'), S('max', 'number', 'Highest')] }),
+          S('edit', 'boolean', 'Can be changed', { help: 'For rows from a list: people change this value, and each changed row saves to its own item.' })] }),
         S('rowsFrom', 'name', 'Rows from a list source', { help: 'One row per item of a list source of this form.' }),
         S('rows', 'list', 'Fixed rows', { help: 'Each row\'s name, and a label when it should read differently.', strings: 'key', of: [S('key', 'text', 'Name', { required: true }), S('label', 'text', 'Label')] }), S('rowLabel', 'text', 'Row heading'), S('allRows', 'boolean', 'Every row must be filled'),
-        S('addRows', 'boolean', 'People add rows'), S('startRows', 'integer', 'Rows to start with', { min: 0 }), S('maxRows', 'integer', 'At most rows', { min: 1 }),
+        S('addRows', 'boolean', 'People add rows'), S('startRows', 'integer', 'Rows to start with', { min: 0 }), S('maxRows', 'integer', 'At most rows', { min: 1 }), S('minRows', 'integer', 'At least rows', { min: 1, help: 'Once any row is filled in, this many rows must be.' }),
         S('style', 'choice', 'Style', { options: ['grid', 'cards'] }), S('addLabel', 'text', 'Add button label'), S('itemLabel', 'text', 'Card heading'),
         S('empty', 'text', 'When the list is empty', { help: 'For rows from a list, e.g. No runs are open' }),
         S('pinHeader', 'boolean', 'Pin the header row', { help: 'The table scrolls inside itself and its headings stay in view.' }),
