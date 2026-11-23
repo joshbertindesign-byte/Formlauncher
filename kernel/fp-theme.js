@@ -201,8 +201,8 @@
   color-scheme:dark;
 /*TOKENS-NIGHT*/
   --d-amber-42:#e9ac59;
-  --d-amber-47:#c8631d;
-  --d-amber-48:#ac7617;
+  --d-amber-47:#ff944d;
+  --d-amber-48:#e0a447;
   --d-amber-61:#cf8a0c;
   --d-amber-93:#442d00;
   --d-amber-96:#382c00;
@@ -210,12 +210,12 @@
   --d-blue-15:#d2deef;
   --d-blue-42:#91b4ff;
   --d-blue-43:#bea0ff;
-  --d-blue-50:#4085e5;
+  --d-blue-50:#70aaff;
   --d-blue-85:#003e6c;
   --d-green-36:#86d572;
   --d-green-45:#70c67f;
-  --d-green-47:#319046;
-  --d-green-47b:#259419;
+  --d-green-47:#68c476;
+  --d-green-47b:#60c54c;
   --d-green-57:#2ca65d;
   --d-green-58:#20a776;
   --d-green-58b:#20ab19;
@@ -238,14 +238,14 @@
   --d-n-95:#16181b;
   --d-n-99:#212120;
   --d-red-40:#ff8d6f;
-  --d-red-48:#e34d49;
-  --d-red-54:#f25457;
+  --d-red-48:#ff7d72;
+  --d-red-54:#ff716f;
   --d-red-60:#f36f3a;
   --d-red-65:#eb7da6;
   --d-red-92:#512522;
-  --d-teal-45:#2d86a2;
-  --d-teal-46:#298b86;
-  --d-teal-52:#279799;
+  --d-teal-45:#6ebedc;
+  --d-teal-46:#65c1ba;
+  --d-teal-52:#4eb6b8;
   --d-teal-56:#239bbc;
   --d-teal-88:#003f4e;
   --d-violet-43:#d98dff;

@@ -87,7 +87,28 @@ const shot = async (p, name, note) => {
   await shot(A.p, '04-admin', 'Admin');
   await A.p.click('.fpe-helpbtn').catch(() => {}); await A.w(2000);
   await shot(A.p, '05-help', 'Help');
-  await A.snapshot(path.join(OUT, 'shots-seed.json')); await A.b.close();
+  await A.snapshot(path.join(OUT, 'shots-seed.json'));   // the launcher screens start from here; the rest is editor-only and made after it
+
+  // The retiring screens: Find unfolding a form, the Retire dialog, and a retired definition with its banner and the map's Retired shelf.
+  await A.p.evaluate(async () => {
+    const def = (title) => ({ title, sites: ['all'], sources: [], fields: [{ name: 'n', control: 'text', label: 'Note' }], layout: [['n 12']] });
+    await FP.defs.publish('form', 'demo-old', def('Old rack check'), {});
+    await FP.defs.publish('form', 'demo-new', def('Rack check'), {});
+    if (FP.outbox) await FP.outbox.flush();
+    await FP.editor.refreshMap();
+  });
+  const find = A.p.locator('input[placeholder^="Find a site"]').first();
+  await find.fill('rack'); await A.w(1200);
+  await shot(A.p, '11-editor-find', 'Find "rack": the map unfolds to the forms and what they use');
+  await find.fill(''); await A.w(500);
+  await A.p.evaluate(() => FP.editor.openDef('form', 'demo-old')); await A.w(2500);
+  await A.p.click('.fpe-retire-btn').catch(() => {}); await A.w(1500);
+  await shot(A.p, '12-retire-dialog', 'the Retire dialog (Replaced by, what only it uses)');
+  await A.p.click('.fpe-retire button:has-text("Cancel")').catch(() => {}); await A.w(500);
+  await A.p.evaluate(async () => { await FP.defs.retire('form', 'demo-old', { supersededBy: 'demo-new', note: 'Replaced' }); await FP.editor.refreshMap(); await FP.editor.openDef('form', 'demo-old'); }); await A.w(2500);
+  await A.p.evaluate(() => { const m = document.querySelector('.fpe-map'); const sc = [m, m && m.parentElement].filter(Boolean).find(x => x.scrollHeight > x.clientHeight); if (sc) sc.scrollTop = sc.scrollHeight; }); await A.w(500);   // the Retired shelf is at the bottom of the map
+  await shot(A.p, '13-retired', 'a retired form: the banner, read-only, and the Retired shelf on the map');
+  await A.b.close();
 
   // 2. The launcher on a line terminal (T01, kiosk) and the QC office (T02, admin view), signed in as the admin.
   const launcher = async (term, label, steps) => {

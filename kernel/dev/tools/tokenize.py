@@ -166,7 +166,7 @@ def night_of(role, fam, hexv):
             elif L >= 70: L2 = 17 + (100 - L) * 0.9                    # light greys (axes, rules, tracks)
             else: L2 = max(22, min(95, 103.4 - 0.867 * L))             # ink and muted text: light text
         elif L >= 85: L2 = 16 + (100 - L) * 0.6; chroma_keep = 2.4     # tints: a deep tint of the same hue
-        elif L < 45: L2 = max(68, min(88, 100 - 0.6 * L))              # dark coloured text and rules: lightened to read on dark
+        elif L < 55: L2 = max(68, min(88, 100 - 0.6 * L))              # dark and mid coloured text and rules (a tag takes its kind's colour as text): lightened to read on dark
         else: L2 = L + (68 - L) * 0.3 if L < 68 else L                 # strong marks: lifted a little
     if abs(L2 - L) < 0.5 and chroma_keep == 1.0: return hexv
     a2, b2 = a * chroma_keep, b * chroma_keep
