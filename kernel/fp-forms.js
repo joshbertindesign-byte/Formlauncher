@@ -684,7 +684,7 @@
   /* ---------- Styles ---------- */
   const CSS = `
   .fpf [hidden]{display:none!important}
-  .fpf{container-type:inline-size;--ink:#1b1f24;--muted:#5b6573;--line:#d9dee5;--accent:#1f5fbf;--good:#1a7f37;--bad:#b42318;--warn:#9a6700;font:16px/1.45 var(--font-sans,system-ui,"Segoe UI",sans-serif);color:var(--ink)}
+  .fpf{container-type:inline-size;--ink:var(--t-n-12);--muted:var(--d-n-42);--line:var(--d-n-88);--accent:var(--d-blue-42);--good:var(--d-green-47);--bad:var(--d-red-40);--warn:var(--d-amber-48);font:16px/1.45 var(--font-sans,system-ui,"Segoe UI",sans-serif);color:var(--ink)}
   .fpf-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:14px 16px;margin-bottom:14px}
   .fpf-cell{min-width:0;grid-column:span var(--pc,12)}
   @container (max-width:999px){.fpf-cell{grid-column:span var(--tablet,12)}}

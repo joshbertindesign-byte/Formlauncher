@@ -131,7 +131,7 @@ window.addEventListener('unhandledrejection', function (e) { window.__fpReport('
   .fpl-main.split>*{grid-column:2}
   .fpl-main.split>.fpl-side{grid-column:1;grid-row:1 / span 3;display:flex;flex-direction:column;gap:4px;position:sticky;top:72px;max-height:calc(100vh - 86px);overflow:auto;padding-bottom:16px}
   .fpl-side button{display:block;width:100%;text-align:left;font:inherit;font-size:15px;min-height:48px;padding:8px 12px;border:1px solid transparent;border-radius:10px;background:none;color:var(--t-n-12);cursor:pointer}
-  .fpl-side button:hover{background:var(--s-n-95)}.fpl-side button.on{background:var(--s-n-100);border-color:var(--l-blue-85);box-shadow:inset 4px 0 0 #2a78d6;font-weight:600}
+  .fpl-side button:hover{background:var(--s-n-95)}.fpl-side button.on{background:var(--s-n-100);border-color:var(--l-blue-85);box-shadow:inset 4px 0 0 var(--d-blue-50);font-weight:600}
   .fpl-side button.small{font-size:14px;min-height:40px;color:var(--t-n-29)}
   .fpl-side .fpl-cap{padding:8px 12px 2px}
   @media (max-width:900px){

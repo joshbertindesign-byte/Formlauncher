@@ -32,17 +32,17 @@
   const S = (name, type, label, extra) => Object.assign({ name, type, label }, extra || {});
 
   /* ---------- Colours (validated categorical order; status kept apart) ---------- */
-  const SERIES = ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#008300', '#6250d6', '#e34948'];
-  const LIGHT_SERIES = '#86b6ef'; // sequential step 250 of the series blue
+  const SERIES = ['d-blue-50', 'd-red-60', 'd-green-64', 'd-amber-72', 'd-red-65', 'd-green-47b', 'd-blue-43', 'd-red-54'].map(t => 'var(--' + t + ')');   // tokens, so night mode can recolour them
+  const LIGHT_SERIES = 'var(--d-blue-73)'; // sequential step 250 of the series blue
   /* Own properties only: a status or key named constructor / __proto__ must not reach Object.prototype (F35). */
   const hasOwn = (o, k) => o != null && Object.prototype.hasOwnProperty.call(o, k);
   const own = (o, k) => (hasOwn(o, k) ? o[k] : undefined);
   /* Smallest and largest of a list, by loop: Math.min(...list) throws past about 100,000 values. */
   const extent = list => { let lo = Infinity, hi = -Infinity; for (let i = 0; i < list.length; i++) { const v = list[i]; if (v < lo) lo = v; if (v > hi) hi = v; } return { lo, hi }; };
-  const STATUS = { good: '#0ca30c', warn: '#fab219', bad: '#d03b3b' };
-  const TONE_TEXT = { good: '#006300', warn: '#8a5a00', bad: '#b42318' };
+  const STATUS = { good: 'var(--d-green-58b)', warn: 'var(--d-amber-77)', bad: 'var(--d-red-48)' };
+  const TONE_TEXT = { good: 'var(--t-green-36)', warn: 'var(--t-amber-42)', bad: 'var(--t-red-40)' };
   const ICON = { good: '✓', warn: '!', bad: '✕' };
-  const INK = { primary: '#1b1f24', secondary: '#52514e', muted: '#898781', grid: '#e1e0d9', axis: '#c3c2b7', surface: '#fcfcfb' };
+  const INK = { primary: 'var(--t-n-12)', secondary: 'var(--d-n-34)', muted: 'var(--d-n-56)', grid: 'var(--d-n-89)', axis: 'var(--d-n-78)', surface: 'var(--d-n-99)' };
 
   const CSS = `
   .fpv{background:${INK.surface};border:1px solid rgba(11,11,11,.08);border-radius:12px;padding:12px 14px;position:relative}
@@ -105,7 +105,7 @@
   .fpv-sum b{color:${INK.primary}}
   .fpv-records tr.row{cursor:pointer}.fpv-records tr.row:hover td{background:var(--s-n-100)}
   .fpv-tile.pick{cursor:pointer}.fpv-tile.sel{outline:3px solid var(--l-blue-42);outline-offset:-1px;background:var(--s-n-95)}
-  .fpv-records tr.sel td{background:var(--s-blue-93);box-shadow:inset 0 -2px 0 #1f5fbf}
+  .fpv-records tr.sel td{background:var(--s-blue-93);box-shadow:inset 0 -2px 0 var(--d-blue-42)}
   .fpv-tree,.fpv-tree ul{list-style:none;margin:0;padding:0}
   .fpv-tree ul{margin-left:18px;border-left:2px solid ${INK.grid};padding-left:8px}
   .fpv-tnode{display:flex;align-items:flex-start;gap:6px;padding:3px 0}
@@ -134,7 +134,7 @@
   /* ---------- Helpers ---------- */
   const el = (tag, cls, text) => FP.dom.el(tag, cls, text);   // one copy, in fp-core (0.50)
   const NS = 'http://www.w3.org/2000/svg';
-  const svg = (tag, attrs, text) => { const n = document.createElementNS(NS, tag); Object.entries(attrs || {}).forEach(([k, v]) => n.setAttribute(k, v)); if (text != null) n.textContent = text; return n; };
+  const svg = (tag, attrs, text) => { const n = document.createElementNS(NS, tag); Object.entries(attrs || {}).forEach(([k, v]) => { if ((k === 'fill' || k === 'stroke') && String(v).indexOf('var(') === 0) n.style[k] = v; else n.setAttribute(k, v); }); if (text != null) n.textContent = text; return n; };
   const special = v => !!(v && typeof v === 'object' && v.__fp);
   const toNum = v => (typeof v === 'number' ? v : typeof v === 'string' && v.trim() !== '' && !isNaN(Number(v)) ? Number(v) : null);
   const FACT = { $at: 'When', $firstAt: 'First seen', $site: 'Site', $status: 'Status', $action: 'Last action' };
@@ -330,7 +330,7 @@
         const chip = el('div', 'fpv-chip');
         const flag = el('span', 'fpv-flag', ICON[band.tone]);
         flag.style.background = STATUS[band.tone];
-        if (band.tone === 'warn') flag.style.color = '#0b0b0b';
+        if (band.tone === 'warn') flag.style.color = 'var(--d-n-3)';
         chip.append(flag, el('span', null, band.label || ({ good: 'Good', warn: 'Watch', bad: 'Act' })[band.tone]));
         row.appendChild(chip);
       }
@@ -703,7 +703,7 @@
           }
         }
         const stEl = el('div', 'st');
-        if (tn) { const fl = el('span', 'fpv-flag', ICON[tn]); fl.style.background = STATUS[tn]; if (tn === 'warn') fl.style.color = '#0b0b0b'; stEl.appendChild(fl); }
+        if (tn) { const fl = el('span', 'fpv-flag', ICON[tn]); fl.style.background = STATUS[tn]; if (tn === 'warn') fl.style.color = 'var(--d-n-3)'; stEl.appendChild(fl); }
         stEl.appendChild(el('span', null, st));
         if (tn) stEl.style.color = TONE_TEXT[tn];
         tile.appendChild(stEl);

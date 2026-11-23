@@ -70,8 +70,8 @@
   .fpc-table input,.fpc-table select{min-height:44px}
   .fpc-table .rowlabel{font-weight:600;white-space:nowrap;padding-top:14px}
   .fpc-pin{overflow:auto;border:1px solid var(--l-n-88);border-radius:10px;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
-  .fpc-pin .fpc-table th{position:sticky;top:0;z-index:2;background:var(--s-n-100);box-shadow:inset 0 -1px 0 #d9dee5;padding:8px 6px}
-  .fpc-pin.first .fpc-table tr>*:first-child{position:sticky;left:0;z-index:1;background:var(--s-n-100);box-shadow:inset -1px 0 0 #e3e7ec}
+  .fpc-pin .fpc-table th{position:sticky;top:0;z-index:2;background:var(--s-n-100);box-shadow:inset 0 -1px 0 var(--d-n-88);padding:8px 6px}
+  .fpc-pin.first .fpc-table tr>*:first-child{position:sticky;left:0;z-index:1;background:var(--s-n-100);box-shadow:inset -1px 0 0 var(--d-n-88)}
   .fpc-pin.first .fpc-table tr>th:first-child{z-index:3;background:var(--s-n-100)}
   .fpc-card{border:1px solid var(--l-n-88);border-radius:12px;padding:10px 12px;margin-bottom:10px;background:var(--s-n-100)}
   .fpc-card-head{display:flex;justify-content:space-between;align-items:center;font-weight:600;margin-bottom:6px}
@@ -382,7 +382,7 @@
         const w = Math.round(r.width * devicePixelRatio), h = Math.round(r.height * devicePixelRatio);
         if (c.width === w && c.height === h) return;
         c.width = w; c.height = h;
-        const g = ctx(); g.lineWidth = 2.5 * devicePixelRatio; g.lineCap = 'round'; g.lineJoin = 'round'; g.strokeStyle = '#111';
+        const g = ctx(); g.lineWidth = 2.5 * devicePixelRatio; g.lineCap = 'round'; g.lineJoin = 'round'; g.strokeStyle = (FP.theme && FP.theme.token('d-n-3')) || '#111';
         if (data) { const img = new Image(); img.onload = () => ctx().drawImage(img, 0, 0, c.width, c.height); img.src = data; }
       };
       const pt = e => { const r = c.getBoundingClientRect(); return [(e.clientX - r.left) * devicePixelRatio, (e.clientY - r.top) * devicePixelRatio]; };
