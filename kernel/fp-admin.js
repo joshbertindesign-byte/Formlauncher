@@ -239,7 +239,13 @@
         if (strays.length || oldFiles.length) {
           a.head(box, 'To tidy', 'shortcuts whose form is gone, and launcher files from before 0.48');
           strays.forEach(f => a.row(box, { key: 'x:' + f.name, depth: 1, color: 'var(--d-red-54)', title: () => f.name, sub: () => f.problem,
-            props: p => p.appendChild(btn('Remove the shortcut', 'small', () => act(() => FP.launchers.remove(f.name), `Shortcut ${f.name} is removed.`, again))) }));
+            props: p => {
+              if (f.retired && f.supersededBy && f.repointable) {
+                const t = (FP.defs.get('form', f.supersededBy).def || {}).title || f.supersededBy;
+                p.appendChild(btn(`Point it at ${t}`, 'small', () => act(() => FP.launchers.repoint(f.name, f.supersededBy), `Shortcut ${f.name} points at ${t}.`, again)));
+              }
+              p.appendChild(btn('Remove the shortcut', 'small', () => act(() => FP.launchers.remove(f.name), `Shortcut ${f.name} is removed.`, again)));
+            } }));
           oldFiles.forEach(f => a.row(box, { key: 'o:' + f.name, depth: 1, color: 'var(--d-amber-47)', title: () => `launchers/${f.name}`, sub: () => f.problem,
             props: p => p.appendChild(btn('Remove the file', 'small', () => { if (confirm(`Remove launchers/${f.name}? Windows shortcuts to the file stop working.`)) act(() => FP.launchers.remove(f.name), `launchers/${f.name} is removed.`, again); })) }));
         }
@@ -1020,11 +1026,37 @@
       await FP.defs.publish('form', d.id, def, { basedOn: d.version, note: `Home screen moved to ${to.length ? to.map(x => x.name).join(', ') : 'no terminal'} (0.51)` });
       return to.length;
     };
+    // The Unused finder (0.66): definitions nothing active uses. A form a launcher shortcut names counts as in use.
+    const named = new Set((await FP.launchers.list().catch(() => [])).map(f => f.form).filter(Boolean));
+    const U = (await FP.defs.unused().catch(() => [])).filter(u => !(u.kind === 'form' && named.has(u.id)));
+    const canRetire = !!(FP.users && await FP.users.can(FP.defs.publishRole).catch(() => false));
+    const retireOne = async u => { await FP.defs.retire(u.kind, u.id, { note: 'Unused: retired from Admin > Clean-up' }); };
     const calcOn = new Map(L.plans.map(p => [p.doc.id, true]));
     const none = !L.types.length && !L.structures.length && !L.forms.length && !L.rules.length && !L.orphans.length && !L.older.length && !L.opens.length && !L.homes.length;
     return view({
       build(a, box) {
-        if (none) { a.head(box, 'Nothing to clean up', 'nothing is left from sessions'); box.appendChild(el('p', 'ffe-note', 'No session types, no structures naming sessions, no forms reading something every shift, and no sub-form records left over.')); return; }
+        if (none) { a.head(box, 'Nothing to clean up', 'nothing is left from sessions'); box.appendChild(el('p', 'ffe-note', 'No session types, no structures naming sessions, no forms reading something every shift, and no sub-form records left over.')); }
+        a.head(box, 'Unused finder', 'definitions nothing active uses: forms on no terminal and no shortcut, structures no form writes to, functions nothing calls');
+        if (!U.length) box.appendChild(el('p', 'ffe-note', 'Nothing unused.'));
+        [['form', 'Forms'], ['structure', 'Structures'], ['function', 'Formulas']].forEach(([kind, label]) => {
+          const rows = U.filter(u => u.kind === kind);
+          if (!rows.length) return;
+          a.head(box, label, `${rows.length} unused`);
+          rows.forEach(u => a.row(box, { key: 'u:' + kind + ':' + u.id, depth: 1, color: 'var(--d-n-66)', title: () => u.name,
+            sub: () => `${u.id} · ${u.why}`,
+            props: p => {
+              if (canRetire) p.appendChild(btn('Retire', 'small', () => act(() => retireOne(u), `${u.name} is retired.`, again)));
+              else p.appendChild(el('p', 'ffe-note', 'Only a publisher can retire it.'));
+            } }));
+          if (canRetire && rows.length > 1) a.addRow(box, '+retire:' + kind, `+ retire all ${rows.length} shown`, 0, null, () => {
+            if (!confirm(`Retire ${rows.length} ${label.toLowerCase()}? ${rows.map(u => u.name).join(', ')}. An admin can reinstate them.`)) return;
+            act(async () => {
+              let n = 0;
+              for (const u of rows) { try { await retireOne(u); n++; } catch (e) { if (!n) throw e; throw new Error(`${n} retired, then ${u.name}: ${e.message}`); } }
+              return n;
+            }, n => `${n} retired.`, again);
+          });
+        });
         if (L.older.length) {
           a.head(box, 'Older forms', 'written before sources, or naming their saves on the form: each gets a new version that saves the same way');
           const upgradeOne = async d => {
