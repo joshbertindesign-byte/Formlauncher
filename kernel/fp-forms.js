@@ -684,7 +684,7 @@
   /* ---------- Styles ---------- */
   const CSS = `
   .fpf [hidden]{display:none!important}
-  .fpf{container-type:inline-size;--ink:var(--t-n-12);--muted:var(--d-n-42);--line:var(--d-n-88);--accent:var(--d-blue-42);--good:var(--d-green-47);--bad:var(--d-red-40);--warn:var(--d-amber-48);font:16px/1.45 var(--font-sans,system-ui,"Segoe UI",sans-serif);color:var(--ink)}
+  .fpf{container-type:inline-size;--ink:var(--t-n-12);--muted:var(--t-n-42);--line:var(--l-n-88);--accent:var(--s-blue-42);--accent-t:var(--t-blue-42);--good:var(--s-green-47);--good-t:var(--t-green-47);--bad:var(--s-red-40);--bad-t:var(--t-red-40);--warn:var(--d-amber-48);--warn-t:var(--t-amber-42);font:16px/1.45 var(--font-sans,system-ui,"Segoe UI",sans-serif);color:var(--ink)}
   .fpf-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:14px 16px;margin-bottom:14px}
   .fpf-cell{min-width:0;grid-column:span var(--pc,12)}
   @container (max-width:999px){.fpf-cell{grid-column:span var(--tablet,12)}}
@@ -699,10 +699,10 @@
   .fpf-tabbar{display:flex;gap:2px;overflow-x:auto;border-bottom:2px solid var(--line);margin-bottom:16px}
   .fpf-tabbar .fpf-head{border-bottom:3px solid transparent;margin-bottom:-2px;border-radius:8px 8px 0 0}
   .fpf-tabbar .fpf-head:hover{background:var(--s-n-95)}
-  .fpf-tabbar .fpf-head.on{color:var(--accent);border-bottom-color:var(--accent)}
+  .fpf-tabbar .fpf-head.on{color:var(--accent-t);border-bottom-color:var(--accent)}
   .fpf-stepbar{display:flex;gap:6px;overflow-x:auto;margin-bottom:16px}
   .fpf-stepbar .fpf-head{flex:1 1 0;min-width:0;padding:8px 12px;border-radius:10px;background:var(--s-n-95);color:var(--muted)}
-  .fpf-stepbar .fpf-head.done{background:var(--s-green-94);color:var(--good)}
+  .fpf-stepbar .fpf-head.done{background:var(--s-green-94);color:var(--good-t)}
   .fpf-stepbar .fpf-head.on{background:var(--accent);color:var(--t-n-100)}
   .fpf-stepbar .fpf-head:disabled{cursor:default}
   .fpf-head-label{overflow:hidden;text-overflow:ellipsis}
@@ -753,7 +753,7 @@
   .fpf-label{display:block;font-size:14px;font-weight:600;margin:0 0 6px}
   .fpf-hint{font-size:13px;color:var(--muted);margin:-3px 0 6px}
   .fpf-visual{min-height:48px}
-  .fpf-label .req{color:var(--bad);margin-left:3px}
+  .fpf-label .req{color:var(--bad-t);margin-left:3px}
   .fpf input,.fpf textarea,.fpf select{font:inherit;width:100%;box-sizing:border-box;min-height:48px;padding:10px 12px;border:1px solid var(--l-n-83);border-radius:10px;background:var(--s-n-100);color:inherit}
   .fpf textarea{min-height:90px;resize:vertical}
   .fpf .unitwrap{display:flex;align-items:center;gap:8px}.fpf .unit{color:var(--muted);white-space:nowrap}
@@ -765,30 +765,30 @@
   .fpf-tiles{display:flex;flex-wrap:wrap;gap:8px}
   .fpf-tile{font:inherit;font-weight:700;min-width:64px;min-height:52px;padding:6px 14px;border:1px solid var(--line);border-radius:10px;background:var(--s-n-100);color:var(--ink);cursor:pointer}
   .fpf-tile:hover{border-color:var(--accent)}
-  .fpf-tile.good{background:var(--s-green-94);border-color:var(--l-green-79);color:var(--good)}.fpf-tile.bad{background:var(--s-red-94);border-color:var(--l-red-78);color:var(--bad)}.fpf-tile.warn{background:var(--s-amber-95);border-color:var(--l-amber-81);color:var(--warn)}
+  .fpf-tile.good{background:var(--s-green-94);border-color:var(--l-green-79);color:var(--good-t)}.fpf-tile.bad{background:var(--s-red-94);border-color:var(--l-red-78);color:var(--bad-t)}.fpf-tile.warn{background:var(--s-amber-95);border-color:var(--l-amber-81);color:var(--warn-t)}
   .fpf-badge{display:inline-flex;align-items:center;min-height:40px;padding:4px 16px;border-radius:999px;font-weight:700;background:var(--s-n-95)}
-  .fpf-badge.good{background:var(--s-green-94);color:var(--good)}.fpf-badge.bad{background:var(--s-red-94);color:var(--bad)}.fpf-badge.warn{background:var(--s-amber-95);color:var(--warn)}
-  .fpf .waiting,.fpf .nodata,.fpf .blank{color:var(--muted);font-weight:400;font-size:15px}.fpf .error{color:var(--bad);font-weight:400;font-size:15px}
-  .fpf-msg{font-size:13px;margin-top:5px;min-height:1em}.fpf-msg.bad{color:var(--bad)}.fpf-msg.warn{color:var(--warn)}
+  .fpf-badge.good{background:var(--s-green-94);color:var(--good-t)}.fpf-badge.bad{background:var(--s-red-94);color:var(--bad-t)}.fpf-badge.warn{background:var(--s-amber-95);color:var(--warn-t)}
+  .fpf .waiting,.fpf .nodata,.fpf .blank{color:var(--muted);font-weight:400;font-size:15px}.fpf .error{color:var(--bad-t);font-weight:400;font-size:15px}
+  .fpf-msg{font-size:13px;margin-top:5px;min-height:1em}.fpf-msg.bad{color:var(--bad-t)}.fpf-msg.warn{color:var(--warn-t)}
   .fpf-text{color:var(--muted);white-space:pre-wrap}
   .fpf-foot{position:sticky;bottom:0;background:linear-gradient(rgba(244,246,248,0),var(--s-n-100) 30%);padding:18px 0 10px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
   .fpf-save{font:inherit;font-weight:700;min-height:52px;padding:10px 28px;border-radius:12px;border:0;background:var(--accent);color:var(--t-n-100);cursor:pointer}
   .fpf-save:disabled{background:var(--s-n-68);cursor:not-allowed}
-  .fpf-why{font-size:14px;color:var(--muted);flex:1 1 240px}.fpf-why.bad{color:var(--bad)}
+  .fpf-why{font-size:14px;color:var(--muted);flex:1 1 240px}.fpf-why.bad{color:var(--bad-t)}
   .fpf-as{flex:1 1 100%;font-size:13px;color:var(--muted);display:flex;align-items:center;gap:2px;flex-wrap:wrap}
   .fpf-as b{color:var(--ink);font-weight:600}
-  .fpf-notyou{font:inherit;font-size:13px;color:var(--accent);background:none;border:0;padding:10px 6px;margin:-10px 0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+  .fpf-notyou{font:inherit;font-size:13px;color:var(--accent-t);background:none;border:0;padding:10px 6px;margin:-10px 0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
   .fpf-media-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--l-n-95)}
-  .fpf-media-title{font:inherit;font-weight:600;text-align:left;border:0;background:none;color:var(--accent);cursor:pointer;padding:6px 0;flex:1 1 auto}
+  .fpf-media-title{font:inherit;font-weight:600;text-align:left;border:0;background:none;color:var(--accent-t);cursor:pointer;padding:6px 0;flex:1 1 auto}
   .fpf-media-where{font-size:13px;color:var(--muted)}
-  .fpf-media-report{font:inherit;font-size:13px;border:0;background:none;color:var(--accent);text-decoration:underline;cursor:pointer;padding:4px 6px;white-space:nowrap}
+  .fpf-media-report{font:inherit;font-size:13px;border:0;background:none;color:var(--accent-t);text-decoration:underline;cursor:pointer;padding:4px 6px;white-space:nowrap}
   .fpf-media-report:disabled{color:var(--muted);text-decoration:none;cursor:default;white-space:normal}
   .fpf-ack-gone{flex:1 1 100%;font-size:14px;color:var(--t-red-40);padding:4px 0}
   .fpf-media-open{font:inherit;min-height:44px;padding:6px 14px;border:1px solid var(--l-n-83);border-radius:10px;background:var(--s-n-100);cursor:pointer}
   .fpf-media-frame iframe{width:100%;border:1px solid var(--line);border-radius:10px;margin-top:10px;background:var(--s-n-100)}
   .fpf-media-frame img{max-width:100%;border-radius:10px;margin-top:10px}
   .fpf-value:has(.fpf-media){display:block;font-size:16px;font-weight:400}
-  .fpf-btn{font:inherit;font-weight:700;min-height:52px;padding:10px 22px;border-radius:12px;border:2px solid var(--accent);background:var(--s-n-100);color:var(--accent);cursor:pointer}
+  .fpf-btn{font:inherit;font-weight:700;min-height:52px;padding:10px 22px;border-radius:12px;border:2px solid var(--accent);background:var(--s-n-100);color:var(--accent-t);cursor:pointer}
   .fpf-btn:disabled{border-color:var(--l-n-68);color:var(--t-n-61);cursor:not-allowed}
   .fpf-btncell .fpf-btn,.fpf-btncell .fpf-save{width:100%}
   .fpf-btncell .fpf-label{visibility:hidden}
@@ -817,7 +817,7 @@
   .fpf-ack button{font:inherit;min-height:44px;padding:6px 14px;border:1px solid var(--l-n-83);border-radius:10px;background:var(--s-n-100);cursor:pointer}
   .fpf-ack button.ok{background:var(--accent);border-color:var(--accent);color:var(--t-n-100);font-weight:600}
   .fpf-ack button:disabled{opacity:.5;cursor:not-allowed}
-  .fpf-ack .ok-done{color:var(--good);font-weight:600}
+  .fpf-ack .ok-done{color:var(--good-t);font-weight:600}
   .fpf-ack-text{flex:1 1 100%;max-height:180px;overflow:auto;border:1px solid var(--l-n-88);border-radius:10px;padding:10px 12px;background:var(--s-n-100);white-space:pre-wrap;line-height:1.5}
   .fpf-locked{opacity:.45}
   .fpp{display:none}
