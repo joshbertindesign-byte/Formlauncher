@@ -188,6 +188,24 @@
   .fpe-update{background:var(--s-blue-93);color:var(--t-blue-27);padding:10px 16px;font-size:14px;border-bottom:1px solid var(--l-blue-85)}
   .fpe-update>div{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
   .fpe-update>div.bad{color:var(--t-red-27)}
+  .fpe-actions{display:flex;flex-wrap:wrap;gap:4px;margin-left:auto;align-self:center}
+  .fpe-actions+.fpe-icons{margin-left:0}
+  .fpe-retired{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;background:var(--s-n-95);color:var(--t-n-12);border:1px solid var(--l-n-83);border-left:5px solid var(--l-n-38);border-radius:8px;padding:8px 12px;margin:0 0 10px;font-size:13px}
+  .fpe-retired b{font-size:14px}.fpe-retired .err{flex:1 1 100%}
+  .fpe-modal{position:fixed;inset:0;z-index:9000;background:rgba(15,20,25,.45);display:flex;align-items:center;justify-content:center;padding:16px}
+  .fpe-dlg{background:var(--s-n-100);color:var(--t-n-12);border:1px solid var(--l-n-88);border-radius:12px;padding:16px 18px;width:min(580px,100%);max-height:100%;overflow:auto}
+  .fpe-dlg h2{margin:0 0 6px;font-size:18px}
+  .fpe-dlg p{margin:0 0 10px;font-size:13px;color:var(--t-n-29)}
+  .fpe-dlg h3{margin:12px 0 4px;font-size:14px}
+  .fpe-dlg .acts{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;margin-top:14px}
+  .fpe-dlg label.chk{display:flex;gap:8px;align-items:flex-start;font-size:14px;padding:3px 0}
+  .fpe-dlg label.fld{display:flex;flex-direction:column;gap:3px;font-size:12px;font-weight:600;color:var(--t-n-42);margin:8px 0 0}
+  .fpe-dlg input[type=checkbox]{min-height:0;width:18px;height:18px;padding:0;margin:2px 0 0;flex:none}
+  .fpe-dlg .use{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--l-n-95);font-size:14px}
+  .fpe-dlg .use select{min-height:34px}
+  .fpe-map .fpe-mrow.dim span,.fpe-map .fpe-mrow.dim small{color:var(--t-n-42)}
+  .fpe-showret{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--t-n-42);cursor:pointer;white-space:nowrap}
+  .fpe-lib .fpe-showret input{width:auto;margin:0;padding:0}
   .fpe-update button.primary{font:inherit;font-weight:700;min-height:38px;padding:4px 16px;border:0;border-radius:10px;background:var(--s-blue-42);color:var(--t-n-100);cursor:pointer}`;
   function injectCss() {
     if (document.getElementById('fp-editor-css')) return;
@@ -199,7 +217,7 @@
     window.addEventListener('unhandledrejection', e => { const m = e.reason && e.reason.message || String(e.reason || ''); if (m) toast(`Something went wrong: ${m}`, true); });
     window.addEventListener('error', e => { if (e.message) toast(`Something went wrong: ${e.message}`, true); });
   }
-  function toast(text, bad) { const t = el('div', 'fpe-msg' + (bad ? ' bad' : ''), text); document.body.appendChild(t); setTimeout(() => t.remove(), bad ? 9000 : 2200); }
+  function toast(text, bad, ms) { const t = el('div', 'fpe-msg' + (bad ? ' bad' : ''), text); document.body.appendChild(t); setTimeout(() => t.remove(), ms || (bad ? 9000 : 2200)); }
 
   /* ---------- Sites: all, or a list ---------- */
   async function sitesPicker(def, onChange) {
@@ -451,12 +469,200 @@
     return d;
   }
 
+  /* ---------- Retiring (0.65): the Retire dialog, Duplicate as new form, name warnings ---------- */
+  // "Show retired" is remembered here and read by the pickers in the other files: same key everywhere.
+  const RETIRED_KEY = 'fpe-show-retired';
+  const showRetired = () => { try { return localStorage.getItem(RETIRED_KEY) === '1'; } catch (_) { return false; } };
+  const setShowRetired = on => { try { localStorage.setItem(RETIRED_KEY, on ? '1' : '0'); } catch (_) { /* best effort */ } };
+  const dispName = d => (d && d.def && (d.def.title || d.def.label)) || (d && d.id) || '';
+  const RETIRABLE = ['form', 'structure', 'function'];
+  /* "replaced by X" (and where the chain ends up), or ''. */
+  function replacedText(d) {
+    const full = (d && FP.defs.get(d.kind, d.id)) || d;
+    if (!full || !full.retired || !full.supersededBy) return '';
+    const t = FP.defs.get('form', full.supersededBy);
+    let s = `replaced by ${t ? dispName(t) : full.supersededBy}`;
+    const fin = FP.defs.supersededBy(full.id);
+    if (fin && fin !== full.supersededBy) { const f = FP.defs.get('form', fin); s += `, now ${f ? dispName(f) : fin}`; }
+    return s;
+  }
+  /* A warning (never a refusal) when another definition of the kind already has this name, retired ones too. */
+  function clashText(kind, text, selfId) {
+    const t = String(text == null ? '' : text).trim();
+    if (!t) return '';
+    const hits = FP.defs.nameClash(kind, t).filter(c => c.id !== selfId);
+    const word = (FP.defs.LABELS[kind] || kind).toLowerCase();
+    const part = (list, adj) => !list.length ? '' : list.length === 1
+      ? `${adj === 'retired' ? 'A retired' : 'An active'} ${word} is also called ${t}: ${list[0].id}.`
+      : `${list.length} ${adj} ${word}s are also called ${t}: ${list.map(c => c.id).join(', ')}.`;
+    return [part(hits.filter(c => c.retired), 'retired'), part(hits.filter(c => !c.retired), 'active')].filter(Boolean).join(' ');
+  }
+  /* A dialog over the page: Escape closes it, Tab stays inside, focus goes back where it was. */
+  function modal(title) {
+    const back = el('div', 'fpe-modal');
+    const box = el('div', 'fpe fpe-dlg');
+    box.setAttribute('role', 'dialog'); box.setAttribute('aria-modal', 'true'); box.setAttribute('aria-label', title);
+    const before = document.activeElement;
+    box.appendChild(el('h2', null, title));
+    const body = el('div'); const acts = el('div', 'acts');
+    box.append(body, acts); back.appendChild(box);
+    const close = () => { back.remove(); if (before && before.focus && before.isConnected) before.focus(); };
+    back.addEventListener('keydown', e => {
+      if (e.key === 'Escape') { e.stopPropagation(); close(); return; }
+      if (e.key !== 'Tab') return;
+      const f = Array.from(box.querySelectorAll('button,input,select,textarea')).filter(x => !x.disabled && !x.hidden);
+      if (!f.length) return;
+      if (e.shiftKey && document.activeElement === f[0]) { e.preventDefault(); f[f.length - 1].focus(); }
+      else if (!e.shiftKey && document.activeElement === f[f.length - 1]) { e.preventDefault(); f[0].focus(); }
+    });
+    back.addEventListener('mousedown', e => { if (e.target === back) close(); });
+    document.body.appendChild(back);
+    return { box, body, acts, close, focus: node => { const n = node || box.querySelector('input,select,button'); if (n) n.focus(); } };
+  }
+
+  function retireDialog(kind, id, done) {
+    let rep;
+    try { rep = FP.defs.retireReport(kind, id); } catch (e) { toast(e.message, true); return; }
+    const label = FP.defs.LABELS[kind] || kind;
+    const lc = label.toLowerCase();
+    const m = modal(`Retire ${lc} ${rep.name}`);
+    m.box.classList.add('fpe-retire');
+    m.body.appendChild(el('p', null, {
+      form: 'A retired form leaves the terminals and the map and can no longer be opened. Records already saved still view and print, and an admin can reinstate it.',
+      structure: 'A retired structure takes no new entries. Its data, old entries and reports are kept, and an admin can reinstate it.',
+      function: 'A retired function is hidden from pickers. Forms and structures already using it keep working, and an admin can reinstate it.',
+    }[kind] || 'It is kept in the history; an admin can reinstate it.'));
+    const cancel = btn('Cancel', 'ghost', m.close); cancel.title = 'Close without retiring anything';
+    const go = btn('Retire', 'primary fpe-retire-go'); go.title = `Retire ${lc} ${rep.name}`;
+    m.acts.append(cancel, go);
+    if (!rep.canRetire) {
+      go.disabled = true;
+      go.title = 'It can not be retired yet: see what still uses it';
+      const box = el('div', 'fpe-probs');
+      if (rep.blockers.length) {
+        box.appendChild(el('b', null, `${rep.name} can't be retired yet: ${rep.blockers.length === 1 ? 'something still uses it' : rep.blockers.length + ' things still use it'}`));
+        const ul = el('ul');
+        rep.blockers.forEach(b => { const li = el('li'); li.append(el('b', null, b.name), document.createTextNode(` (${b.kind} ${b.id}): ${b.fix}.`)); ul.appendChild(li); });
+        box.appendChild(ul);
+      } else box.textContent = rep.reason || `${rep.name} can not be retired.`;
+      m.body.appendChild(box);
+      m.focus(cancel);
+      return;
+    }
+    const together = [];
+    if (rep.onlyUsedBy.length) {
+      m.body.appendChild(el('h3', null, 'Also retire what only this uses'));
+      m.body.appendChild(el('p', null, 'Nothing else uses these, so they can go with it. Leave them unticked to keep them.'));
+      rep.onlyUsedBy.forEach(u => {
+        const cb = el('input'); cb.type = 'checkbox'; cb.value = `${u.kind}/${u.id}`;
+        cb.title = `Retire ${u.kind} ${u.name} together with ${rep.name}`;
+        const lab = el('label', 'chk'); lab.append(cb, el('span', null, `${u.name} (${u.kind} ${u.id})`));
+        cb.onchange = () => { const i = together.findIndex(t => t.kind === u.kind && t.id === u.id); if (cb.checked && i < 0) together.push({ kind: u.kind, id: u.id }); if (!cb.checked && i >= 0) together.splice(i, 1); };
+        m.body.appendChild(lab);
+      });
+    }
+    let sup = null;
+    if (kind === 'form') {
+      sup = select([['', 'Nothing: it is not replaced']].concat(FP.defs.live('form').filter(f => f.id !== id).sort((a, b) => dispName(a).localeCompare(dispName(b))).map(f => [f.id, `${dispName(f)} (${f.id})`])), '');
+      sup.title = 'The form that takes its place: launchers of this one go to it, and the map shows the lineage';
+      const lab = el('label', 'fld', 'Replaced by (optional)'); lab.appendChild(sup);
+      m.body.appendChild(lab);
+    }
+    const note = input('', { placeholder: 'Why (kept with the version)' }); note.title = 'A note kept with the retiring version';
+    const nl = el('label', 'fld', 'Note (optional)'); nl.appendChild(note); m.body.appendChild(nl);
+    const err = el('div', 'err'); m.body.appendChild(err);
+    go.onclick = async () => {
+      go.disabled = true; err.textContent = '';
+      try {
+        const r = await FP.defs.retire(kind, id, { note: note.value.trim(), supersededBy: sup && sup.value ? sup.value : undefined, together: together.slice() });
+        m.close();
+        const names = together.map(t => dispName(FP.defs.get(t.kind, t.id)) || t.id);
+        const by = sup && sup.value ? ` Replaced by ${dispName(FP.defs.get('form', sup.value)) || sup.value}.` : '';
+        done(`Retired ${lc} ${rep.name}${names.length ? ` together with ${names.join(', ')}` : ''}.${by}`, r);
+      } catch (e) { err.textContent = e.message; go.disabled = false; }
+    };
+    m.focus();
+  }
+
+  function duplicateDialog(id, open, refresh) {
+    const src = FP.defs.get('form', id);
+    if (!src) return;
+    const m = modal(`Duplicate ${dispName(src)} as a new form`);
+    m.box.classList.add('fpe-dup');
+    m.body.appendChild(el('p', null, 'The new form starts as a copy of this one. Pick what it does with each structure and function this one uses.'));
+    const idIn = input('', { placeholder: 'new-form-id', spellcheck: false }); idIn.title = "The new form's id: lowercase letters, digits and -, starting with a letter";
+    idIn.setAttribute('aria-label', 'New form id');
+    const titleIn = input(`${dispName(src)} copy`); titleIn.title = "The new form's title"; titleIn.setAttribute('aria-label', 'New form title');
+    const il = el('label', 'fld', 'New id'); il.appendChild(idIn);
+    const tl = el('label', 'fld', 'Title'); tl.appendChild(titleIn);
+    const idErr = el('div', 'err');
+    m.body.append(il, idErr, tl);
+    const seen = new Set(), uses = [];
+    (FP.defs.usesOf('form', src.def) || []).forEach(u => {
+      if (u.kind !== 'structure' && u.kind !== 'function') return;
+      const uid = String(u.id).split('~')[0];
+      const d = FP.defs.get(u.kind, uid);
+      if (!d || seen.has(`${u.kind}/${uid}`)) return;
+      seen.add(`${u.kind}/${uid}`);
+      uses.push({ kind: u.kind, id: d.id, name: dispName(d) });
+    });
+    const pick = {};
+    if (uses.length) {
+      m.body.appendChild(el('h3', null, 'Share or copy'));
+      m.body.appendChild(el('p', null, 'Share keeps one structure or function used by both forms. Copy makes a new one under its own id. One item never lives in two structures, so sharing is usual.'));
+      uses.forEach(u => {
+        const row = el('div', 'use');
+        row.appendChild(el('span', null, `${u.name} (${u.kind} ${u.id})`));
+        const s = select([['share', 'Share'], ['copy', 'Copy']], 'share');
+        s.title = `Share ${u.name} with the new form, or copy it`; s.setAttribute('aria-label', `${u.kind} ${u.name}: share or copy`);
+        s.dataset.use = `${u.kind}/${u.id}`;
+        pick[`${u.kind}/${u.id}`] = s;
+        row.appendChild(s); m.body.appendChild(row);
+      });
+    } else m.body.appendChild(el('p', null, 'It uses no structure or function of its own.'));
+    const err = el('div', 'err'); m.body.appendChild(err);
+    const cancel = btn('Cancel', 'ghost', m.close); cancel.title = 'Close without duplicating';
+    const go = btn('Duplicate', 'primary fpe-dup-go'); go.title = 'Make the new form';
+    m.acts.append(cancel, go);
+    const checkId = () => {
+      const v = idIn.value.trim();
+      let msg = '';
+      if (v && !SLUG_RE.test(v)) msg = 'A name uses lowercase letters, digits and -, starts with a letter, and is at most 40 long.';
+      else if (v) { const t = FP.defs.get('form', v) || FP.defs.list('form').find(d => d.id.toLowerCase() === v.toLowerCase()); if (t) msg = `Form ${t.id} already exists${t.retired ? ' (retired: an id is never reused)' : ''}. Choose another id.`; }
+      idErr.textContent = msg; idIn.classList.toggle('bad', !!msg);
+      go.disabled = !v || !!msg;
+      return !msg;
+    };
+    idIn.oninput = checkId; checkId();
+    go.onclick = async () => {
+      if (!checkId()) return;
+      go.disabled = true; err.textContent = '';
+      const structures = {}, functions = {};
+      uses.forEach(u => { (u.kind === 'structure' ? structures : functions)[u.id] = pick[`${u.kind}/${u.id}`].value; });
+      try {
+        const newId = idIn.value.trim();
+        const r = await FP.defs.duplicateForm(id, newId, { title: titleIn.value.trim() || undefined, structures, functions });
+        m.close();
+        const copied = r.copied && r.copied.length ? ` Copied: ${r.copied.map(c => `${c.kind} ${c.from} as ${c.id}`).join(', ')}.` : ' Every structure and function is shared with the original.';
+        toast(`Made form ${r.id || newId} from ${dispName(src)}.${copied}`, false, 9000);
+        if (refresh) refresh();
+        if (open) open('form', r.id || newId);
+      } catch (e) { err.textContent = e.message; go.disabled = false; }
+    };
+    m.focus(idIn);
+  }
+
   /* ---------- One open definition ---------- */
   async function panel(host, kind, id, opts) {
     opts = opts || {};
     const doc = FP.defs.get(kind, id);
     const isNew = !doc;
     const label = FP.defs.LABELS[kind];
+    // Retiring (0.65): publishers retire, admins reinstate. Only in the editor itself (it can reopen what it changed).
+    const retirable = RETIRABLE.includes(kind);
+    const isRetired = !!(doc && doc.retired && retirable);
+    const canPub = FP.users && retirable && !isNew && opts.reopen ? await FP.users.can(FP.defs.publishRole).catch(() => false) : false;
+    const isAdmin = FP.users && isRetired ? await FP.users.can('admin').catch(() => false) : false;
     const draft = clone(opts.def || (doc ? doc.def : null) || (kind === 'structure' ? { itemId: { made: 'entered' }, containers: {}, sites: ['all'] } : kind === 'form' ? { title: id.replace(/-/g, ' ').replace(/^./, c => c.toUpperCase()), sites: ['all'], fields: [{ name: 'notes', label: 'Notes', control: 'textarea' }] } : { sites: ['all'] }));
     if (!draft.sites) draft.sites = ['all'];
     // A form written before sources opens in sources terms (it saves exactly the same way).
@@ -477,8 +683,52 @@
     const head = el('div', 'fpe-head');
     head.append(el('h2', null, (kind === 'form' ? draft.title : draft.label) || id), el('span', 'ver', `${label} ${id} · ${isNew ? 'new, not published yet' : `version ${doc.version}${doc.retired ? ' (retired)' : ''}`}`));
     const icons = el('span', 'fpe-icons');
+    // Retire and Duplicate sit beside the title for those who can publish.
+    const actions = el('span', 'fpe-actions');
+    const afterChange = message => { if (FP.editor.refreshMap) FP.editor.refreshMap(); dirty = false; if (opts.reopen) opts.reopen(kind, id, { fresh: true }); if (message) toast(message, false, 6000); };
+    if (canPub && !isRetired) {
+      const rb = btn('Retire', 'fpe-icon wide fpe-retire-btn', () => retireDialog(kind, id, afterChange));
+      rb.title = `Retire this ${label.toLowerCase()}: it stays in the history, an admin can reinstate it`;
+      actions.appendChild(rb);
+    }
+    if (canPub && kind === 'form') {
+      const db = btn('Duplicate as new form', 'fpe-icon wide fpe-dup-btn', () => duplicateDialog(id, opts.open, FP.editor.refreshMap));
+      db.title = 'Start a new form from a copy of this one';
+      actions.appendChild(db);
+    }
+    if (actions.childNodes.length) head.appendChild(actions);
     head.appendChild(icons);
     root.appendChild(head);
+    // A retired definition says so, who retired it and when, what replaced it, and who can bring it back.
+    if (isRetired) {
+      const bar = el('div', 'fpe-retired'); bar.setAttribute('role', 'status');
+      const who = doc.publishedBy && doc.publishedBy.name ? doc.publishedBy.name : 'someone';
+      const when = doc.publishedAt ? new Date(doc.publishedAt).toLocaleString([], { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '';
+      bar.appendChild(el('b', null, 'Retired'));
+      bar.appendChild(el('span', null, `by ${who}${when ? ' on ' + when : ''}${doc.note ? `: ${doc.note}` : '.'}`));
+      const rt = replacedText(doc);
+      if (rt) {
+        bar.appendChild(el('span', 'fpe-replaced', rt.charAt(0).toUpperCase() + rt.slice(1) + '.'));
+        if (FP.defs.get('form', doc.supersededBy) && opts.open) bar.appendChild(btn('Open it', 'small', () => opts.open('form', doc.supersededBy)));
+      }
+      if (kind === 'structure') bar.appendChild(el('span', null, 'It takes no new entries; its data and history are kept.'));
+      const msg = el('div', 'err');
+      if (isAdmin) {
+        const rb = btn('Reinstate', 'small fpe-reinstate-btn', async () => {
+          rb.disabled = true; msg.textContent = '';
+          try { await FP.defs.reinstate(kind, id, {}); afterChange(`Reinstated ${label.toLowerCase()} ${dispName(doc)}: it is active again.`); }
+          catch (e) { msg.textContent = e.message; rb.disabled = false; }
+        });
+        rb.title = 'Make it active again (a new version; the history stays)';
+        bar.appendChild(rb);
+      } else bar.appendChild(el('span', 'fpe-hint', 'An admin can reinstate it.'));
+      bar.appendChild(msg);
+      root.appendChild(bar);
+    }
+    // The same name as another definition, retired ones too: a warning, never a refusal.
+    const nameWarn = el('div', 'fpe-warn');
+    nameWarn.setAttribute('role', 'status');
+    root.appendChild(nameWarn);
     const sitesRow = el('div', 'fpe-row');
     sitesRow.appendChild(el('span', 'fpe-hint', 'Used at:'));
     root.appendChild(sitesRow);
@@ -489,6 +739,13 @@
     if (compact) { sitesRow.hidden = true; probs.hidden = true; tabs.hidden = true; }
     const body = el('div');
     root.appendChild(body);
+    const nameOfDraft = () => String((kind === 'form' ? draft.title : draft.label) || '').trim() || (isNew ? id : '');
+    const paintNameWarn = () => {
+      const was = doc ? String((kind === 'form' ? doc.def.title : doc.def.label) || '').trim() : '';
+      const now = nameOfDraft();
+      nameWarn.textContent = retirable && (isNew || now !== was) ? clashText(kind, now, id) : '';
+      nameWarn.hidden = !nameWarn.textContent;
+    };
     const foot = el('div', 'fpe-foot');
     const note = input('', { placeholder: 'What changed (kept with the version)' });
     const publishBtn = btn(isNew ? 'Publish' : 'Publish a new version', 'primary');
@@ -522,6 +779,7 @@
       try { p = await FP.defs.check(kind, id, tidy(draft, kind)); } catch (e) { p = [e.message]; }
       if (seq !== checkSeq) return;
       lastProblems = p;
+      paintNameWarn();
       probs.replaceChildren();
       const box = el('div', 'fpe-probs' + (p.length ? '' : ' ok'));
       if (p.length) { box.appendChild(el('b', null, `${p.length} thing${p.length === 1 ? '' : 's'} to fix before publishing`)); const ul = el('ul'); p.slice(0, 12).forEach(x => ul.appendChild(el('li', null, x))); box.appendChild(ul); }
@@ -593,6 +851,7 @@
     }
     function paintBody() {
       body.replaceChildren();
+      body.inert = isRetired && tab === 'edit';   // a retired definition is read only; reinstate it to change it
       if (tab === 'edit') {
         if (kind === 'structure' && FP.editor.structureMap) body.appendChild(FP.editor.structureMap(draft, ctx));
         else if (kind === 'form' && FP.editor.formEditor) body.appendChild(FP.editor.formEditor(draft, ctx));
@@ -654,6 +913,8 @@
         await FP.defs.drafts.remove(kind, id).catch(() => {});
         window.dispatchEvent(new CustomEvent('fp-drafts'));
         toast(`Published ${label} ${id} version ${r.doc.version}${trial ? ' as a trial' : ''}.`);
+        const clash = retirable ? clashText(kind, nameOfDraft(), id) : '';
+        if (clash && (isNew || nameOfDraft() !== (doc ? String((kind === 'form' ? doc.def.title : doc.def.label) || '').trim() : ''))) toast(clash, false, 7000);
         if (opts.onPublished) opts.onPublished(r.doc); else if (opts.reopen) opts.reopen(kind, id);
       } catch (e) { toast(`Not published: ${e.message}`, true); recheck(); }
     }
@@ -666,6 +927,7 @@
       window.dispatchEvent(new CustomEvent('fp-drafts'));
       if (opts.reopen) opts.reopen(kind, id, { fresh: true });
     };
+    if (isRetired) { foot.hidden = true; probs.hidden = true; }
     paintTabs(); paintBody(); recheck();
     return { isDirty: () => dirty, draft, recheck, keep: saveDraft, unsaved: () => !!draftTimer };
   }
@@ -767,7 +1029,11 @@
       keepOpen(); paintLib();
     });
     allBtn.title = 'Close every branch of the map';
-    const libHead = el('div', 'fpe-libhead'); libHead.append(el('b', null, 'Map'), libBtn);
+    const showCb = el('input'); showCb.type = 'checkbox'; showCb.className = 'fpe-showret-cb'; showCb.checked = showRetired();
+    const showLab = el('label', 'fpe-showret'); showLab.append(showCb, document.createTextNode('Show retired'));
+    showLab.title = 'Find and the pickers also list retired definitions';
+    showCb.onchange = () => { setShowRetired(showCb.checked); paintLib(); };
+    const libHead = el('div', 'fpe-libhead'); libHead.append(el('b', null, 'Map'), showLab, libBtn);
     const libTop = el('div', 'fpe-libtop'); libTop.append(search, addBtn);
     const libTools = el('div', 'fpe-libtools'); libTools.append(foldBtn, allBtn);
     const libList = el('div', 'fpe-map');
@@ -810,7 +1076,7 @@
 
     function buildTree() {
       const md = mapData || { sites: [], groups: [], termSet: new Map(), registry: [], users: [], isAdmin: false };
-      const live = KIND_ORDER.filter(k => k !== 'session-type').reduce((acc, k) => acc.concat(FP.defs.list(k).filter(d => !d.retired)), []);
+      const live = KIND_ORDER.filter(k => k !== 'session-type').reduce((acc, k) => acc.concat(FP.defs.live(k)), []);
       const defBy = new Map(live.map(d => [`${d.kind}:${d.id}`, d]));
       const forms = live.filter(d => d.kind === 'form');
       // What every form uses; anything outside that is "not on any form".
@@ -830,9 +1096,11 @@
         const d = defBy.get(`form:${formId}`) || FP.defs.list('form').find(x => x.id === formId);
         const n = d ? defNode(d, key) : { key, kind: 'form', id: formId, label: formId, color: 'var(--d-red-54)', state: ['gone', 'bad'] };
         n.site = opts && opts.site;
-        n.children = d ? formParts(d, key, n.site) : [];
+        // A retired form still on a terminal's list stays in its place, dimmed, saying what replaced it; Find skips it.
+        if (d && d.retired) { n.dim = true; n.retiredRow = true; n.chips = [replacedText(d)].filter(Boolean); }
+        n.children = d && !d.retired ? formParts(d, key, n.site) : [];
         n.isForm = true;
-        if (opts && opts.shared) n.chips = [opts.shared];
+        if (opts && opts.shared) n.chips = (n.chips || []).concat(opts.shared);
         return n;
       };
       // What a form is made of, one row each under it: its sub-forms, the structures and functions it uses
@@ -965,6 +1233,14 @@
           chips: [`${entries.length} entr${entries.length === 1 ? 'y' : 'ies'}`].concat(untagged ? [`${untagged} untagged`] : []), warn: !!untagged,
           sub: entries.length ? `${entries.length} files with names and tags; ${unused ? `${unused} on no form` : 'every one on a form'}` : 'empty: open it and bring files in' });
       }
+      // The Retired shelf of each branch (0.65): collapsed, with a count; retired ones are not mixed in the live lists.
+      const goneOf = kind => FP.defs.list(kind).filter(d => d.retired);
+      const goneRow = d => ({ key: `gone-${d.kind}:${d.id}`, kind: d.kind, id: d.id, label: nameOf(d), color: KIND_COLOR[d.kind], state: ['retired', ''], dim: true, retiredRow: true,
+        tag: d.kind === 'form' ? null : d.def && d.def.reads ? 'lookup' : d.kind, chips: d.kind === 'form' ? [replacedText(d)].filter(Boolean) : [], sub: `${d.kind} ${d.id}` });
+      const shelf = (key, list) => (list.length ? { key, label: `Retired · ${list.length}`, color: 'var(--d-n-66)', dim: true, shelf: true, dflt: false, sub: 'Retired: kept in the history, an admin can reinstate them', children: list.sort(byName).map(goneRow) } : null);
+      const goneFns = goneOf('function');
+      const dataShelf = shelf('shelf:data', goneOf('structure').concat(goneFns.filter(d => d.def && d.def.reads)));
+      if (dataShelf) dataKids.push(dataShelf);
       const dataAll = dataKids.concat(draftRows('structure'));
       if (dataAll.length) nodes.push({ key: 'head:data', head: 'Data', note: `${structs.length} structure${structs.length === 1 ? '' : 's'}`, dflt: false, children: dataAll });
       // Where each form runs: the groups and the terminals in none whose forms include it.
@@ -979,9 +1255,13 @@
         return n;
       });
       // Forms (0.60): every form once, then the formulas they and the structures work with (lookups are under Data).
+      const fxShelf = shelf('shelf:formulas', goneFns.filter(d => !(d.def && d.def.reads)));
       const fxRows = formulas.sort(byName).map(d => usedRow(d)).concat(draftRows('function'));
+      const formShelf = shelf('shelf:forms', goneOf('form'));
       const formKids = formRows.concat(draftRows('form'));
-      if (fxRows.length) formKids.push({ key: 'formulas', label: 'Formulas', color: KIND_COLOR.function, chips: [String(fxRows.length)], sub: 'worked out on forms and structures; lookups are under Data', dflt: false, children: fxRows });
+      if (formShelf) formKids.push(formShelf);
+      if (fxShelf) fxRows.push(fxShelf);
+      if (fxRows.length) formKids.push({ key: 'formulas', label: 'Formulas', color: KIND_COLOR.function, chips: [String(fxRows.length - (fxShelf ? 1 : 0))], sub: 'worked out on forms and structures; lookups are under Data', dflt: false, children: fxRows });
       if (formKids.length) nodes.push({ key: 'head:forms', head: 'Forms', note: String(forms.length), dflt: false, children: formKids });
       if (peopleNode) nodes.push(peopleNode);
       return nodes;
@@ -1027,7 +1307,9 @@
         libList.appendChild(m);
       }
       let tree = buildTree();
-      if (filter) tree = filterTree(tree, filter);
+      // Find skips retired definitions (the shelves and retired forms on terminals) unless Show retired is ticked.
+      const skipRetired = list => list.filter(n => !n.shelf && !n.retiredRow).map(n => (n.children ? Object.assign({}, n, { children: skipRetired(n.children) }) : n));
+      if (filter) tree = filterTree(showRetired() ? tree : skipRetired(tree), filter);
       const curKey = current ? `${current.kind}:${current.id}` : '';
       const row = (n, depth, box) => {
         if (n.head) {
@@ -1056,6 +1338,7 @@
         const on = n.subKey ? curSub === n.subKey : (isDef && curKey === `${n.kind}:${n.id}` && !curSub) || (n.place && !n.add && curKey === `${n.place.kind}:${n.place.id}`);
         const b = btn('', (isDef ? 'fpe-item ' : '') + 'fpe-mrow' + (n.add ? ' add' : '') + (n.warn ? ' warn' : '') + (n.key && n.key.includes('>') ? ' part' : '') + (on ? ' on' : ''));
         b.style.setProperty('--c', n.color || 'var(--d-n-66)');
+        if (n.dim) b.classList.add('dim');
         b.style.marginLeft = (depth * 14) + 'px'; b.style.setProperty('--ml', (depth * 14) + 'px');
         const cv = el('i', 'cv', hasKids ? (openNow ? '▾' : '▸') : '');
         if (hasKids) cv.onclick = e => { e.stopPropagation(); openKeys[n.key] = !openNow; keepOpen(); paintLib(); };
@@ -1182,7 +1465,9 @@
       if (id == null) return;
       const v = id.trim();
       if (!re.test(v)) { toast('That name won\'t do: ' + (kind === 'function' ? 'letters, digits and _, starting with a letter.' : 'lowercase letters, digits and -, starting with a letter.'), true); return; }
-      if (FP.defs.get(kind, v) || FP.defs.list(kind).some(d => d.id.toLowerCase() === v.toLowerCase())) { toast(`${FP.defs.LABELS[kind]} ${v} already exists; open it instead.`, true); return; }
+      const there = FP.defs.get(kind, v) || FP.defs.list(kind).find(d => d.id.toLowerCase() === v.toLowerCase());
+      if (there && there.retired) { toast(`${FP.defs.LABELS[kind]} ${there.id} exists but is retired, and an id is never reused. Choose another name, or ask an admin to reinstate it.`, true); return; }
+      if (there) { toast(`${FP.defs.LABELS[kind]} ${v} already exists; open it instead.`, true); return; }
       if (Array.from(drafts.values()).some(d => d.kind === kind && d.id.toLowerCase() === v.toLowerCase())) { toast(`There is already a draft of ${FP.defs.LABELS[kind]} ${v}; open it from the library.`, true); return; }
       open(kind, v, { tab: 'edit', force: true });
     }
