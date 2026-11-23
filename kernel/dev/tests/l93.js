@@ -70,7 +70,7 @@ const SP = './out/';
   });
   Object.entries(r).forEach(([k, v]) => say(k, v));
   // The rehearsal, in Admin › Test folder.
-  await p.click('text=⚙ Admin'); await w(1500);
+  await p.click('.fpe-adminbtn:not(.fpe-helpbtn)'); await w(1500);
   await p.click('.fpa-tabs button:has-text("Test folder"), button:has-text("Test folder")'); await w(4000);
   say('rehearsal', (await p.$eval('.fpa-reh', x => x.innerText.replace(/\n+/g, ' / ')).catch(e => 'MISSING ' + e.message.slice(0, 50))).slice(0, 700));
   await p.screenshot({ path: SP + 'l93-rehearsal.png', fullPage: true });

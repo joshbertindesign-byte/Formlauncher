@@ -40,6 +40,26 @@
   const SHOW_RETIRED_KEY = 'fpe-show-retired';
   const showRetired = () => { try { return localStorage.getItem(SHOW_RETIRED_KEY) === '1'; } catch (_) { return false; } };
   const setShowRetired = on => { try { localStorage.setItem(SHOW_RETIRED_KEY, on ? '1' : '0'); } catch (_) { /* no storage: it stays off */ } };
+  /* "Show all checks" (UI Release B): a row says nothing when its checks pass and speaks only when something is wrong. The switch brings the
+     tick on every row back; the choice is kept on this terminal, best effort like the other editor preferences. */
+  const SHOW_ALL_KEY = 'fpe-show-all-checks';
+  const showAllChecks = () => { try { return localStorage.getItem(SHOW_ALL_KEY) === '1'; } catch (_) { return false; } };
+  const setShowAllChecks = on => { try { localStorage.setItem(SHOW_ALL_KEY, on ? '1' : '0'); } catch (_) { /* no storage: it stays off */ } };
+  function checksSwitch(onChange) {
+    const lab = el('label', 'ffe3-allchk');
+    const cb = el('input'); cb.type = 'checkbox'; cb.checked = showAllChecks();
+    cb.onchange = () => { setShowAllChecks(cb.checked); onChange(); };
+    lab.title = 'Put a tick on every row whose checks pass (rows with a problem always show it)';
+    lab.append(cb, document.createTextNode('Show all checks'));
+    return lab;
+  }
+  /* One row's mark: ✗ with a problem; ✓ only when all checks are shown; otherwise nothing at all. */
+  function paintMark(mark, mine) {
+    const all = showAllChecks();
+    mark.textContent = mine.length ? '✗' : all ? '✓' : '';
+    mark.className = 'ffm-mark ' + (mine.length ? 'bad' : all ? 'ok' : 'silent');
+    mark.title = mine.length ? mine.join('\n') : all ? 'Nothing to fix' : '';
+  }
   const allOf = kind => (kind === 'function' ? (FP.fn.listAll ? FP.fn.listAll() : FP.fn.list()).map(f => ({ id: f.name, retired: !!f.retired, fn: f })) : FP.defs.list(kind));
   const isRetiredDef = (kind, id) => !!id && allOf(kind).some(d => d.id === id && d.retired);
   /* The [id, text] options for a kind: active ones, plus retired ones (suffixed) when shown or already chosen. */
@@ -85,33 +105,33 @@
   const CSS = `
   .ffe-retpick{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center}
   .ffe-retpick select{flex:1 1 12em;min-width:0}
-  .ffe-retpick select.ret{color:var(--t-n-42)}
-  .ffe-retoggle{display:flex;gap:4px;align-items:center;font-size:12px;color:var(--t-n-42);white-space:nowrap;cursor:pointer}
-  .ffe-retnote{flex:1 1 100%;font-size:12px;color:var(--t-red-40)}
+  .ffe-retpick select.ret{color:var(--muted)}
+  .ffe-retoggle{display:flex;gap:4px;align-items:center;font-size:12px;color:var(--muted);white-space:nowrap;cursor:pointer}
+  .ffe-retnote{flex:1 1 100%;font-size:12px;color:var(--bad)}
   .ffe-retnote[hidden]{display:none}
   .ffe{display:grid;grid-template-columns:minmax(300px,var(--mapw,38%)) 10px minmax(0,1fr);gap:4px;align-items:start}
   .ffe.ffe-two{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
   .ffe-split{align-self:stretch;cursor:col-resize;border-radius:4px;position:relative;min-height:200px}
-  .ffe-split::after{content:"";position:absolute;left:4px;top:40px;bottom:40px;width:2px;border-radius:1px;background:var(--s-n-88)}
-  .ffe-split:hover::after,.ffe-split.on::after{background:var(--s-blue-42);width:3px}
+  .ffe-split::after{content:"";position:absolute;left:4px;top:40px;bottom:40px;width:2px;border-radius:1px;background:var(--line)}
+  .ffe-split:hover::after,.ffe-split.on::after{background:var(--accent);width:3px}
   @media (max-width:1000px){.ffe,.ffe.ffe-two{grid-template-columns:1fr}.ffe-split{display:none}}
   .ffe-sub{display:flex;gap:4px;flex-wrap:wrap;margin:0 0 12px}
-  .ffe-sub button{font:inherit;font-size:13px;font-weight:600;min-height:34px;padding:4px 12px;border:1px solid var(--l-n-83);border-radius:999px;background:var(--s-n-100);cursor:pointer}
-  .ffe-sub button.on{background:var(--s-blue-15);border-color:var(--l-blue-15);color:var(--t-n-100)}
+  .ffe-sub button{font:inherit;font-size:13px;font-weight:600;min-height:34px;padding:4px 12px;border:1px solid var(--line-2);border-radius:999px;background:var(--surface);cursor:pointer}
+  .ffe-sub button.on{background:var(--fg);border-color:var(--fg);color:var(--bg)}
   .ffe-cols{display:grid;grid-template-columns:minmax(200px,.8fr) minmax(0,1.2fr);gap:12px;align-items:start}
   @media (max-width:760px){.ffe-cols{grid-template-columns:1fr}}
   .ffe-list{display:flex;flex-direction:column;gap:3px}
-  .ffe-item{display:flex;align-items:center;gap:6px;padding:4px 6px 4px 0;border:1px solid var(--l-n-88);border-radius:7px;background:var(--s-n-100);cursor:pointer;min-height:36px;overflow:hidden}
-  .ffe-item::before{content:"";align-self:stretch;width:5px;background:var(--c,var(--s-blue-50));flex:none}
-  .ffe-item:hover{background:var(--s-n-95)}.ffe-item.on{border-color:var(--l-blue-42);box-shadow:0 0 0 2px var(--d-blue-85)}
+  .ffe-item{display:flex;align-items:center;gap:6px;padding:4px 6px 4px 0;border:1px solid var(--line);border-radius:7px;background:var(--surface);cursor:pointer;min-height:36px;overflow:hidden}
+  .ffe-item::before{content:"";align-self:stretch;width:5px;background:var(--c,var(--accent));flex:none}
+  .ffe-item:hover{background:var(--surface-2)}.ffe-item.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-t)}
   .ffe-item .txt{display:flex;flex-direction:column;flex:1 1 auto;min-width:0;padding:2px 0}
   .ffe-item b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .ffe-item small{color:var(--t-n-42);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .ffe-item .mv{border:0;background:none;font:inherit;cursor:pointer;color:var(--t-n-42);padding:2px 4px;min-height:28px}
-  .ffe-props{background:var(--s-n-100);border:1px solid var(--l-n-88);border-radius:10px;padding:10px 12px}
+  .ffe-item small{color:var(--muted);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ffe-item .mv{border:0;background:none;font:inherit;cursor:pointer;color:var(--muted);padding:2px 4px;min-height:28px}
+  .ffe-props{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
   .ffe-props h4{margin:0 0 8px;font-size:15px}
   .ffe-set{display:flex;flex-direction:column;gap:3px;margin:0 0 10px}
-  .ffe-set>span{font-size:12px;font-weight:600;color:var(--t-n-42)}
+  .ffe-set>span{font-size:12px;font-weight:600;color:var(--muted)}
   .ffe-set>span em{font-style:normal;font-weight:400}
   .ffe-setrow{display:grid;grid-template-columns:1fr 1fr auto;gap:6px;align-items:center;margin:0 0 4px}
   .ffe-setrow>span{font-size:13px}
@@ -119,29 +139,29 @@
   .ffe-set textarea{min-height:70px;font:13px/1.4 Consolas,monospace}
   .ffe-check{display:flex;align-items:center;gap:8px;font-size:14px;margin:0 0 10px}
   .ffe-check input{width:18px;height:18px}
-  .ffe-group{border-left:3px solid var(--l-n-88);padding-left:10px;margin:0 0 10px}
-  .ffe-id{background:var(--s-amber-97);border:1px solid var(--l-amber-88);border-radius:8px;padding:8px 10px;margin:4px 0 10px;font-size:13px}
+  .ffe-group{border-left:3px solid var(--line);padding-left:10px;margin:0 0 10px}
+  .ffe-id{background:var(--k-inv-t);border:1px solid var(--warn);border-radius:8px;padding:8px 10px;margin:4px 0 10px;font-size:13px}
   .ffe-id select{margin-top:4px}
   .ffe-pick{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px;margin:6px 0 10px}
-  .ffe-pick button{font:inherit;text-align:left;padding:8px 10px;border:1px solid var(--l-n-83);border-radius:9px;background:var(--s-n-100);cursor:pointer;min-height:54px}
-  .ffe-pick button:hover{border-color:var(--l-blue-42);background:var(--s-n-95)}
-  .ffe-pick button small{display:block;color:var(--t-n-42);font-size:11px;margin-top:2px}
-  .ffe-pick h5{grid-column:1/-1;margin:6px 0 0;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--t-n-42)}
+  .ffe-pick button{font:inherit;text-align:left;padding:8px 10px;border:1px solid var(--line-2);border-radius:9px;background:var(--surface);cursor:pointer;min-height:54px}
+  .ffe-pick button:hover{border-color:var(--accent);background:var(--surface-2)}
+  .ffe-pick button small{display:block;color:var(--muted);font-size:11px;margin-top:2px}
+  .ffe-pick h5{grid-column:1/-1;margin:6px 0 0;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
   .ffe-lay{display:flex;flex-direction:column;gap:6px}
-  .ffe-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:6px;border:1px dashed var(--l-n-83);border-radius:8px;background:var(--s-n-100)}
-  .ffe-cell{display:inline-flex;align-items:center;gap:4px;padding:3px 4px 3px 9px;border-radius:7px;background:var(--s-blue-93);font-size:13px;font-weight:600}
+  .ffe-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:6px;border:1px dashed var(--line-2);border-radius:8px;background:var(--surface)}
+  .ffe-cell{display:inline-flex;align-items:center;gap:4px;padding:3px 4px 3px 9px;border-radius:7px;background:var(--accent-t);font-size:13px;font-weight:600}
   .ffe-cell select{min-height:28px;padding:1px 4px;font-size:12px}
-  .ffe-cell button,.ffe-row>button{border:0;background:none;cursor:pointer;font:inherit;color:var(--t-n-42);min-height:28px}
-  .ffe-block{border:1px solid var(--l-n-88);border-radius:10px;padding:8px;background:var(--s-n-100)}
+  .ffe-cell button,.ffe-row>button{border:0;background:none;cursor:pointer;font:inherit;color:var(--muted);min-height:28px}
+  .ffe-block{border:1px solid var(--line);border-radius:10px;padding:8px;background:var(--surface)}
   .ffe-block>header{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:6px}
-  .ffe-block>header b{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--t-n-42)}
+  .ffe-block>header b{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
   .ffe-adds{display:flex;flex-wrap:wrap;gap:6px}
-  .ffe-prev{position:sticky;top:52px;border:1px solid var(--l-n-88);border-radius:12px;background:var(--s-n-100);max-height:calc(100vh - 66px);overflow:auto}
-  .ffe-prev>header{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;background:var(--s-n-100);border-bottom:1px solid var(--l-n-88);font-size:13px;font-weight:600;color:var(--t-n-42)}
+  .ffe-prev{position:sticky;top:52px;border:1px solid var(--line);border-radius:12px;background:var(--surface);max-height:calc(100vh - 66px);overflow:auto}
+  .ffe-prev>header{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;background:var(--surface);border-bottom:1px solid var(--line);font-size:13px;font-weight:600;color:var(--muted)}
   .ffe-prev>header select{min-height:30px;font-size:12px;padding:2px 6px}
   .ffe-prev .ffe-frame{padding:10px;margin:0 auto;box-sizing:border-box}
   .ffe-prev .stale{opacity:.45}
-  .ffe-note{font-size:13px;color:var(--t-n-42);margin:0 0 10px}
+  .ffe-note{font-size:13px;color:var(--muted);margin:0 0 10px}
   .ffe-map{display:flex;flex-direction:column;gap:6px}
   .ffe-maprow{display:flex;gap:6px;align-items:flex-start;margin-bottom:6px}
   .ffe-maprow>*{flex:1 1 0;min-width:0}
@@ -151,142 +171,209 @@
   .ffe-maprow.sb>.how>select{flex:1 1 auto}
   .ffe-maprow select,.ffe-maprow input{width:100%}
   .ffm{display:flex;flex-direction:column;gap:3px}
-  .ffm-h{display:flex;align-items:baseline;gap:8px;margin:14px 0 2px;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--t-n-42)}
-  .ffm-h b{color:var(--t-blue-15)}.ffm-h span{text-transform:none;letter-spacing:0}
-  .ffm-r{display:flex;align-items:center;gap:6px;min-height:36px;padding:3px 6px 3px 0;border:1px solid var(--l-n-88);border-radius:7px;background:var(--s-n-100);cursor:pointer;overflow:hidden}
+  .ffm-h{display:flex;align-items:baseline;gap:8px;margin:14px 0 2px;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+  .ffm-h b{color:var(--fg)}.ffm-h span{text-transform:none;letter-spacing:0}
+  .ffm-r{display:flex;align-items:center;gap:6px;min-height:36px;padding:3px 6px 3px 0;border:1px solid var(--line);border-radius:7px;background:var(--surface);cursor:pointer;overflow:hidden}
   .ffm-r::before{content:"";align-self:stretch;width:5px;background:var(--c);flex:none}
-  .ffm-r:hover{background:var(--s-n-95)}
-  .ffm-r.on{border-color:var(--l-blue-42);box-shadow:0 0 0 2px var(--d-blue-85)}
+  .ffm-r:hover{background:var(--surface-2)}
+  .ffm-r.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-t)}
   .ffm-r .body{display:flex;align-items:baseline;flex-wrap:wrap;column-gap:8px;flex:1 1 auto;min-width:0;padding:2px 0}
   .ffm-r .t{font-weight:600;white-space:nowrap}
-  .ffm-r .d{color:var(--t-n-42);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ffm-r .d{color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .ffm-r .x{display:flex;gap:4px;flex:none}
-  .ffm-r .mv{border:0;background:none;font:inherit;cursor:pointer;color:var(--t-n-42);padding:2px 4px;min-height:28px}
+  .ffm-r .mv{border:0;background:none;font:inherit;cursor:pointer;color:var(--muted);padding:2px 4px;min-height:28px}
   .ffm-r.top{min-height:44px}.ffm-r.top .t{font-size:16px}
-  .ffm-r.src .t{color:var(--t-teal-30)}
-  .ffm-r.val{min-height:30px;background:var(--s-n-100)}.ffm-r.val .t{font-weight:500;font-family:Consolas,"Cascadia Mono",monospace;font-size:13px}
-  .ffm-r.add{border-style:dashed;background:transparent}.ffm-r.add .t{font-weight:500;color:var(--t-n-42)}
-  .ffm-r.kid{cursor:default;background:var(--s-n-100)}.ffm-r.kid .t{font-weight:500}
-  .ffm-tag{font-size:11px;font-weight:700;padding:1px 8px;border-radius:999px;background:var(--s-n-95);color:var(--t-n-29);white-space:nowrap}
-  .ffm-pill{font:inherit;font-size:11px;font-weight:700;min-height:24px;padding:1px 9px;border:1px dashed var(--l-n-83);border-radius:999px;background:var(--s-n-100);color:var(--t-n-61);cursor:pointer}
-  .ffm-pill.on.read{border-style:solid;background:var(--s-blue-93);border-color:var(--l-blue-75);color:var(--t-blue-42)}
-  .ffm-pill.on.write{border-style:solid;background:var(--s-amber-97);border-color:var(--l-amber-78);color:var(--t-amber-47)}
-  .ffm-r.idrow .t{font-weight:700;color:var(--t-teal-30)}
-  .ffm-r.idrow.unset{background:var(--s-n-98)}.ffm-r.idrow.unset .d{color:var(--t-red-40);font-weight:600}
-  .ffm-opt{display:flex;flex-wrap:wrap;align-items:flex-start;gap:8px;padding:8px 10px;border:1px solid var(--l-n-88);border-radius:8px;background:var(--s-n-100);margin:0 0 6px;cursor:pointer}
-  .ffm-opt.on{border-color:var(--l-teal-45);box-shadow:0 0 0 2px var(--d-teal-88)}
+  .ffm-r.src .t{color:var(--k-rec)}
+  .ffm-r.val{min-height:30px;background:var(--surface)}.ffm-r.val .t{font-weight:500;font-family:Consolas,"Cascadia Mono",monospace;font-size:13px}
+  .ffm-r.add{border-style:dashed;background:transparent}.ffm-r.add .t{font-weight:500;color:var(--muted)}
+  .ffm-r.kid{cursor:default;background:var(--surface)}.ffm-r.kid .t{font-weight:500}
+  .ffm-tag{font-size:11px;font-weight:700;padding:1px 8px;border-radius:999px;background:var(--surface-2);color:var(--fg);white-space:nowrap}
+  .ffm-pill{font:inherit;font-size:11px;font-weight:700;min-height:24px;padding:1px 9px;border:1px dashed var(--line-2);border-radius:999px;background:var(--surface);color:var(--muted);cursor:pointer}
+  .ffm-pill.on.read{border-style:solid;background:var(--accent-t);border-color:var(--line-2);color:var(--accent)}
+  .ffm-pill.on.write{border-style:solid;background:var(--k-inv-t);border-color:var(--warn);color:var(--warn)}
+  .ffm-r.idrow .t{font-weight:700;color:var(--k-rec)}
+  .ffm-r.idrow.unset{background:var(--surface-2)}.ffm-r.idrow.unset .d{color:var(--bad);font-weight:600}
+  .ffm-opt{display:flex;flex-wrap:wrap;align-items:flex-start;gap:8px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);margin:0 0 6px;cursor:pointer}
+  .ffm-opt.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-t)}
   .ffm-opt.off{opacity:.55;cursor:default}
   .ffm-opt input[type=radio]{width:18px;height:18px;margin-top:2px}
   .ffm-opt>span{display:flex;flex-direction:column;flex:1 1 300px}
-  .ffm-opt small{color:var(--t-n-42);font-size:12px}
+  .ffm-opt small{color:var(--muted);font-size:12px}
   .ffm-optx{flex:1 1 100%;display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding-left:26px}
   .ffm-optx select,.ffm-optx input{flex:1 1 200px}
   .ffm-mark{flex:none;width:18px;text-align:center;font-weight:800;font-size:15px;line-height:1}
-  .ffm-mark.ok{color:var(--t-green-47)}.ffm-mark.bad{color:var(--t-red-40)}
-  .ffm-r.has-err{border-color:var(--l-red-78);background:var(--s-n-100)}
+  .ffm-mark.ok{color:var(--good)}.ffm-mark.bad{color:var(--bad)}
+  .ffm-r.has-err{border-color:var(--bad);background:var(--surface)}
   .ffm-r>button{white-space:nowrap;flex:none}
   .fsm-body{padding:10px 12px}
-  .fsm-result{border-top:1px solid var(--l-n-88);background:var(--s-n-100)}
-  .fsm-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--t-n-42);margin-bottom:4px}
+  .fsm-result{border-top:1px solid var(--line);background:var(--surface)}
+  .fsm-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:4px}
   .fsm-out{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;word-break:break-word}
-  .fsm-wrap{overflow-x:auto;max-width:100%;border:1px solid var(--l-n-88);border-radius:8px}
+  .fsm-wrap{overflow-x:auto;max-width:100%;border:1px solid var(--line);border-radius:8px}
   .fsm-items{border-collapse:collapse;font-size:13px;min-width:100%}
-  .fsm-items th{position:sticky;top:0;background:var(--s-n-100);text-align:left;font-weight:600;padding:6px 8px;border-top:3px solid var(--l-n-48);border-bottom:1px solid var(--l-n-88);white-space:nowrap;cursor:pointer}
-  .fsm-items td{padding:5px 8px;border-bottom:1px solid var(--l-n-95);white-space:nowrap;max-width:220px;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
-  .fsm-items .k-id{font-weight:600;color:var(--t-teal-30)}
-  .fsm-items .k-calculated{color:var(--t-violet-31)}.fsm-items .k-status{font-weight:600;color:var(--t-green-47)}
-  .fsm-items .sel{background:var(--s-blue-93)}.fsm-items th.sel{background:var(--s-blue-93)}
-  .ffm-errs{color:var(--t-red-40);font-size:12px;margin:-1px 0 4px;padding:2px 8px;border-left:3px solid var(--l-red-78)}
-  .ffm-props{border:1px solid var(--l-n-88);border-left:3px solid var(--l-blue-42);border-radius:8px;background:var(--s-n-100);padding:10px 12px;margin:2px 0 8px}
+  .fsm-items th{position:sticky;top:0;background:var(--surface);text-align:left;font-weight:600;padding:6px 8px;border-top:3px solid var(--line-2);border-bottom:1px solid var(--line);white-space:nowrap;cursor:pointer}
+  .fsm-items td{padding:5px 8px;border-bottom:1px solid var(--line);white-space:nowrap;max-width:220px;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
+  .fsm-items .k-id{font-weight:600;color:var(--k-rec)}
+  .fsm-items .k-calculated{color:var(--k-ord)}.fsm-items .k-status{font-weight:600;color:var(--good)}
+  .fsm-items .sel{background:var(--accent-t)}.fsm-items th.sel{background:var(--accent-t)}
+  .ffm-errs{color:var(--bad);font-size:12px;margin:-1px 0 4px;padding:2px 8px;border-left:3px solid var(--bad)}
+  .ffm-props{border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:8px;background:var(--surface);padding:10px 12px;margin:2px 0 8px}
   .ffa-mode{display:flex;gap:3px}
-  .ffa-mode button{font:inherit;font-size:12px;font-weight:700;min-height:30px;padding:2px 12px;border:1px solid var(--l-n-83);border-radius:999px;background:var(--s-n-100);color:var(--t-n-29);cursor:pointer}
-  .ffa-mode button.on{background:var(--s-blue-15);border-color:var(--l-blue-15);color:var(--t-n-100)}
+  .ffa-mode button{font:inherit;font-size:12px;font-weight:700;min-height:30px;padding:2px 12px;border:1px solid var(--line-2);border-radius:999px;background:var(--surface);color:var(--fg);cursor:pointer}
+  .ffa-mode button.on{background:var(--fg);border-color:var(--fg);color:var(--bg)}
   .ffa-blockset{padding:0 12px}.ffa-blockset .ffe-props{margin-top:10px}
   .ffe-prev{container-type:inline-size}
   .ffo-work.order{display:grid;grid-template-columns:minmax(290px,360px) minmax(0,1fr);align-items:start}
-  @container (max-width:780px){.ffo-work.order{grid-template-columns:minmax(0,1fr)}.ffo-work.order .ffo-list{position:static;max-height:42vh;border-right:0;border-bottom:1px solid var(--l-n-88)}}
-  .ffo-list{position:sticky;top:47px;max-height:calc(100vh - 120px);overflow:auto;border-right:1px solid var(--l-n-88);padding:10px 10px 14px;display:flex;flex-direction:column;gap:8px;background:var(--s-n-100);container-type:inline-size}
+  @container (max-width:780px){.ffo-work.order{grid-template-columns:minmax(0,1fr)}.ffo-work.order .ffo-list{position:static;max-height:42vh;border-right:0;border-bottom:1px solid var(--line)}}
+  .ffo-list{position:sticky;top:47px;max-height:calc(100vh - 120px);overflow:auto;border-right:1px solid var(--line);padding:10px 10px 14px;display:flex;flex-direction:column;gap:8px;background:var(--surface);container-type:inline-size}
   .ffo-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
-  .ffo-cap{font-size:12px;font-weight:700;color:var(--t-n-42);margin-right:4px}
-  .ffo-seg{display:inline-flex;border:1px solid var(--l-n-83);border-radius:9px;overflow:hidden;background:var(--s-n-100)}
-  .ffo-seg button{font:inherit;font-size:13px;font-weight:700;min-width:44px;min-height:44px;padding:0 10px;border:0;border-left:1px solid var(--l-n-88);background:var(--s-n-100);color:var(--t-blue-15);cursor:pointer}
+  .ffo-cap{font-size:12px;font-weight:700;color:var(--muted);margin-right:4px}
+  .ffo-seg{display:inline-flex;border:1px solid var(--line-2);border-radius:9px;overflow:hidden;background:var(--surface)}
+  .ffo-seg button{font:inherit;font-size:13px;font-weight:700;min-width:44px;min-height:44px;padding:0 10px;border:0;border-left:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
   .ffo-seg button:first-child{border-left:0}
-  .ffo-seg button.on{background:var(--s-blue-42);color:var(--t-n-100)}
+  .ffo-seg button.on{background:var(--accent);color:var(--accent-fg)}
   .ffo-seg button:disabled{cursor:default}
   .ffo-items{display:flex;flex-direction:column;gap:4px}
-  .ffo-it{border:1px solid var(--l-n-88);border-radius:10px;background:var(--s-n-100);padding:4px 4px 4px 8px;display:flex;flex-direction:column;gap:4px}
-  .ffo-it.sel{border-color:var(--l-blue-42);box-shadow:0 0 0 2px var(--d-blue-85)}
+  .ffo-it{border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:4px 4px 4px 8px;display:flex;flex-direction:column;gap:4px}
+  .ffo-it.sel{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-t)}
   .ffo-l1,.ffo-l2{display:flex;align-items:center;gap:4px}
   .ffo-l2 select{flex:1 1 auto;min-width:0;min-height:44px;font-size:13px}
-  .ffo-name{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;align-items:flex-start;text-align:left;font:inherit;border:0;background:none;padding:2px 0;cursor:pointer;color:var(--t-blue-15)}
+  .ffo-name{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;align-items:flex-start;text-align:left;font:inherit;border:0;background:none;padding:2px 0;cursor:pointer;color:var(--fg)}
   .ffo-name b{font-size:14px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .ffo-name small{font-size:11px;color:var(--t-n-42)}
-  .ffo-ic{font:inherit;font-size:16px;font-weight:700;width:44px;height:44px;flex:none;border:1px solid var(--l-n-83);border-radius:9px;background:var(--s-n-100);color:var(--t-blue-15);cursor:pointer}
+  .ffo-name small{font-size:11px;color:var(--muted)}
+  .ffo-ic{font:inherit;font-size:16px;font-weight:700;width:44px;height:44px;flex:none;border:1px solid var(--line-2);border-radius:9px;background:var(--surface);color:var(--fg);cursor:pointer}
   .ffo-ic:disabled{opacity:.35;cursor:default}
-  .ffo-nr.on{background:var(--s-blue-93);border-color:var(--l-blue-42);color:var(--t-blue-28)}
-  .ffo-block{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:12px;font-weight:700;color:var(--t-teal-30);background:var(--s-teal-95);border-radius:8px;padding:2px 4px 2px 10px;text-transform:uppercase;letter-spacing:.03em}
+  .ffo-nr.on{background:var(--accent-t);border-color:var(--accent);color:var(--accent)}
+  .ffo-block{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:12px;font-weight:700;color:var(--k-rec);background:var(--accent-t);border-radius:8px;padding:2px 4px 2px 10px;text-transform:uppercase;letter-spacing:.03em}
   .ffo-block button{text-transform:none;letter-spacing:0}
-  .ffo-sub{font-size:12px;font-weight:700;color:var(--t-teal-30);padding:4px 2px 0}
-  .ffo-empty{font-size:12px;color:var(--t-n-61);border:1px dashed var(--l-n-83);border-radius:8px;padding:8px}
-  .ffo-off{border-top:1px solid var(--l-n-88);padding-top:8px;display:flex;flex-direction:column;gap:6px}
+  .ffo-sub{font-size:12px;font-weight:700;color:var(--k-rec);padding:4px 2px 0}
+  .ffo-empty{font-size:12px;color:var(--muted);border:1px dashed var(--line-2);border-radius:8px;padding:8px}
+  .ffo-off{border-top:1px solid var(--line);padding-top:8px;display:flex;flex-direction:column;gap:6px}
   .ffo-off .ffo-row span{flex:1 1 auto;font-size:13px}
   .ffo-stage{min-width:0}
   .ffo-fit{margin:10px 10px 0;padding:8px 12px;border-radius:9px;font-size:13px;font-weight:600}
-  .ffo-fit.ok{background:var(--s-green-96);color:var(--t-green-45)}.ffo-fit.over{background:var(--s-amber-97);color:var(--t-amber-35)}
+  .ffo-fit.ok{background:var(--k-runs-t);color:var(--good)}.ffo-fit.over{background:var(--k-inv-t);color:var(--warn)}
   .ffo-on .fpf-cell{cursor:pointer;border-radius:6px}
-  .ffo-on .fpf-cell:hover{outline:1px dashed var(--l-blue-75);outline-offset:3px}
-  .ffo-on .fpf-cell.ffa-sel{outline:2px solid var(--l-blue-42);outline-offset:3px;background:var(--s-n-95)}
+  .ffo-on .fpf-cell:hover{outline:1px dashed var(--line-2);outline-offset:3px}
+  .ffo-on .fpf-cell.ffa-sel{outline:2px solid var(--accent);outline-offset:3px;background:var(--surface-2)}
   .ffo-sizer{position:relative;overflow:hidden}
-  .ffo-screen{position:absolute;top:0;left:0;display:flex;align-items:flex-start;transform-origin:0 0;background:var(--s-n-88)}
-  .ffo-scr{background:var(--s-n-100);flex:none}
+  .ffo-screen{position:absolute;top:0;left:0;display:flex;align-items:flex-start;transform-origin:0 0;background:var(--line)}
+  .ffo-scr{background:var(--surface);flex:none}
   .ffo-scr .fpf-foot{position:static}
-  .ffo-bar{height:60px;display:flex;align-items:center;padding:0 16px;background:var(--s-blue-15);color:var(--t-n-100);font:700 18px/1 var(--font-sans,system-ui,"Segoe UI",sans-serif)}
+  .ffo-bar{height:60px;display:flex;align-items:center;padding:0 16px;background:var(--head);color:var(--head-fg);font:700 18px/1 var(--font-sans,system-ui,"Segoe UI",sans-serif)}
   .ffo-main{box-sizing:border-box;margin:0 auto;padding:18px 16px 0}
-  .ffo-pad{flex:none;width:320px;box-sizing:border-box;border-left:2px dashed var(--l-n-68);background:repeating-linear-gradient(135deg,var(--s-n-95) 0 12px,var(--s-n-95) 12px 24px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--t-n-29);font:15px/1.3 var(--font-sans,system-ui,"Segoe UI",sans-serif);text-align:center;padding:0 24px}
+  .ffo-pad{flex:none;width:320px;box-sizing:border-box;border-left:2px dashed var(--line-2);background:repeating-linear-gradient(135deg,var(--surface-2) 0 12px,var(--surface-2) 12px 24px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--fg);font:15px/1.3 var(--font-sans,system-ui,"Segoe UI",sans-serif);text-align:center;padding:0 24px}
   .ffo-pad b{font-size:18px}
   .ffo-below{position:absolute;left:0;right:0;bottom:0;background:rgba(154,63,6,.10);pointer-events:none}
-  .ffo-fold{position:absolute;left:0;right:0;border-top:3px dashed var(--l-amber-39);pointer-events:none}
-  .ffo-fold span{position:absolute;left:12px;top:6px;background:var(--s-amber-39);color:var(--t-n-100);font:700 14px/1 var(--font-sans,system-ui,"Segoe UI",sans-serif);padding:5px 10px;border-radius:6px}
+  .ffo-fold{position:absolute;left:0;right:0;border-top:3px dashed var(--warn);pointer-events:none}
+  .ffo-fold span{position:absolute;left:12px;top:6px;background:var(--warn);color:var(--accent-fg);font:700 14px/1 var(--font-sans,system-ui,"Segoe UI",sans-serif);padding:5px 10px;border-radius:6px}
   @container (min-width:600px){.ffo-it{flex-direction:row;align-items:center}.ffo-l1{flex:1 1 auto;min-width:0}.ffo-l2{flex:none}.ffo-l2 select{width:160px;flex:none}}
-  .ffe3{display:grid;grid-template-columns:minmax(190px,230px) minmax(0,1fr) minmax(250px,290px);gap:10px;align-items:start}
+  .ffe3{display:grid;grid-template-columns:minmax(250px,310px) minmax(0,1fr) minmax(250px,290px);gap:10px;align-items:start}
   .ffe3-left .ffm-r .body{flex-wrap:nowrap;overflow:hidden}.ffe3-left .ffm-r{font-size:13px;min-height:32px}.ffe3-left .ffm-r .t{flex:0 0 auto;max-width:100%;overflow:hidden;text-overflow:ellipsis}.ffe3-left .ffm-r .d{flex:1 1 0;min-width:0}
   @media (max-width:1100px){.ffe3{grid-template-columns:minmax(200px,240px) minmax(0,1fr)}.ffe3-insp{grid-column:1/-1;position:static !important;max-height:none !important}}
   @media (max-width:760px){.ffe3{grid-template-columns:1fr}.ffe3-left{position:static !important;max-height:none !important}}
-  .ffe3-left,.ffe3-insp{position:sticky;top:52px;max-height:calc(100vh - 140px);overflow:auto;background:var(--s-n-100);border:1px solid var(--l-n-88);border-radius:12px;padding:8px;box-sizing:border-box}
-  .ffe3-mid{min-width:0;background:var(--s-n-95);border:1px solid var(--l-n-88);border-radius:12px;padding:0 0 10px;position:relative}
+  .ffe3-left,.ffe3-insp{position:sticky;top:52px;max-height:calc(100vh - 140px);overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px;box-sizing:border-box}
+  .ffe3-mid{min-width:0;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:0 0 10px;position:relative}
   .ffe3-mid .stale{opacity:.45}
-  .ffe3-bar{position:sticky;top:52px;z-index:6;display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px 10px;background:var(--s-n-100);border-bottom:1px solid var(--l-n-88);border-radius:12px 12px 0 0;font-size:12px}
+  .ffe3-bar{position:sticky;top:52px;z-index:6;display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px 10px;background:var(--surface);border-bottom:1px solid var(--line);border-radius:12px 12px 0 0;font-size:12px}
   .ffe3-bar select{min-height:30px;font-size:12px;padding:2px 6px}
-  .ffe3-with{display:flex;align-items:center;gap:6px;color:var(--t-n-42)}
+  .ffe3-with{display:flex;align-items:center;gap:6px;color:var(--muted)}
   .ffe3-mid>.ffe-note{margin:8px 12px 0}
-  .ffe3-tabs{display:flex;gap:2px;background:var(--s-n-95);border-radius:9px;padding:3px;margin:0 0 8px}
-  .ffe3-tab{flex:1;font:inherit;font-size:13px;border:0;border-radius:7px;padding:6px 4px;background:none;color:var(--t-n-29);cursor:pointer;min-height:32px}
-  .ffe3-tab.on{background:var(--s-n-100);font-weight:700;color:var(--t-blue-15);box-shadow:0 1px 2px rgba(0,0,0,.1)}
-  .ffe3-tab.bad{color:var(--t-red-40)}
-  .ffm-blk{display:block;box-sizing:border-box;width:calc(100% - 4px);text-align:left;font:inherit;font-size:12px;font-weight:700;color:var(--t-teal-30);background:var(--s-teal-95);border:0;border-radius:7px;padding:6px 8px;margin:6px 0 2px;cursor:pointer}
-  .ffm-blk.on{outline:2px solid var(--l-blue-42)}
+  .ffe3-tabs{display:flex;gap:2px;background:var(--surface-2);border-radius:9px;padding:3px;margin:0 0 8px}
+  .ffe3-tab{flex:1;font:inherit;font-size:13px;border:0;border-radius:7px;padding:6px 4px;background:none;color:var(--fg);cursor:pointer;min-height:32px}
+  .ffe3-tab.on{background:var(--surface);font-weight:700;color:var(--fg);box-shadow:0 1px 2px rgba(0,0,0,.1)}
+  .ffe3-tab.bad{color:var(--bad)}
+  .ffm-blk{display:block;box-sizing:border-box;width:calc(100% - 4px);text-align:left;font:inherit;font-size:12px;font-weight:700;color:var(--k-rec);background:var(--accent-t);border:0;border-radius:7px;padding:6px 8px;margin:6px 0 2px;cursor:pointer}
+  .ffm-blk.on{outline:2px solid var(--accent)}
   .ffe3-stage{position:relative;padding:12px;overflow:auto}
-  .ffe3-stage>.ffe-frame{margin:0 auto;background:var(--s-n-100);border-radius:10px;box-shadow:0 2px 10px rgba(16,24,40,.08);padding:14px 16px;box-sizing:border-box}
-  .ffe3-sel{position:absolute;border:2px solid var(--l-blue-42);border-radius:8px;pointer-events:none;z-index:4;box-sizing:border-box}
-  .ffe3-seltag{position:absolute;left:-2px;top:-24px;background:var(--s-blue-42);color:var(--t-n-100);font-size:11px;font-weight:700;padding:2px 8px;border-radius:5px;white-space:nowrap}
-  .ffe3-handle{position:absolute;right:-8px;top:50%;width:12px;height:30px;margin-top:-15px;background:var(--s-n-100);border:2px solid var(--l-blue-42);border-radius:5px;cursor:ew-resize;pointer-events:auto;touch-action:none;box-sizing:border-box}
-  .ffe3-drop{position:absolute;background:var(--s-blue-42);border-radius:2px;z-index:5;pointer-events:none}
-  .ffe3-ghost{position:fixed;z-index:9999;pointer-events:none;background:var(--s-n-100);border:1px solid var(--l-blue-75);border-radius:7px;padding:6px 10px;font:600 13px var(--font-sans,system-ui,"Segoe UI",sans-serif);box-shadow:0 8px 20px rgba(16,24,40,.18)}
+  .ffe3-stage>.ffe-frame{margin:0 auto;background:var(--surface);border-radius:10px;box-shadow:0 2px 10px rgba(16,24,40,.08);padding:14px 16px;box-sizing:border-box}
+  .ffe3-sel{position:absolute;border:2px solid var(--accent);border-radius:8px;pointer-events:none;z-index:4;box-sizing:border-box}
+  .ffe3-seltag{position:absolute;left:-2px;top:-24px;background:var(--accent);color:var(--accent-fg);font-size:11px;font-weight:700;padding:2px 8px;border-radius:5px;white-space:nowrap}
+  .ffe3-handle{position:absolute;right:-8px;top:50%;width:12px;height:30px;margin-top:-15px;background:var(--surface);border:2px solid var(--accent);border-radius:5px;cursor:ew-resize;pointer-events:auto;touch-action:none;box-sizing:border-box}
+  .ffe3-drop{position:absolute;background:var(--accent);border-radius:2px;z-index:5;pointer-events:none}
+  .ffe3-ghost{position:fixed;z-index:9999;pointer-events:none;background:var(--surface);border:1px solid var(--line-2);border-radius:7px;padding:6px 10px;font:600 13px var(--font-sans,system-ui,"Segoe UI",sans-serif);box-shadow:0 8px 20px rgba(16,24,40,.18)}
   .ffe3.dragging .fpf-cell{cursor:grabbing}
-  .ffe3 .ffo-on .fpf-cell[hidden]{display:block !important;opacity:.5;outline:1px dashed var(--l-n-68);outline-offset:2px;position:relative}
-  .ffe3 .ffo-on .fpf-cell[hidden]::after{content:"sometimes shown";position:absolute;right:4px;top:2px;font:600 10px var(--font-sans,system-ui,sans-serif);color:var(--t-n-42);background:var(--s-n-100);padding:1px 4px;border-radius:4px}
-  .ffe3-hint{font-size:12px;color:var(--t-n-42);padding:0 12px}
+  .ffe3 .ffo-on .fpf-cell[hidden]{display:block !important;opacity:.5;outline:1px dashed var(--line-2);outline-offset:2px;position:relative}
+  .ffe3 .ffo-on .fpf-cell[hidden]::after{content:"sometimes shown";position:absolute;right:4px;top:2px;font:600 10px var(--font-sans,system-ui,sans-serif);color:var(--muted);background:var(--surface);padding:1px 4px;border-radius:4px}
+  .ffe3-hint{font-size:12px;color:var(--muted);padding:0 12px}
   .ffe3-ih{display:flex;flex-direction:column;gap:2px;margin:2px 2px 10px;font-size:15px;font-weight:700}
-  .ffe3-ih small{font-size:12px;color:var(--t-n-42);font-weight:400}
-  .ffe3-place{display:flex;flex-direction:column;gap:6px;padding:8px;border:1px solid var(--l-n-88);border-radius:10px;margin:0 0 10px;background:var(--s-n-100)}
+  .ffe3-ih small{font-size:12px;color:var(--muted);font-weight:400}
+  .ffe3-place{display:flex;flex-direction:column;gap:6px;padding:8px;border:1px solid var(--line);border-radius:10px;margin:0 0 10px;background:var(--surface)}
   .ffe3-place select{min-height:40px}
-  .ffe3-cap{font-size:11px;font-weight:700;color:var(--t-n-42);text-transform:uppercase;letter-spacing:.05em}
+  .ffe3-cap{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
   .ffe3-errs{white-space:pre-line;margin:0 0 8px;display:block}
   .ffe3-insp>.ffm-props{margin:0;border:0;padding:0;background:none}
   .ffe3-insp>.ffo-row{margin:0 0 10px}
-  .ffe-kinds{border:1px solid var(--l-blue-85);background:var(--s-n-95);border-radius:10px;padding:10px 12px;margin:8px 0}
+  .ffe-kinds{border:1px solid var(--line-2);background:var(--surface-2);border-radius:10px;padding:10px 12px;margin:8px 0}
   .ffe-kinds>b{font-size:15px}
-  .ffe3 .ffo-nr.on{background:var(--s-blue-93);border-color:var(--l-blue-42);color:var(--t-blue-28)}`;
+  .ffe3 .ffo-nr.on{background:var(--accent-t);border-color:var(--accent);color:var(--accent)}
+  /* ---- UI Release B: the mockup's editor (rows with tiles, quiet checks, segmented controls, the settings panel) ---- */
+  .ffe-prev,.ffe3-left,.ffe3-insp,.ffe3-mid{border-radius:var(--r-lg)}
+  .ffe3-left,.ffe3-insp{padding:12px}
+  .ffe3-mid{background:var(--surface);padding:0 0 12px}
+  .ffe3-bar{background:var(--surface);gap:8px;padding:10px 12px;border-radius:var(--r-lg) var(--r-lg) 0 0}
+  .seg{display:inline-flex;border:1px solid var(--line-2);border-radius:10px;overflow:hidden;background:var(--surface)}
+  .seg button,.ffa-mode.seg button{font:inherit;font-size:13px;font-weight:600;min-height:34px;padding:6px 13px;border:0;border-right:1px solid var(--line);border-radius:0;background:none;color:var(--muted);cursor:pointer;white-space:nowrap}
+  .seg button:last-child{border-right:0}
+  .seg button.on{background:var(--fg);color:var(--bg)}
+  .ffa-mode.seg{gap:0}
+  .ffe3-bar select{min-height:34px;font-size:13px;font-weight:600;padding:4px 10px;border:1px solid var(--line-2);border-radius:10px;background:var(--surface);color:var(--fg)}
+  .ffo-seg{border-radius:10px}
+  .ffo-seg button{min-width:44px;font-weight:600;color:var(--muted)}
+  .ffo-seg button.on{background:var(--fg);color:var(--bg)}
+  .ffo-fit{margin:12px 12px 0;padding:6px 10px;border-radius:10px;font-size:13px;font-weight:550;display:inline-block}
+  .ffe3-stage{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-lg);margin:12px 12px 0;padding:16px}
+  .ffe3-stage>.ffe-frame{background:var(--surface);border:1px solid var(--line-2);border-radius:var(--r);box-shadow:var(--shadow);padding:14px 16px}
+  .ffo-screen{background:var(--surface-2)}
+  .ffo-pad{background:var(--surface-2)}
+  .ffo-bar{background:var(--head);color:var(--head-fg)}
+  .ffe3-tabs{background:var(--surface-2);border-radius:var(--r);padding:3px;margin:0 0 8px}
+  .ffe3-tab{font-weight:600;color:var(--muted);border-radius:calc(var(--r) - 2px);min-height:34px}
+  .ffe3-tab.on{background:var(--surface);color:var(--fg);box-shadow:0 1px 2px rgba(20,25,30,.12)}
+  .ffe3-tab.bad{color:var(--bad)}
+  .ffe3-chkbar{display:flex;justify-content:flex-end;margin:0 0 6px}
+  .ffe3-allchk{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);cursor:pointer}
+  .ffe3-allchk input,.ffe3-insp .ffe-check input[type=checkbox]{appearance:none;-webkit-appearance:none;width:34px;height:20px;min-height:0;padding:0;border:0;border-radius:999px;background:var(--line-2);position:relative;cursor:pointer;flex:none;margin:0}
+  .ffe3-allchk input::after,.ffe3-insp .ffe-check input[type=checkbox]::after{content:"";position:absolute;left:3px;top:3px;width:14px;height:14px;border-radius:50%;background:var(--surface);transition:left .12s}
+  .ffe3-allchk input:checked,.ffe3-insp .ffe-check input[type=checkbox]:checked{background:var(--accent)}
+  .ffe3-allchk input:checked::after,.ffe3-insp .ffe-check input[type=checkbox]:checked::after{left:17px;background:var(--accent-fg)}
+  .ffe3-insp .ffe-check{gap:10px;padding:7px 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2)}
+  .ffm-h{margin:14px 0 6px;font-weight:650;letter-spacing:.07em}
+  .ffm-h b{color:var(--muted);font-weight:650}
+  .ffm-r{gap:10px;padding:8px;border-radius:10px;margin-bottom:5px;min-height:44px}
+  .ffm-r::before{width:4px;border-radius:2px;margin-right:2px}
+  .ffm-r.has-lead{padding-left:8px}
+  .ffm-r.has-lead::before,.ffm-r.field::before{display:none}
+  .ffm-r.val::before{background:var(--line-2)}
+  .ffm-r .body{flex-direction:column;align-items:flex-start;column-gap:0;gap:0;padding:0}
+  .ffm-r .t{font-weight:600;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+  .ffm-r .d{max-width:100%}
+  .ffm-r .req,.ffe3-ih .req{color:var(--bad);font-weight:700}
+  .ffm-r.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+  .ffm-r.has-err{border-color:var(--bad);box-shadow:0 0 0 1px var(--bad)}
+  .ffm-r.has-err .d{color:var(--bad)}
+  .ffm-mark.silent,.ffm-mark:empty{display:none}
+  .ffm-errs{margin:-2px 0 6px 0;padding:2px 10px;border-left:3px solid var(--bad);border-radius:0 6px 6px 0}
+  .ffm-props{border-radius:var(--r);border-left-width:3px}
+  .ffm-r .x .fpi-chip{font-size:12px}
+  .ffm-r.add{border:1.5px dashed var(--line-2);background:transparent;justify-content:center;text-align:center;min-height:38px}
+  .ffe3-sethead{margin:0 0 10px;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:650}
+  .ffe3-ih{flex-direction:row;align-items:center;gap:10px;margin:0 0 12px;padding:8px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+  .ffe3-ihtx{display:flex;flex-direction:column;min-width:0}
+  .ffe3-ihtx b{font-weight:650;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ffe3-saves{display:flex;flex-direction:column;gap:4px;margin:0 0 10px}
+  .ffe3-ctl{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;padding:7px 10px;background:var(--surface-2);font-size:14px}
+  .ffe3-place{border:0;padding:0;background:none;gap:4px}
+  .ffe3-cap{font-size:12px;font-weight:650;letter-spacing:0;text-transform:none;color:var(--muted)}
+  .ffe-set>span{font-weight:650}
+  .ffe3-insp .ffe-set{margin:0 0 12px}
+  .ffe-sub button,.ffo-row .small{border-radius:10px}
+  .ffe-note{border-radius:10px}
+  .ffe-item,.ffe-props,.ffe-block,.ffo-it{border-radius:var(--r)}
+  .ffm-opt{border-radius:var(--r)}
+  .ffm-blk{border-radius:var(--r-sm)}
+  .ffm-r .fpi-tile.fpi-solid:not([class*="fpi-k-"]),.ffe3-ih .fpi-tile.fpi-solid:not([class*="fpi-k-"]){background:var(--muted)}
+  .ffe3-left .ffm-r{min-height:44px}.ffe3-left .ffm-r .d{flex:0 0 auto;max-width:100%}.ffe3-left .ffm-r .body{flex-direction:column}`;
   /* ---------- Terminal screens (0.44) ----------
    * Every terminal at these sites that has told us its screen (fp-identity.js), with the space the number pad
    * takes: 320 px on the right of a landscape touch screen 900 px or wider, unless its keyboard is off. The
@@ -465,7 +552,9 @@
     tabsBar.setAttribute('role', 'tablist');
     const sub = el('div', 'ffe-sub');
     const pane = el('div');
-    left.append(tabsBar, sub, pane);
+    const chkBar = el('div', 'ffe3-chkbar');
+    chkBar.appendChild(checksSwitch(() => paintMarks()));
+    left.append(tabsBar, chkBar, sub, pane);
     const changed = () => { syncReads(); ctx.changed(); schedulePreview(); };
     // A formula that reads source.value ticks that value read on the source, so the map always shows it.
     function syncReads() {
@@ -492,6 +581,35 @@
     const srcByName = n => draft.sources.find(x => x && x.name === n);
     const itemSources = () => draft.sources.filter(x => x && x.kind === 'item');
     const takenNames = () => new Set(fieldNames().concat((draft.buttons || []).map(b => b && b.name), draft.sources.map(x => x && x.name), (Array.isArray(draft.subforms) ? draft.subforms : []).map(x => x && x.name)).filter(Boolean));
+
+    /* ---------- Identity (UI Release B): the family of a field, and the tile and chip that say it ----------
+     * A filled tile writes data (in the colour of the structure the form mainly saves to); a dashed one only shows data or is worked
+     * out. The chip names the structure: an arrow down where it writes, an eye where it reads, a ghost ƒ where it is worked out. */
+    const structName = st => { const d = FP.defs.get('structure', st); return (d && d.def && d.def.label) || st; };
+    const structOfRef = name => { const x = srcByName(name); return (x && x.structure) || name; };
+    const mainTone = () => { try { return FP.kinds.formLook(draft).tone || null; } catch (_) { return null; } };
+    const toneOf = st => { try { return FP.kinds.look(st).tone || null; } catch (_) { return null; } };
+    function familyOf(f) {
+      const d = FP.forms.describe(f.control);
+      const w = target(f.writes || f.snapshot);
+      const plain = /^\s*(\w+)\.(\w+)\s*$/.exec(String(f.formula || ''));
+      const readRef = plain && srcByName(plain[1]) && srcByName(plain[1]).structure ? structOfRef(plain[1]) : f.control === 'pick' && f.structure ? f.structure : null;
+      if (w) return { kind: 'write', structure: structOfRef(w.structure), cat: d && d.category };
+      if (readRef) return { kind: 'read', structure: readRef, cat: d && d.category };
+      if (f.formula) return { kind: 'worked', structure: null, cat: d && d.category };
+      return { kind: d && d.category === 'entry' ? 'entry' : 'show', structure: null, cat: d && d.category };
+    }
+    const fieldTile = f => {
+      const fam = familyOf(f), filled = fam.kind === 'write' || fam.kind === 'entry';
+      return FP.icons.tile({ glyph: fam.kind === 'worked' ? 'fn' : FP.icons.forControl(f.control), tone: mainTone(), shape: 'form', fill: filled ? 'solid' : 'outline', size: 30 });
+    };
+    const fieldChips = f => {
+      const fam = familyOf(f);
+      if (fam.kind === 'write') return [FP.icons.chip(structName(fam.structure), { glyph: 'down', tone: toneOf(fam.structure) })];
+      if (fam.kind === 'read') return [FP.icons.chip(structName(fam.structure), { glyph: 'eye', tone: toneOf(fam.structure) })];
+      if (fam.kind === 'worked') { const c = FP.icons.chip('ƒ', {}); c.title = 'Worked out, never saved'; return [c]; }
+      return [];
+    };
 
     // What a structure holds, for pickers and chips: its containers, worked-out values, what forms save
     // to it, and (for built-in structures and new data) what its latest items hold.
@@ -1030,9 +1148,7 @@
       by.forEach((list, k) => { if (k !== 'form' && !marks.has(k) && tabFor(k) === state.left && state.left === 'form') { if (!by.has('form')) by.set('form', []); by.get('form').push(...list); by.delete(k); } });
       marks.forEach(({ mark, errs, row }, k) => {
         const mine = by.get(k) || [];
-        mark.textContent = mine.length ? '✗' : '✓';
-        mark.className = 'ffm-mark ' + (mine.length ? 'bad' : 'ok');
-        mark.title = mine.length ? mine.join('\n') : 'Nothing to fix';
+        paintMark(mark, mine);
         row.classList.toggle('has-err', !!mine.length);
         // Under its own row, the "Field qty:" at the front says nothing new.
         const short = x => x.replace(/^(Field|Button|Source|Read before starting) [A-Za-z0-9_]+:\s*/, '').replace(/^(Field|Button|Source|Read before starting) [A-Za-z0-9_]+ /, '').replace(/^./, c => c.toUpperCase());
@@ -2045,13 +2161,14 @@
         const f = byName(name);
         if (f) {
           const d = FP.forms.describe(f.control);
-          row(box, { key: 'f:' + f.name, depth, color: catColor(d && d.category), title: () => (f.label || f.name) + (f.required ? ' *' : ''),
-            sub: () => { const w = target(f.writes || f.snapshot); return [d ? d.label : f.control, w ? `saves ${w.structure}.${w.container}` : null, f.formula ? `= ${f.formula}` : null, f.when ? 'sometimes shown' : null].filter(Boolean).join(' · '); },
+          row(box, { key: 'f:' + f.name, depth, cls: 'field', color: catColor(d && d.category), title: () => (f.label || f.name), req: () => !!f.required,
+            lead: () => fieldTile(f), tags: () => fieldChips(f),
+            sub: () => { const w = target(f.writes || f.snapshot); const fam = familyOf(f); return [d ? d.label : f.control, w ? `saves ${w.structure}.${w.container}` : null, f.formula ? `= ${f.formula}` : null, fam.kind === 'worked' ? 'worked out, never saved' : null, f.when ? 'sometimes shown' : null].filter(Boolean).join(' · '); },
             props: p => fieldProps(f, p) });
           return;
         }
         const b = (draft.buttons || []).find(x => x && x.name === name);
-        if (b) row(box, { key: 'b:' + b.name, depth, color: 'var(--d-red-60)', title: () => b.label || b.name, sub: () => 'button', props: p => buttonProps(b, p) });
+        if (b) row(box, { key: 'b:' + b.name, depth, cls: 'field', color: 'var(--d-red-60)', title: () => b.label || b.name, sub: () => 'button', lead: () => FP.icons.tile({ glyph: 'check', shape: 'form', fill: 'plain', size: 30 }), props: p => buttonProps(b, p) });
       };
       const blockRow = (text, path, depth) => {
         const r = el('button', 'ffm-blk' + (state.block === path ? ' on' : ''));
@@ -2112,13 +2229,20 @@
         r.style.marginLeft = `${(o.depth || 0) * 14}px`;
         const t = el('b', 't'); const d = el('span', 'd'); const extra = el('span', 'x');
         const body = el('span', 'body'); body.append(t, d);
-        // Every part of the form says whether it is right: ✓, or ✗ with what to fix just under it.
+        // A part of the form speaks only when something is wrong: ✗ with what to fix just under it (Show all checks brings the ticks back).
         const checked = MARKED.test(o.key);
-        const mark = checked ? el('span', 'ffm-mark') : null;
+        const mark = checked ? el('span', 'ffm-mark silent') : null;
+        let lead = o.lead ? o.lead() : null;
+        if (lead) { r.classList.add('has-lead'); r.appendChild(lead); }
         if (mark) r.appendChild(mark);
         r.append(body, extra);
         if (o.tools) o.tools.forEach(x => r.appendChild(x));
-        const upd = () => { t.textContent = o.title(); d.textContent = o.sub ? o.sub() : ''; extra.replaceChildren(...(o.tags ? o.tags() : [])); };
+        const upd = () => {
+          if (lead && lead.isConnected) { const nl = o.lead(); lead.replaceWith(nl); lead = nl; }   // the tile follows the field's family as it changes
+          t.textContent = o.title();
+          if (o.req && o.req()) t.append(document.createTextNode(' '), el('span', 'req', '*'));
+          d.textContent = o.sub ? o.sub() : ''; extra.replaceChildren(...(o.tags ? o.tags() : []));
+        };
         upd();
         reg.push(upd);
         r.onclick = e => { if (e.target.closest('button,input,select,label')) return; if (o.act) o.act(); else open(o.key); };
@@ -2144,7 +2268,7 @@
           p2.appendChild(el('p', 'ffe-note', `Its fields and sources are here; it reads ${subOf.master.title || 'the master form'}'s fields and sources by name${FP.forms.repeatKind(subOf.sf) !== 'once' ? ', and index (1, 2, …) and each (the list item) for the run it is on' : ''}. How it is opened, how many times, how it saves and what it sends back are on its row in ${subOf.master.title || 'the master form'}.`));
           p2.appendChild(btn(`‹ Back to ${subOf.master.title || subOf.masterId}`, 'small', () => subOf.back()));
         } });
-      else row(box, { key: 'form', color: 'var(--d-blue-15)', cls: 'top', title: () => draft.title || ctx.id, sub: () => [doc ? `v${doc.version}` : 'new', (draft.sites || []).join(', '), draft.launchable ? 'has its own launcher' : 'opened from other forms', draft.approval ? 'needs approval' : null, draft.print ? 'prints' : null].filter(Boolean).join(' · '), props: settingsProps });
+      else row(box, { key: 'form', color: 'var(--d-blue-15)', cls: 'top', lead: () => { let lk = null; try { lk = FP.kinds.formLook(draft); } catch (_) { lk = null; } return FP.icons.tile({ glyph: lk ? lk.glyph : 'doc', tone: lk && lk.tone, shape: 'form', size: 34 }); }, title: () => draft.title || ctx.id, sub: () => [doc ? `v${doc.version}` : 'new', (draft.sites || []).join(', '), draft.launchable ? 'has its own launcher' : 'opened from other forms', draft.approval ? 'needs approval' : null, draft.print ? 'prints' : null].filter(Boolean).join(' · '), props: settingsProps });
 
       // Sources (on Data)
       if (tab === 'data') head('Sources', 'the data this form works with');
@@ -2152,6 +2276,7 @@
         const color = KIND_COLOR[x.kind] || 'var(--d-n-48)';
         row(box, {
           key: 's:' + x.name, depth: 1, color, cls: 'src',
+          lead: () => (x.kind === 'value' ? FP.icons.tile({ glyph: 'fn', shape: 'function', fill: 'plain', size: 26 }) : FP.icons.tile({ glyph: 'table', tone: x.structure ? toneOf(x.structure) : null, shape: 'structure', size: 26 })),
           title: () => x.name, sub: () => (x.kind === 'value' ? `= ${x.formula || '?'}` : x.structure || 'choose a structure'),
           tags: () => [tag(x.kind === 'value' ? 'formula' : 'structure', 'k')],
           tools: [mv(draft.sources, i, -1)], props: p => sourceProps(x, p),
@@ -2218,14 +2343,14 @@
       // Buttons (a sub-form has its own: Done, or Save when it saves on its own); they and the rest are on Form.
       if (!subOf && tab === 'form') head('Buttons');
       if (subOf || tab !== 'form') { /* none */ } else if (!Array.isArray(draft.buttons)) {
-        row(box, { key: 'b:__one', depth: 1, color: 'var(--d-red-60)', title: () => draft.saveLabel || 'Save', sub: () => 'the one button: saves the whole form', props: p => {
+        row(box, { key: 'b:__one', depth: 1, color: 'var(--d-red-60)', lead: () => FP.icons.tile({ glyph: 'check', shape: 'form', fill: 'plain', size: 26 }), title: () => draft.saveLabel || 'Save', sub: () => 'the one button: saves the whole form', props: p => {
           p.appendChild(el('p', 'ffe-note', 'Set up buttons to name what a save does, save part of the form, open another form, or save a form with the records it opened.'));
           p.appendChild(btn('Set up buttons', 'small', () => { draft.buttons = [{ name: 'save', label: draft.saveLabel || 'Save', action: 'save' }]; state.open = 'b:save'; changed(); hard(); }));
         } });
       } else {
         draft.buttons.forEach((b, i) => {
           row(box, {
-            key: 'b:' + b.name, depth: 1, color: 'var(--d-red-60)', title: () => b.label || b.name,
+            key: 'b:' + b.name, depth: 1, color: 'var(--d-red-60)', lead: () => FP.icons.tile({ glyph: 'check', shape: 'form', fill: 'plain', size: 26 }), title: () => b.label || b.name,
             sub: () => (b.action === 'subform' ? `opens the sub-form ${((draft.subforms || []).find(x => x && x.name === b.subform) || {}).label || b.subform || '?'}` : b.action === 'open' ? `opens ${b.form || '?'}${b.link ? `, linked to ${b.link}` : ''}` : b.action === 'set' ? `fills in ${Object.keys(b.sets || {}).join(', ') || 'nothing yet'}` : b.action === 'save' ? `${b.scope === 'tree' ? 'saves the form and the records it opened' : b.scope ? 'saves part of the form' : 'saves the form'}${b.saveAs ? ` as "${b.saveAs}"` : ''}` : 'applies') + (b.when ? ' · sometimes shown' : ''),
             tools: [mv(draft.buttons, i, -1)], props: p => buttonProps(b, p),
           });
@@ -2376,16 +2501,20 @@
     /* ---------- The form in the middle: Edit (pick, drag, size) or Try it (working) ---------- */
     if (state.mode !== 'try') state.mode = 'edit';
     const ph = el('header', 'ffe3-bar');
-    const modeSel = el('div', 'ffa-mode');
+    const modeSel = el('div', 'ffa-mode seg');
+    modeSel.setAttribute('role', 'group'); modeSel.setAttribute('aria-label', 'Mode');
     const widthSel = select([['pc', 'PC'], ['tablet', 'Tablet'], ['phone', 'Phone']], state.width);
     widthSel.title = 'Show the form on: a kind of screen, or a terminal\'s own recorded screen';
     const sampleSel = select([['', 'blank']], '');
     sampleSel.title = 'Fill the form from a saved item while you edit, so its values and lists show';
     const sampleLab = el('label', 'ffe3-with'); sampleLab.append(el('span', null, 'Show with'), sampleSel);
     sampleLab.hidden = true;
-    const zoomSel = select([['fit', 'Fit'], ['100', '100%']], state.zoom || 'fit');
+    // Fit or real size, as a segmented control (UI Release B).
+    const zoomSel = el('div', 'ffa-zoom seg');
+    zoomSel.setAttribute('role', 'group'); zoomSel.setAttribute('aria-label', 'Size');
     zoomSel.title = 'Draw a terminal\'s screen to fit, or at its real size (scroll to see it all)';
-    zoomSel.onchange = () => { state.zoom = zoomSel.value; rescale(); placeSel(); };
+    const paintZoom = () => zoomSel.replaceChildren(...[['fit', 'Fit'], ['100', '100%']].map(([k, t]) => { const on = (state.zoom || 'fit') === k; const b = btn(t, on ? 'on' : '', () => { state.zoom = k; paintZoom(); rescale(); placeSel(); }); b.setAttribute('aria-pressed', String(on)); return b; }));
+    paintZoom();
     ph.append(modeSel, widthSel, zoomSel, sampleLab);
     const frame = el('div', 'ffe-frame');
     const msg = el('div', 'ffe-note');
@@ -2588,6 +2717,7 @@
       }
       const [lab] = labelOf(name);
       const size = widthOf(x.row, x.ci);
+      box.appendChild(el('span', 'ffe3-cap', 'Width'));
       const seg = el('div', 'ffo-seg');
       seg.setAttribute('role', 'group'); seg.setAttribute('aria-label', `Size of ${lab}`);
       [['S', 3], ['M', 4], ['L', 6], ['Full', 12]].forEach(([t, n]) => { const b = btn(t, size === n ? 'on' : '', () => setSize(name, n)); b.setAttribute('aria-pressed', String(size === n)); seg.appendChild(b); });
@@ -2610,7 +2740,11 @@
       return box;
     }
     function formOverview(box) {
-      box.appendChild(el('div', 'ffe3-ih', subOf ? (draft.label || draft.name) : (draft.title || ctx.id)));
+      box.appendChild(el('h3', 'ffe3-sethead', 'Form settings'));
+      const fh = el('div', 'ffe3-ih');
+      if (!subOf) { let lk = null; try { lk = FP.kinds.formLook(draft); } catch (_) { lk = null; } fh.appendChild(FP.icons.tile({ glyph: lk ? lk.glyph : 'doc', tone: lk && lk.tone, shape: 'form', size: 30 })); }
+      fh.appendChild(el('div', 'ffe3-ihtx', subOf ? (draft.label || draft.name) : (draft.title || ctx.id)));
+      box.appendChild(fh);
       box.appendChild(el('p', 'fpe-hint', 'Pick a field on the form, or a row on the left, to change it.'));
       if (!subOf) {
         const sp = el('div', 'ffo-row');
@@ -2646,12 +2780,35 @@
       if (state.block && Array.isArray(draft.layout)) { const b = blockSettings(); if (b) { insp.appendChild(b); return; } }
       const o = inspectRow;
       if (!o) { formOverview(insp); return; }
+      // The panel (UI Release B): "Field settings", the field's summary row, then a labelled grid of controls.
+      const fld = /^f:/.test(o.key) ? byName(o.key.slice(2)) : null;
+      insp.appendChild(el('h3', 'ffe3-sethead', fld ? 'Field settings' : /^b:/.test(o.key) ? 'Button settings' : /^(s|id|v):/.test(o.key) ? 'Data settings' : o.key === 'form' ? 'Form settings' : 'Settings'));
       const head = el('div', 'ffe3-ih');
-      head.append(el('b', null, o.title()));
-      if (o.sub) head.appendChild(el('small', null, o.sub()));
+      const lead = o.lead ? o.lead() : null;
+      if (lead) head.appendChild(lead);
+      const htx = el('div', 'ffe3-ihtx');
+      const hb = el('b', null, o.title());
+      if (o.req && o.req()) hb.append(document.createTextNode(' '), el('span', 'req', '*'));
+      htx.appendChild(hb);
+      if (o.sub) htx.appendChild(el('small', null, o.sub()));
+      head.appendChild(htx);
       insp.appendChild(head);
       const mine = byKey().get(o.key) || [];
       if (mine.length) insp.appendChild(el('div', 'ffm-errs ffe3-errs', mine.map(x => '✗ ' + x).join('\n')));
+      if (fld) {
+        const fam = familyOf(fld);
+        if (fam.kind === 'write' || fam.kind === 'read') {
+          const w = target(fld.writes || fld.snapshot);
+          const plain = /^\s*\w+\.(\w+)\s*$/.exec(String(fld.formula || ''));
+          const box = el('div', 'ffe3-saves');
+          box.appendChild(el('span', 'ffe3-cap', fam.kind === 'write' ? 'Saves to' : 'Reads from'));
+          const ctl = el('div', 'ffe3-ctl');
+          ctl.appendChild(FP.icons.tile({ glyph: 'table', tone: toneOf(fam.structure), shape: 'structure', size: 22 }));
+          ctl.appendChild(document.createTextNode(`${structName(fam.structure)}${w ? ' · ' + w.container : plain ? ' · ' + plain[1] : ''}`));
+          box.appendChild(ctl);
+          insp.appendChild(box);
+        }
+      }
       if ((/^f:/.test(o.key) && byName(o.key.slice(2))) || (/^b:/.test(o.key) && placedNow().has(o.key.slice(2)))) insp.appendChild(placeSet(o.key.slice(2)));
       const p = el('div', 'ffm-props');
       o.props(p);
@@ -3021,7 +3178,9 @@
       const t = el('b', 't'); const sub = el('span', 'd'); const extra = el('span', 'x');
       const body = el('span', 'body'); body.append(t, sub);
       const checked = o.marked.test(r.key);
-      const mark = checked ? el('span', 'ffm-mark') : null;
+      const mark = checked ? el('span', 'ffm-mark silent') : null;
+      const lead = r.lead ? r.lead() : null;
+      if (lead) { d.classList.add('has-lead'); d.appendChild(lead); }
       if (mark) d.appendChild(mark);
       d.append(body, extra);
       if (r.tools) r.tools.forEach(x => d.appendChild(x));
@@ -3069,9 +3228,7 @@
       by.forEach((list, k) => { if (k !== o.top && !marks.has(k)) { if (!by.has(o.top)) by.set(o.top, []); by.get(o.top).push(...list); by.delete(k); } });
       marks.forEach(({ mark, errs, row: d }, k) => {
         const mine = by.get(k) || [];
-        mark.textContent = mine.length ? '✗' : '✓';
-        mark.className = 'ffm-mark ' + (mine.length ? 'bad' : 'ok');
-        mark.title = mine.length ? mine.join('\n') : 'Nothing to fix';
+        paintMark(mark, mine);
         d.classList.toggle('has-err', !!mine.length);
         errs.replaceChildren(...mine.map(x => el('div', null, '✗ ' + shortProblem(x))));
         errs.hidden = !mine.length;
@@ -3339,7 +3496,7 @@
       const { row, head, addRow, tag, mv } = a;
       const doc = FP.defs.get('structure', ctx.id);
       const K = draft.kind ? FP.kinds.get(draft.kind) : null;
-      row(box, { key: 'top', color: 'var(--d-teal-45)', cls: 'top', title: () => draft.label || ctx.id,
+      row(box, { key: 'top', color: 'var(--d-teal-45)', cls: 'top', lead: () => FP.icons.tile({ glyph: 'table', tone: (() => { try { return draft.kind && FP.kinds.get(draft.kind) ? ({ runs: 'runs', inventory: 'inv', records: 'rec', cases: 'case', orders: 'ord', list: 'list' })[draft.kind] || null : null; } catch (_) { return null; } })(), shape: 'structure', size: 34 }), title: () => draft.label || ctx.id,
         sub: () => [K ? K.label : 'no kind yet', `structure ${ctx.id}`, doc ? `v${doc.version}` : 'new', (draft.sites || []).join(', '), draft.live ? `last ${draft.live.days} days` : null].filter(Boolean).join(' · '), props: topProps });
       // The kind (0.59): picked first; it brings the status, the open rule and the ID rule.
       // Without a kind (new, or from before 0.59) the kinds come first; the rest shows under them as it was.
@@ -3658,7 +3815,7 @@
       api = a;
       const { row, head, addRow, tag, mv } = a;
       const doc = FP.defs.get('function', ctx.id);
-      row(box, { key: 'top', color: 'var(--d-violet-43)', cls: 'top', title: () => draft.label || ctx.id,
+      row(box, { key: 'top', color: 'var(--d-violet-43)', cls: 'top', lead: () => FP.icons.tile({ glyph: 'fn', shape: 'function', fill: 'plain', size: 34 }), title: () => draft.label || ctx.id,
         sub: () => [`function ${ctx.id}`, doc ? `v${doc.version}` : 'new', isLookup() ? `reads ${stLabel((draft.reads || {}).structure)}` : 'works out a value', (draft.sites || []).join(', ')].filter(Boolean).join(' · '), props: topProps });
 
       head(box, 'Inputs', `what a formula gives it, in order: ${ctx.id}(${draft.inputs.map(x => x.name).join(', ')})`);

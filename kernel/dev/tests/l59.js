@@ -58,7 +58,7 @@ const start = require('./dummies/base.js');
   await p.click('.fpe-mrow:has-text("Houston")'); await w(1200);
   say('site', await p.$eval('.fpa-place', x => x.innerText.replace(/\n+/g, ' / ').slice(0, 300)));
   // Admin sections
-  await p.click('text=⚙ Admin'); await w(1200);
+  await p.click('.fpe-adminbtn:not(.fpe-helpbtn)'); await w(1200);
   say('admin tabs', await p.$eval('.fpa-tabs', x => x.innerText.replace(/\n+/g, ' | ')));
   await p.click('.fpa-tabs >> text=Launchers'); await w(1200);
   say('launchers', await p.$eval('.fpe', x => x.innerText.replace(/\n+/g, ' / ').slice(0, 300)));
