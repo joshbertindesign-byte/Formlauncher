@@ -45,7 +45,7 @@ const PACK = fs.readFileSync(path.join(__dirname, '../packs/test-pack/test-pack.
   // Retire one.
   const row = p.locator('.ffm-r:has-text("Zz orphan form")').first();
   await row.click().catch(() => {}); await w(500);
-  await p.locator('button:has-text("Retire")').first().click(); await w(2500);
+  await p.locator('button.small:text-is("Retire")').first().click(); await w(2500);
   const st = await p.evaluate(() => ({ retired: (FP.defs.get('form', 'zz-orph-form') || {}).retired }));
   expect('retired', st.retired === true, st);
   t = await text();
