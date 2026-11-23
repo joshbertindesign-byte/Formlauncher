@@ -50,7 +50,7 @@
   .ffe-list{display:flex;flex-direction:column;gap:3px}
   .ffe-item{display:flex;align-items:center;gap:6px;padding:4px 6px 4px 0;border:1px solid var(--l-n-88);border-radius:7px;background:var(--s-n-100);cursor:pointer;min-height:36px;overflow:hidden}
   .ffe-item::before{content:"";align-self:stretch;width:5px;background:var(--c,var(--s-blue-50));flex:none}
-  .ffe-item:hover{background:var(--s-n-95)}.ffe-item.on{border-color:var(--l-blue-42);box-shadow:0 0 0 2px #c7d7ef}
+  .ffe-item:hover{background:var(--s-n-95)}.ffe-item.on{border-color:var(--l-blue-42);box-shadow:0 0 0 2px var(--d-blue-85)}
   .ffe-item .txt{display:flex;flex-direction:column;flex:1 1 auto;min-width:0;padding:2px 0}
   .ffe-item b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .ffe-item small{color:var(--t-n-42);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -103,7 +103,7 @@
   .ffm-r{display:flex;align-items:center;gap:6px;min-height:36px;padding:3px 6px 3px 0;border:1px solid var(--l-n-88);border-radius:7px;background:var(--s-n-100);cursor:pointer;overflow:hidden}
   .ffm-r::before{content:"";align-self:stretch;width:5px;background:var(--c);flex:none}
   .ffm-r:hover{background:var(--s-n-95)}
-  .ffm-r.on{border-color:var(--l-blue-42);box-shadow:0 0 0 2px #c7d7ef}
+  .ffm-r.on{border-color:var(--l-blue-42);box-shadow:0 0 0 2px var(--d-blue-85)}
   .ffm-r .body{display:flex;align-items:baseline;flex-wrap:wrap;column-gap:8px;flex:1 1 auto;min-width:0;padding:2px 0}
   .ffm-r .t{font-weight:600;white-space:nowrap}
   .ffm-r .d{color:var(--t-n-42);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -121,7 +121,7 @@
   .ffm-r.idrow .t{font-weight:700;color:var(--t-teal-30)}
   .ffm-r.idrow.unset{background:var(--s-n-98)}.ffm-r.idrow.unset .d{color:var(--t-red-40);font-weight:600}
   .ffm-opt{display:flex;flex-wrap:wrap;align-items:flex-start;gap:8px;padding:8px 10px;border:1px solid var(--l-n-88);border-radius:8px;background:var(--s-n-100);margin:0 0 6px;cursor:pointer}
-  .ffm-opt.on{border-color:var(--l-teal-45);box-shadow:0 0 0 2px #c7e3ea}
+  .ffm-opt.on{border-color:var(--l-teal-45);box-shadow:0 0 0 2px var(--d-teal-88)}
   .ffm-opt.off{opacity:.55;cursor:default}
   .ffm-opt input[type=radio]{width:18px;height:18px;margin-top:2px}
   .ffm-opt>span{display:flex;flex-direction:column;flex:1 1 300px}
@@ -162,7 +162,7 @@
   .ffo-seg button:disabled{cursor:default}
   .ffo-items{display:flex;flex-direction:column;gap:4px}
   .ffo-it{border:1px solid var(--l-n-88);border-radius:10px;background:var(--s-n-100);padding:4px 4px 4px 8px;display:flex;flex-direction:column;gap:4px}
-  .ffo-it.sel{border-color:var(--l-blue-42);box-shadow:0 0 0 2px #c7d7ef}
+  .ffo-it.sel{border-color:var(--l-blue-42);box-shadow:0 0 0 2px var(--d-blue-85)}
   .ffo-l1,.ffo-l2{display:flex;align-items:center;gap:4px}
   .ffo-l2 select{flex:1 1 auto;min-width:0;min-height:44px;font-size:13px}
   .ffo-name{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;align-items:flex-start;text-align:left;font:inherit;border:0;background:none;padding:2px 0;cursor:pointer;color:var(--t-blue-15)}
@@ -295,7 +295,7 @@
     while (taken.has(out)) out = n + i++;
     return out;
   }
-  const catColor = cat => (cat === 'entry' ? '#2a78d6' : cat === 'visual' ? '#7c3aed' : '#64748b');
+  const catColor = cat => (cat === 'entry' ? 'var(--d-blue-50)' : cat === 'visual' ? 'var(--d-violet-43)' : 'var(--d-n-48)');
 
   /* ---------- Where a structure's items get their IDs ---------- */
   function idRule(st) {
@@ -842,7 +842,7 @@
     const itemSaved = x => savers(x).length > 0;
 
     /* ---------- What each source holds, and who fills or shows each value ---------- */
-    const KIND_COLOR = { item: '#0e7490', items: '#0891b2', value: '#7c3aed' };
+    const KIND_COLOR = { item: 'var(--d-teal-45)', items: 'var(--d-teal-56)', value: 'var(--d-violet-43)' };
     const isList = x => x.kind === 'items';
     const whichText = x => (x.kind === 'items' ? `${x.open ? 'the open ones' : 'all'}${x.filter ? ` where ${x.filter}` : x.open ? '' : ' of them'}` : idText(x));
     const describeSource = x => (x.kind === 'value' ? `formula = ${x.formula || '?'}` : `${x.structure || 'choose a structure'} · ${isList(x) ? 'list' : '1 item'}: ${whichText(x)}`);
@@ -1979,7 +1979,7 @@
           return;
         }
         const b = (draft.buttons || []).find(x => x && x.name === name);
-        if (b) row(box, { key: 'b:' + b.name, depth, color: '#eb6834', title: () => b.label || b.name, sub: () => 'button', props: p => buttonProps(b, p) });
+        if (b) row(box, { key: 'b:' + b.name, depth, color: 'var(--d-red-60)', title: () => b.label || b.name, sub: () => 'button', props: p => buttonProps(b, p) });
       };
       const blockRow = (text, path, depth) => {
         const r = el('button', 'ffm-blk' + (state.block === path ? ' on' : ''));
@@ -2036,7 +2036,7 @@
       function row(parent, o) {
         const r = el('div', 'ffm-r' + (o.cls ? ' ' + o.cls : '') + (state.open === o.key ? ' on' : ''));
         r.dataset.key = o.key;
-        r.style.setProperty('--c', o.color || '#64748b');
+        r.style.setProperty('--c', o.color || 'var(--d-n-48)');
         r.style.marginLeft = `${(o.depth || 0) * 14}px`;
         const t = el('b', 't'); const d = el('span', 'd'); const extra = el('span', 'x');
         const body = el('span', 'body'); body.append(t, d);
@@ -2060,24 +2060,24 @@
         if (state.open === o.key && o.props) inspectRow = o;
         return r;
       }
-      const addRow = (parent, key, text, depth, props, act) => row(parent, { key, cls: 'add', color: '#c9d0d9', depth, title: () => text, props, act });
+      const addRow = (parent, key, text, depth, props, act) => row(parent, { key, cls: 'add', color: 'var(--d-n-83)', depth, title: () => text, props, act });
       const head = (text, help) => { const h = el('div', 'ffm-h'); h.append(el('b', null, text)); if (help) h.append(el('span', null, help)); box.appendChild(h); };
       const mv = (list, i, dlt) => btn(dlt < 0 ? '↑' : '↓', 'mv', e => { e.stopPropagation(); const j = i + dlt; if (j < 0 || j >= list.length) return; list.splice(j, 0, list.splice(i, 1)[0]); changed(); hard(); });
 
       // The form (on Form)
       const doc = FP.defs.get('form', ctx.id);
-      if (tab !== 'form') { /* on Form */ } else if (subOf) row(box, { key: 'form', color: '#1b2633', cls: 'top', title: () => draft.label || draft.name, sub: () => `a sub-form of ${subOf.master.title || subOf.masterId}`,
+      if (tab !== 'form') { /* on Form */ } else if (subOf) row(box, { key: 'form', color: 'var(--d-blue-15)', cls: 'top', title: () => draft.label || draft.name, sub: () => `a sub-form of ${subOf.master.title || subOf.masterId}`,
         tools: [btn(`‹ Back to ${subOf.master.title || subOf.masterId}`, 'small', e => { e.stopPropagation(); subOf.back(); })],
         props: p2 => {
           p2.appendChild(el('p', 'ffe-note', `Its fields and sources are here; it reads ${subOf.master.title || 'the master form'}'s fields and sources by name${FP.forms.repeatKind(subOf.sf) !== 'once' ? ', and index (1, 2, …) and each (the list item) for the run it is on' : ''}. How it is opened, how many times, how it saves and what it sends back are on its row in ${subOf.master.title || 'the master form'}.`));
           p2.appendChild(btn(`‹ Back to ${subOf.master.title || subOf.masterId}`, 'small', () => subOf.back()));
         } });
-      else row(box, { key: 'form', color: '#1b2633', cls: 'top', title: () => draft.title || ctx.id, sub: () => [doc ? `v${doc.version}` : 'new', (draft.sites || []).join(', '), draft.launchable ? 'has its own launcher' : 'opened from other forms', draft.approval ? 'needs approval' : null, draft.print ? 'prints' : null].filter(Boolean).join(' · '), props: settingsProps });
+      else row(box, { key: 'form', color: 'var(--d-blue-15)', cls: 'top', title: () => draft.title || ctx.id, sub: () => [doc ? `v${doc.version}` : 'new', (draft.sites || []).join(', '), draft.launchable ? 'has its own launcher' : 'opened from other forms', draft.approval ? 'needs approval' : null, draft.print ? 'prints' : null].filter(Boolean).join(' · '), props: settingsProps });
 
       // Sources (on Data)
       if (tab === 'data') head('Sources', 'the data this form works with');
       if (tab === 'data') draft.sources.forEach((x, i) => {
-        const color = KIND_COLOR[x.kind] || '#64748b';
+        const color = KIND_COLOR[x.kind] || 'var(--d-n-48)';
         row(box, {
           key: 's:' + x.name, depth: 1, color, cls: 'src',
           title: () => x.name, sub: () => (x.kind === 'value' ? `= ${x.formula || '?'}` : x.structure || 'choose a structure'),
@@ -2086,13 +2086,13 @@
         });
         if (x.kind === 'value' || !x.structure) {
           const rd = readersOfSource(x);
-          if (x.kind === 'value' && rd.length) row(box, { key: 'r:' + x.name, depth: 2, color: '#d6ccfb', cls: 'val', title: () => '→', sub: () => rd.map(f => f.label || f.name).join(', ') });
+          if (x.kind === 'value' && rd.length) row(box, { key: 'r:' + x.name, depth: 2, color: 'var(--d-violet-84)', cls: 'val', title: () => '→', sub: () => rd.map(f => f.label || f.name).join(', ') });
           return;
         }
         // The ID first: where it comes from picks the item (or items) every value under it belongs to.
         const unset = !isList(x) && !((x.id || {}).field || (x.id || {}).generate || (x.id || {}).fixed);
         row(box, {
-          key: 'id:' + x.name, depth: 2, color: unset ? '#e5484d' : '#0e7490', cls: 'val idrow' + (unset ? ' unset' : ''),
+          key: 'id:' + x.name, depth: 2, color: unset ? 'var(--d-red-54)' : 'var(--d-teal-45)', cls: 'val idrow' + (unset ? ' unset' : ''),
           title: () => (/\bID$/.test(idLabel(x.structure)) ? idLabel(x.structure) : `${idLabel(x.structure)} (ID)`), sub: () => idSource(x),
           tags: () => [tag(isList(x) ? 'list' : '1 item', 'k')],
           props: p => idProps(x, p),
@@ -2103,7 +2103,7 @@
           const u = () => useOf(x, c);
           const pill = (label, on, flip) => { const b = btn(label, 'ffm-pill' + (on ? ' on ' + label : ''), e => { e.stopPropagation(); flip(); }); return b; };
           row(box, {
-            key: `v:${x.name}:${c}`, depth: 2, color: '#9fd3dc', cls: 'val',
+            key: `v:${x.name}:${c}`, depth: 2, color: 'var(--d-teal-81)', cls: 'val',
             title: () => c,
             sub: () => {
               const fl = fillersOf(x, c).map(f => `← ${f.label || f.name}`);
@@ -2146,14 +2146,14 @@
       // Buttons (a sub-form has its own: Done, or Save when it saves on its own); they and the rest are on Form.
       if (!subOf && tab === 'form') head('Buttons');
       if (subOf || tab !== 'form') { /* none */ } else if (!Array.isArray(draft.buttons)) {
-        row(box, { key: 'b:__one', depth: 1, color: '#eb6834', title: () => draft.saveLabel || 'Save', sub: () => 'the one button: saves the whole form', props: p => {
+        row(box, { key: 'b:__one', depth: 1, color: 'var(--d-red-60)', title: () => draft.saveLabel || 'Save', sub: () => 'the one button: saves the whole form', props: p => {
           p.appendChild(el('p', 'ffe-note', 'Set up buttons to name what a save does, save part of the form, open another form, or save a form with the records it opened.'));
           p.appendChild(btn('Set up buttons', 'small', () => { draft.buttons = [{ name: 'save', label: draft.saveLabel || 'Save', action: 'save' }]; state.open = 'b:save'; changed(); hard(); }));
         } });
       } else {
         draft.buttons.forEach((b, i) => {
           row(box, {
-            key: 'b:' + b.name, depth: 1, color: '#eb6834', title: () => b.label || b.name,
+            key: 'b:' + b.name, depth: 1, color: 'var(--d-red-60)', title: () => b.label || b.name,
             sub: () => (b.action === 'subform' ? `opens the sub-form ${((draft.subforms || []).find(x => x && x.name === b.subform) || {}).label || b.subform || '?'}` : b.action === 'open' ? `opens ${b.form || '?'}${b.link ? `, linked to ${b.link}` : ''}` : b.action === 'set' ? `fills in ${Object.keys(b.sets || {}).join(', ') || 'nothing yet'}` : b.action === 'save' ? `${b.scope === 'tree' ? 'saves the form and the records it opened' : b.scope ? 'saves part of the form' : 'saves the form'}${b.saveAs ? ` as "${b.saveAs}"` : ''}` : 'applies') + (b.when ? ' · sometimes shown' : ''),
             tools: [mv(draft.buttons, i, -1)], props: p => buttonProps(b, p),
           });
@@ -2162,11 +2162,11 @@
             let m = null;
             try { m = FP.map.form(b.form); } catch (_) { m = null; }
             const unfolded = state.open === 'kid:' + b.name;
-            row(box, { key: 'kid:' + b.name, depth: 2, color: '#f6c3a8', cls: 'val', title: () => `${unfolded ? '▾' : '▸'} ${(m && m.title) || b.form}`, sub: () => (m ? `${m.fields.length} fields · tap to ${unfolded ? 'fold' : 'look inside'}` : 'not published'),
+            row(box, { key: 'kid:' + b.name, depth: 2, color: 'var(--d-amber-83)', cls: 'val', title: () => `${unfolded ? '▾' : '▸'} ${(m && m.title) || b.form}`, sub: () => (m ? `${m.fields.length} fields · tap to ${unfolded ? 'fold' : 'look inside'}` : 'not published'),
               tools: ctx.open ? [btn('Edit ›', 'small', e => { e.stopPropagation(); ctx.open('form', b.form); })] : [] });
             if (unfolded && m) {
-              (m.sources || []).forEach(s2 => row(box, { key: 'kid:' + b.name + ':s:' + s2.name, depth: 3, color: '#c7e3ea', cls: 'kid', title: () => s2.name, sub: () => s2.text, act: () => {} }));
-              m.fields.forEach(f2 => row(box, { key: 'kid:' + b.name + ':f:' + f2.name, depth: 3, color: '#cfe0f7', cls: 'kid', title: () => f2.label || f2.name, sub: () => [f2.kindLabel || f2.control, f2.writes ? `saves ${f2.writes.structure ? `${f2.writes.structure}.${f2.writes.container}` : f2.writes}` : null].filter(Boolean).join(' · '), act: () => {} }));
+              (m.sources || []).forEach(s2 => row(box, { key: 'kid:' + b.name + ':s:' + s2.name, depth: 3, color: 'var(--d-teal-88)', cls: 'kid', title: () => s2.name, sub: () => s2.text, act: () => {} }));
+              m.fields.forEach(f2 => row(box, { key: 'kid:' + b.name + ':f:' + f2.name, depth: 3, color: 'var(--d-blue-85)', cls: 'kid', title: () => f2.label || f2.name, sub: () => [f2.kindLabel || f2.control, f2.writes ? `saves ${f2.writes.structure ? `${f2.writes.structure}.${f2.writes.container}` : f2.writes}` : null].filter(Boolean).join(' · '), act: () => {} }));
             }
           }
         });
@@ -2183,7 +2183,7 @@
           const kind = FP.forms.repeatKind(sf);
           const by = (draft.buttons || []).filter(b => b && b.action === 'subform' && b.subform === sf.name).map(b => b.label || b.name);
           row(box, {
-            key: 'sf:' + sf.name, depth: 1, color: '#7c3aed', title: () => sf.label || sf.name,
+            key: 'sf:' + sf.name, depth: 1, color: 'var(--d-violet-43)', title: () => sf.label || sf.name,
             sub: () => [by.length ? `opened by ${by.join(', ')}` : 'no button opens it',
               kind === 'count' ? `${typeof sf.repeat.count === 'number' ? sf.repeat.count : '= ' + sf.repeat.count} times` : kind === 'list' ? `once for each of ${sf.repeat.list}` : kind === 'open' ? 'as many as needed' : null,
               subSaves(sf) ? (sf.saves === 'own' ? 'saves on its own' : 'saved with this form') : null,
@@ -2208,7 +2208,7 @@
       if (!subOf && tab === 'form') {
       const of = (FP.forms.formSettings().find(x => x.name === 'acknowledge') || {}).of || [];
       (Array.isArray(draft.acknowledge) ? draft.acknowledge : []).forEach((a, i) => {
-        row(box, { key: 'a:' + i, depth: 1, color: '#c98500', title: () => a.label || a.name || `Item ${i + 1}`, sub: () => `${a.show === 'media' ? `documents${a.where ? ': ' + Object.entries(a.where).map(([k, v]) => `${k} = ${v}`).join(', ') : ': every file of the form\'s media'}` : 'text'} · every ${a.every || (a.show === 'media' ? 'revision' : 'day')}`, props: p => {
+        row(box, { key: 'a:' + i, depth: 1, color: 'var(--d-amber-61)', title: () => a.label || a.name || `Item ${i + 1}`, sub: () => `${a.show === 'media' ? `documents${a.where ? ': ' + Object.entries(a.where).map(([k, v]) => `${k} = ${v}`).join(', ') : ': every file of the form\'s media'}` : 'text'} · every ${a.every || (a.show === 'media' ? 'revision' : 'day')}`, props: p => {
           // What it shows decides the boxes below it (documents: which files of the form's media), so that one repaints them.
           of.forEach(x => p.appendChild(settingInput(x, a, () => { changed(); if (x.name === 'show') hard(); else soft(); })));
           p.appendChild(btn('Remove', 'small', () => { draft.acknowledge.splice(i, 1); state.open = null; changed(); hard(); }));
@@ -2230,15 +2230,15 @@
         draft.media.forEach((m, i) => {
           if (m && m.entry) {
             const e = L.get(m.entry);
-            row(box, { key: 'md:' + m.entry, depth: 1, color: '#b45309', title: () => (e ? e.name : m.entry) + (e && !e.active ? ' (retired)' : !e ? ' (not in the library)' : ''),
+            row(box, { key: 'md:' + m.entry, depth: 1, color: 'var(--d-amber-47)', title: () => (e ? e.name : m.entry) + (e && !e.active ? ' (retired)' : !e ? ' (not in the library)' : ''),
               sub: () => (e ? [FP.media.tagsText(e.tags) || 'no tags', `version ${e.revision}`].join(' · ') : 'gone from the library'),
               tags: () => [tag('library', 'k')], props: p => libEntryProps(m, i, p) });
           } else if (m && m.library) {
             const n = () => L.cached().filter(e => e.active && FP.media.matches(e.tags, m.library)).length;
-            row(box, { key: 'mdl:' + i, depth: 1, color: '#b45309', title: () => (Object.keys(m.library).length ? `Every entry tagged ${FP.media.tagsText(m.library)}` : 'Every entry of the library'),
+            row(box, { key: 'mdl:' + i, depth: 1, color: 'var(--d-amber-47)', title: () => (Object.keys(m.library).length ? `Every entry tagged ${FP.media.tagsText(m.library)}` : 'Every entry of the library'),
               sub: () => `${n()} now; entries added later with these tags show too`, tags: () => [tag('library', 'k')], props: p => libRuleProps(m, i, p) });
           } else if (m && m.path) {
-            row(box, { key: 'md:' + m.path, depth: 1, color: '#b45309', title: () => m.title || FP.media.titleOf(m.path),
+            row(box, { key: 'md:' + m.path, depth: 1, color: 'var(--d-amber-47)', title: () => m.title || FP.media.titleOf(m.path),
               sub: () => [FP.media.tagsText(m.tags) || 'no tags yet', m.path].join(' · '),
               tags: () => [tag(FP.media.isImage(m.path) ? 'image' : (m.path.split('.').pop() || 'file').toLowerCase(), 'k')],
               props: p => mediaProps(m, i, p) });
@@ -2256,7 +2256,7 @@
       try { m0 = FP.map.form(ctx.id); } catch (_) { m0 = null; }
       if (m0 && m0.openedBy.length && !subOf && tab === 'form') {
         head('Opened by');
-        m0.openedBy.forEach(o => row(box, { key: 'by:' + o.form, depth: 1, color: '#b45309', title: () => o.title, sub: () => `its ${o.button} button${o.link ? `, linked to its ${o.link} item` : ''}`, tools: ctx.open ? [btn('Edit ›', 'small', e => { e.stopPropagation(); ctx.open('form', o.form); })] : [] }));
+        m0.openedBy.forEach(o => row(box, { key: 'by:' + o.form, depth: 1, color: 'var(--d-amber-47)', title: () => o.title, sub: () => `its ${o.button} button${o.link ? `, linked to its ${o.link} item` : ''}`, tools: ctx.open ? [btn('Edit ›', 'small', e => { e.stopPropagation(); ctx.open('form', o.form); })] : [] }));
       }
       soft = () => reg.forEach(u => u());
       paintMarks();
@@ -2944,7 +2944,7 @@
     function row(parent, r) {
       const d = el('div', 'ffm-r' + (r.cls ? ' ' + r.cls : '') + (state.open === r.key ? ' on' : ''));
       d.dataset.key = r.key;
-      d.style.setProperty('--c', r.color || '#64748b');
+      d.style.setProperty('--c', r.color || 'var(--d-n-48)');
       d.style.marginLeft = `${(r.depth || 0) * 14}px`;
       const t = el('b', 't'); const sub = el('span', 'd'); const extra = el('span', 'x');
       const body = el('span', 'body'); body.append(t, sub);
@@ -2972,7 +2972,7 @@
       return d;
     }
     const head = (parent, text, help) => { const h = el('div', 'ffm-h'); h.append(el('b', null, text)); if (help) h.append(el('span', null, help)); parent.appendChild(h); };
-    const addRow = (parent, key, text, depth, props, act) => row(parent, { key, cls: 'add', color: '#c9d0d9', depth, title: () => text, props, act });
+    const addRow = (parent, key, text, depth, props, act) => row(parent, { key, cls: 'add', color: 'var(--d-n-83)', depth, title: () => text, props, act });
     const mv = (list, i, dlt, after) => btn(dlt < 0 ? '↑' : '↓', 'mv', e => { e.stopPropagation(); const j = i + dlt; if (j < 0 || j >= list.length) return; list.splice(j, 0, list.splice(i, 1)[0]); after(); });
     function paintNow() {
       marks.clear(); reg = [];
@@ -3019,7 +3019,7 @@
   const RULE_TEXT = { latest: 'keeps the latest', first: 'keeps the first', sum: 'adds them up', count: 'counts them', average: 'averages', min: 'keeps the lowest', max: 'keeps the highest', list: 'keeps a list' };
   const ITEM_SOURCES = [['$firstAt', 'when the item was first saved'], ['$lastAt', 'when it was last changed'], ['$asOf', 'now (or the time being reviewed)'], ['$entryCount', 'how many saves it has'], ['$lastAction', 'its last save\'s name']];
   const ITEM_FACTS = [['lastAction', 'the last save\'s name'], ['lastForm', 'the form that saved last'], ['firstAt', 'first saved'], ['lastAt', 'last changed'], ['entryCount', 'number of saves']];
-  const VALUE_COLOR = { container: '#2a78d6', form: '#94a3b8', calculated: '#7c3aed', status: '#1a7f37', id: '#0e7490' };
+  const VALUE_COLOR = { container: 'var(--d-blue-50)', form: 'var(--d-n-66)', calculated: 'var(--d-violet-43)', status: 'var(--d-green-47)', id: 'var(--d-teal-45)' };
   // A name renamed inside a formula (not inside quotes, not after a dot).
   const renameIn = (f, from, to) => String(f).split(/("(?:[^"\\]|\\.)*")/).map((part, i) => (i % 2 ? part : part.replace(new RegExp(`(?<![\\w.$])${from}(?![\\w])`, 'g'), to))).join('');
 
@@ -3264,7 +3264,7 @@
       const { row, head, addRow, tag, mv } = a;
       const doc = FP.defs.get('structure', ctx.id);
       const K = draft.kind ? FP.kinds.get(draft.kind) : null;
-      row(box, { key: 'top', color: '#0e7490', cls: 'top', title: () => draft.label || ctx.id,
+      row(box, { key: 'top', color: 'var(--d-teal-45)', cls: 'top', title: () => draft.label || ctx.id,
         sub: () => [K ? K.label : 'no kind yet', `structure ${ctx.id}`, doc ? `v${doc.version}` : 'new', (draft.sites || []).join(', '), draft.live ? `last ${draft.live.days} days` : null].filter(Boolean).join(' · '), props: topProps });
       // The kind (0.59): picked first; it brings the status, the open rule and the ID rule.
       // Without a kind (new, or from before 0.59) the kinds come first; the rest shows under them as it was.
@@ -3273,7 +3273,7 @@
         head(box, `What plays each part`, `a ${K.label.replace(/s$/, '').toLowerCase()} needs these`);
         draft.roles = draft.roles && typeof draft.roles === 'object' ? draft.roles : {};
         K.roles.forEach(r => {
-          row(box, { key: 'role:' + r.name, depth: 1, color: draft.roles[r.name] ? '#0b7a75' : r.required ? '#e5484d' : '#c9d0d9', cls: 'val' + (r.required && !draft.roles[r.name] ? ' idrow unset' : ''),
+          row(box, { key: 'role:' + r.name, depth: 1, color: draft.roles[r.name] ? 'var(--d-teal-46)' : r.required ? 'var(--d-red-54)' : 'var(--d-n-83)', cls: 'val' + (r.required && !draft.roles[r.name] ? ' idrow unset' : ''),
             title: () => r.label + (r.required ? ' *' : ''), sub: () => (draft.roles[r.name] ? `is ${draft.roles[r.name]}` : r.required ? 'say which value' : 'not used'),
             props: p => roleProps(r, p) });
         });
@@ -3283,7 +3283,7 @@
       const t = draft.itemId || {};
       row(box, { key: 'id', depth: 1, color: VALUE_COLOR.id, cls: 'val idrow' + (t.made ? '' : ' unset'), title: () => (draft.itemId && draft.itemId.label) || 'ID',
         sub: () => { const x = draft.itemId || {}; return x.made === 'new' ? `made new each save${x.prefix ? ` (${x.prefix}-…)` : ''}` : x.made === 'entered' ? 'entered on the form' : 'not set: forms decide'; },
-        tags: () => [tag('ID', '#fde9c8')], props: idProps });
+        tags: () => [tag('ID', 'var(--d-amber-93)')], props: idProps });
 
       head(box, 'Values', 'what each item holds');
       const saved = savers();
@@ -3300,7 +3300,7 @@
           tags: () => [tag(col.kind === 'calculated' ? 'calculated' : col.kind === 'form' ? 'from forms' : 'saved')],
           props: p => valueProps(col, p) });
       });
-      row(box, { key: 'facts', depth: 1, color: '#d6dbe1', cls: 'kid', title: () => 'On every item', sub: () => ITEM_FACTS.map(([f]) => f).join(' · '), act: () => {} });
+      row(box, { key: 'facts', depth: 1, color: 'var(--d-n-88)', cls: 'kid', title: () => 'On every item', sub: () => ITEM_FACTS.map(([f]) => f).join(' · '), act: () => {} });
       addRow(box, '+v', '+ value', 1, addValueProps);
 
       const KS = K || { statusFree: true, label: 'Items' };
@@ -3309,8 +3309,8 @@
       if (!KS.statusFree) {
         const built = FP.kinds.statusRules(draft).filter(r => r.built);
         const lastB = built.length && K.last ? built[built.length - 1] : null;
-        built.filter(r => r !== lastB).forEach((r, i) => row(box, { key: 'stb:' + i, depth: 1, color: '#9ccfb0', cls: 'kid', title: () => r.value, sub: () => `when ${r.when} · the kind's`, act: () => {} }));
-        if (lastB) row(box, { key: 'stb:last', depth: 1, color: '#9ccfb0', cls: 'kid', title: () => lastB.value, sub: () => (draft.status.length ? 'otherwise · the kind\'s' : 'every other item · the kind\'s'), act: () => {} });
+        built.filter(r => r !== lastB).forEach((r, i) => row(box, { key: 'stb:' + i, depth: 1, color: 'var(--d-green-79)', cls: 'kid', title: () => r.value, sub: () => `when ${r.when} · the kind's`, act: () => {} }));
+        if (lastB) row(box, { key: 'stb:last', depth: 1, color: 'var(--d-green-79)', cls: 'kid', title: () => lastB.value, sub: () => (draft.status.length ? 'otherwise · the kind\'s' : 'every other item · the kind\'s'), act: () => {} });
       }
       if (!KS.statusFixed) draft.status.forEach((r, i) => {
         row(box, { key: 'st:' + i, depth: 1, color: VALUE_COLOR.status, title: () => (draft.status[i] && draft.status[i].value) || '(no label)',
@@ -3326,7 +3326,7 @@
       users.forEach(({ u, hows }, k) => {
         const fn = !u.form && /^function (\w+)/.exec(u.title);
         const go = u.form ? () => ctx.open('form', u.form) : fn ? () => ctx.open('function', fn[1]) : null;
-        row(box, { key: 'u:' + k, depth: 1, color: u.form ? '#2a78d6' : '#7c3aed', cls: 'kid', title: () => u.title, sub: () => hows.join(' · '),
+        row(box, { key: 'u:' + k, depth: 1, color: u.form ? 'var(--d-blue-50)' : 'var(--d-violet-43)', cls: 'kid', title: () => u.title, sub: () => hows.join(' · '),
           tools: ctx.open && go ? [btn('Edit ›', 'small', e => { e.stopPropagation(); go(); })] : [], act: () => {} });
       });
     }
@@ -3368,7 +3368,7 @@
       const hr = el('tr');
       cols.forEach(c => {
         const th = el('th', 'k-' + c.kind + (open && (open === c.key || (c.key === 'st' && /^st:/.test(open))) ? ' sel' : ''), c.label);
-        th.style.borderTopColor = VALUE_COLOR[c.kind === 'form' ? 'form' : c.kind] || '#64748b';
+        th.style.borderTopColor = VALUE_COLOR[c.kind === 'form' ? 'form' : c.kind] || 'var(--d-n-48)';
         th.title = c.kind === 'calculated' ? 'Worked out with the function as set here' : c.kind === 'status' ? 'From the status rules as set here' : '';
         th.onclick = () => { if (api) api.focus(c.key === 'st' ? ((draft.status || []).length ? 'st:0' : '+st') : c.key); };
         hr.appendChild(th);
@@ -3580,12 +3580,12 @@
       api = a;
       const { row, head, addRow, tag, mv } = a;
       const doc = FP.defs.get('function', ctx.id);
-      row(box, { key: 'top', color: '#7c3aed', cls: 'top', title: () => draft.label || ctx.id,
+      row(box, { key: 'top', color: 'var(--d-violet-43)', cls: 'top', title: () => draft.label || ctx.id,
         sub: () => [`function ${ctx.id}`, doc ? `v${doc.version}` : 'new', isLookup() ? `reads ${stLabel((draft.reads || {}).structure)}` : 'works out a value', (draft.sites || []).join(', ')].filter(Boolean).join(' · '), props: topProps });
 
       head(box, 'Inputs', `what a formula gives it, in order: ${ctx.id}(${draft.inputs.map(x => x.name).join(', ')})`);
       draft.inputs.forEach((inp, i) => {
-        row(box, { key: 'in:' + i, depth: 1, color: '#a78bfa', cls: 'val', title: () => draft.inputs[i] ? draft.inputs[i].name : '',
+        row(box, { key: 'in:' + i, depth: 1, color: 'var(--d-violet-65)', cls: 'val', title: () => draft.inputs[i] ? draft.inputs[i].name : '',
           sub: () => draft.inputs[i] ? `${draft.inputs[i].type || 'any'} · ${draft.inputs[i].required === false ? 'optional' : 'needed'}` : '',
           tools: [mv(draft.inputs, i, -1, () => { changed(); a.paint(); }), mv(draft.inputs, i, 1, () => { changed(); a.paint(); })], props: p => inputProps(i, p) });
       });
@@ -3593,21 +3593,21 @@
 
       if (!isLookup()) {
         head(box, 'Formula', 'what it works out');
-        row(box, { key: 'fx', depth: 1, color: '#7c3aed', title: () => draft.formula ? `= ${draft.formula}` : 'write the formula', sub: () => `gives ${gives()}`, props: formulaProps });
+        row(box, { key: 'fx', depth: 1, color: 'var(--d-violet-43)', title: () => draft.formula ? `= ${draft.formula}` : 'write the formula', sub: () => `gives ${gives()}`, props: formulaProps });
       } else {
         const r = draft.reads = draft.reads || {};
         head(box, 'Reads', 'the structure it looks in');
-        row(box, { key: 'rd', depth: 1, color: '#0e7490', cls: 'src', title: () => stLabel(r.structure),
+        row(box, { key: 'rd', depth: 1, color: 'var(--d-teal-45)', cls: 'src', title: () => stLabel(r.structure),
           sub: () => r.structure ? [(r.from || 'items') === 'entries' ? 'every save (history)' : 'its items as they are now', r.action ? `only "${r.action}" saves` : null].filter(Boolean).join(' · ') : 'tap to choose',
           tags: () => [tag(r.structure ? 'structure' : 'not chosen')], props: readsProps });
         if (r.structure) {
           r.match = r.match || {};
-          Object.keys(r.match).forEach(k => row(box, { key: 'm:' + k, depth: 2, color: '#9fd3dc', cls: 'val', title: () => `only where ${keyText(k)}`,
+          Object.keys(r.match).forEach(k => row(box, { key: 'm:' + k, depth: 2, color: 'var(--d-teal-81)', cls: 'val', title: () => `only where ${keyText(k)}`,
             sub: () => { const v = (r.match || {})[k]; return v && typeof v === 'object' ? `= "${v.const}"` : `= input ${v}`; }, props: p => matchProps(k, p) }));
           addRow(box, '+m', '+ only where…', 2, null, () => { const k = keysOf(r).find(n => !(n in r.match)) || '$id'; r.match[k] = draft.inputs[0] ? draft.inputs[0].name : { const: '' }; a.state.open = 'm:' + k; changed(); a.paint(); });
           head(box, 'Gives back');
-          row(box, { key: 'ret', depth: 1, color: '#7c3aed', title: () => { const x = r.return; return x === '*' || x == null ? 'the whole item' : [].concat(x).join(', '); }, sub: () => (['list', 'count'].includes(r.summary) ? SUMMARY_TEXT[r.summary] : `${SUMMARY_TEXT[r.summary || 'latest']} · ${gives()}`), props: returnProps });
-          row(box, { key: 'win', depth: 1, color: '#64748b', title: () => 'Looks at', sub: () => { const w = r.window; return w && typeof w === 'object' ? `the last ${w.days} days` : WINDOW_TEXT[w || 'form']; }, props: windowProps });
+          row(box, { key: 'ret', depth: 1, color: 'var(--d-violet-43)', title: () => { const x = r.return; return x === '*' || x == null ? 'the whole item' : [].concat(x).join(', '); }, sub: () => (['list', 'count'].includes(r.summary) ? SUMMARY_TEXT[r.summary] : `${SUMMARY_TEXT[r.summary || 'latest']} · ${gives()}`), props: returnProps });
+          row(box, { key: 'win', depth: 1, color: 'var(--d-n-48)', title: () => 'Looks at', sub: () => { const w = r.window; return w && typeof w === 'object' ? `the last ${w.days} days` : WINDOW_TEXT[w || 'form']; }, props: windowProps });
         }
       }
 
@@ -3617,7 +3617,7 @@
         const fn = !u.form && /^function (\w+)/.exec(u.title || '');
         const st = !u.form && /^structure ([a-z0-9-]+)/.exec(u.title || '');
         const go = u.form ? () => ctx.open('form', u.form) : fn ? () => ctx.open('function', fn[1]) : st ? () => ctx.open('structure', st[1]) : null;
-        row(box, { key: 'u:' + i, depth: 1, color: u.form ? '#2a78d6' : '#7c3aed', cls: 'kid', title: () => u.title, sub: () => [u.field, u.how].filter(Boolean).join(' · '),
+        row(box, { key: 'u:' + i, depth: 1, color: u.form ? 'var(--d-blue-50)' : 'var(--d-violet-43)', cls: 'kid', title: () => u.title, sub: () => [u.field, u.how].filter(Boolean).join(' · '),
           tools: ctx.open && go ? [btn('Edit ›', 'small', e => { e.stopPropagation(); go(); })] : [], act: () => {} });
       });
     }

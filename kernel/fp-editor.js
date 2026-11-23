@@ -30,11 +30,11 @@
   // What + Add offers, each with the colour it has everywhere in the editor. Saved fields and groups are
   // retired: ones already published still show, under Older, and still work. Session types aren't shown.
   const ADDABLE = [
-    ['form', '#2a78d6', 'A form', 'A screen people fill in, or a dashboard to look at'],
-    ['structure', '#0e7490', 'A structure', 'A kind of thing you keep records of: racks, checks, deliveries'],
-    ['function', '#7c3aed', 'A function', 'A calculation or a lookup that forms and structures call by name'],
+    ['form', 'var(--d-blue-50)', 'A form', 'A screen people fill in, or a dashboard to look at'],
+    ['structure', 'var(--d-teal-45)', 'A structure', 'A kind of thing you keep records of: racks, checks, deliveries'],
+    ['function', 'var(--d-violet-43)', 'A function', 'A calculation or a lookup that forms and structures call by name'],
   ];
-  const KIND_COLOR = { form: '#2a78d6', structure: '#0e7490', function: '#7c3aed', media: '#b45309', 'session-type': '#94a3b8', field: '#94a3b8', group: '#94a3b8' };
+  const KIND_COLOR = { form: 'var(--d-blue-50)', structure: 'var(--d-teal-45)', function: 'var(--d-violet-43)', media: 'var(--d-amber-47)', 'session-type': 'var(--d-n-66)', field: 'var(--d-n-66)', group: 'var(--d-n-66)' };
   const OLDER = ['session-type'];
   const KIND_TITLE = { form: 'Forms', structure: 'Structures', function: 'Functions', 'session-type': 'Session types', field: 'Saved fields', group: 'Groups' };
   const NAME_RE = /^[A-Za-z][A-Za-z0-9_]{0,39}$/;
@@ -258,7 +258,7 @@
   .fpe-fx.bad .fpe-fx-hl{background:var(--s-n-98)}
   .fx-fn{color:var(--t-violet-43);font-weight:600}.fx-lib{color:var(--t-teal-45);font-weight:600}
   .fx-name{color:var(--t-blue-42)}.fx-member{color:var(--t-n-31)}.fx-lit{color:var(--t-amber-47);font-weight:600}
-  .fx-unknown{color:var(--t-red-40);text-decoration:underline wavy #e5484d;text-underline-offset:3px}
+  .fx-unknown{color:var(--t-red-40);text-decoration:underline wavy var(--d-red-54);text-underline-offset:3px}
   .fx-str{color:var(--t-green-47)}.fx-num{color:var(--t-red-46)}.fx-op{color:var(--t-n-42)}
   .fx-err{color:var(--t-red-40);background:var(--s-red-94);border-radius:3px}
   .fpe-fx-sig{font-size:12px;color:var(--t-n-29);background:var(--s-n-95);border:1px solid var(--l-violet-89);border-radius:7px;padding:4px 8px;margin-top:4px;line-height:1.45}
@@ -827,7 +827,7 @@
       const defNode = (d, key, depth) => ({ key, kind: d.kind, id: d.id, label: nameOf(d), color: KIND_COLOR[d.kind], state: state(d), def: d });
       const formNode = (formId, key, opts) => {
         const d = defBy.get(`form:${formId}`) || FP.defs.list('form').find(x => x.id === formId);
-        const n = d ? defNode(d, key) : { key, kind: 'form', id: formId, label: formId, color: '#e5484d', state: ['gone', 'bad'] };
+        const n = d ? defNode(d, key) : { key, kind: 'form', id: formId, label: formId, color: 'var(--d-red-54)', state: ['gone', 'bad'] };
         n.site = opts && opts.site;
         n.children = d ? formParts(d, key, n.site) : [];
         n.isForm = true;
@@ -860,20 +860,20 @@
         roles.forEach(([r, t]) => {
           const list = md.users.filter(u => u.active && FP.users.topRole(u.roles) === r);
           const pin = list.filter(u => u.mustChange).length;
-          people.children.push({ key: 'role:' + r, label: t, color: '#9333ea', sub: list.length ? list.map(u => u.name).join(', ') : 'nobody yet',
+          people.children.push({ key: 'role:' + r, label: t, color: 'var(--d-violet-45)', sub: list.length ? list.map(u => u.name).join(', ') : 'nobody yet',
             chips: [String(list.length)].concat(pin ? [`${pin} choosing a PIN`] : []), dflt: false,
-            children: list.map(u => ({ key: 'person:' + u.id, label: u.name, tag: u.department || null, sub: u.department || '', color: '#9333ea', place: { kind: 'person', id: u.id } })) });
+            children: list.map(u => ({ key: 'person:' + u.id, label: u.name, tag: u.department || null, sub: u.department || '', color: 'var(--d-violet-45)', place: { kind: 'person', id: u.id } })) });
         });
         const gone = md.isAdmin ? md.users.filter(u => !u.active) : [];
-        if (gone.length) people.children.push({ key: 'role:retired', label: 'Retired', color: '#c9d0d9', chips: [String(gone.length)], sub: gone.map(u => u.name).join(', '), dflt: false, children: gone.map(u => ({ key: 'person:' + u.id, label: u.name, sub: 'retired', color: '#c9d0d9', place: { kind: 'person', id: u.id } })) });
+        if (gone.length) people.children.push({ key: 'role:retired', label: 'Retired', color: 'var(--d-n-83)', chips: [String(gone.length)], sub: gone.map(u => u.name).join(', '), dflt: false, children: gone.map(u => ({ key: 'person:' + u.id, label: u.name, sub: 'retired', color: 'var(--d-n-83)', place: { kind: 'person', id: u.id } })) });
         if (md.isAdmin) people.children.push({ key: 'add-person', label: '+ person', add: true, place: { kind: 'new-person' } });
         // Responsibility centers (0.56): who owns duties, and what they owe when.
         if (FP.centers) {
           const cs = md.centers || [];
           const who = c => [c.members.people.length ? `${c.members.people.length} by name` : null, c.members.role ? `${FP.users.ROLE_LABEL[c.members.role].toLowerCase()}s and up` : null,
             c.members.departments.length ? c.members.departments.join(', ') : null, c.members.signedInAt.length ? 'whoever is signed in at ' + c.members.signedInAt.length + ' place' + (c.members.signedInAt.length === 1 ? '' : 's') : null].filter(Boolean).join(' · ');
-          people.children.push({ key: 'centers', label: 'Responsibility centers', color: '#0e7490', chips: [String(cs.length)], sub: 'who owns duties, and what they owe when', dflt: true,
-            children: cs.map(c => ({ key: 'center:' + c.id, label: c.name, color: '#0e7490', sub: who(c), chips: [`${c.duties.length} dut${c.duties.length === 1 ? 'y' : 'ies'}`], place: { kind: 'center', id: c.id } }))
+          people.children.push({ key: 'centers', label: 'Responsibility centers', color: 'var(--d-teal-45)', chips: [String(cs.length)], sub: 'who owns duties, and what they owe when', dflt: true,
+            children: cs.map(c => ({ key: 'center:' + c.id, label: c.name, color: 'var(--d-teal-45)', sub: who(c), chips: [`${c.duties.length} dut${c.duties.length === 1 ? 'y' : 'ies'}`], place: { kind: 'center', id: c.id } }))
               .concat([{ key: 'add-center', label: '+ responsibility center', add: true, place: { kind: 'new-center' } }]) });
         }
         peopleNode = people;
@@ -890,7 +890,7 @@
         const termCount = inGroups.size + loneTerms.length;
         const sn = { key: 'site:' + S, label: site.name, chips: [S], sub: `${S} · ${termCount} terminal${termCount === 1 ? '' : 's'} · ${formCount} form${formCount === 1 ? '' : 's'}`, color: site.active ? 'var(--t-teal-45)' : 'var(--t-n-83)', place: { kind: 'site', id: S }, dflt: true, children: [] };
         groups.forEach(g => {
-          const gn = { key: 'group:' + g.id, label: g.name, tag: 'group', color: '#64748b', place: { kind: 'group', id: g.id }, dflt: true,
+          const gn = { key: 'group:' + g.id, label: g.name, tag: 'group', color: 'var(--d-n-48)', place: { kind: 'group', id: g.id }, dflt: true,
             sub: `${g.terminals.length ? g.terminals.join(', ') : 'no terminals yet'} · ${g.forms.length} form${g.forms.length === 1 ? '' : 's'}${forText(g.for)}`, chips: g.for && g.for.items.length ? [g.for.items.length > 2 ? `${g.for.items.length} ${((FP.structures.has(g.for.list) && FP.structures.get(g.for.list).label) || g.for.list).toLowerCase()}` : g.for.items.join(', ')] : [], children: [] };
           if (g.terminals.length) gn.children.push({ key: `terms:${g.id}`, terms: g.terminals.map(t => ({ id: t, label: ((md.termSet.get(t) || {}).name) || t })) });
           g.forms.forEach(f => gn.children.push(formNode(f, `f:${S}:${g.id}:${f}`, { site: S, shared: groupsWith(f) > 1 ? `in ${groupsWith(f)} groups` : null })));
@@ -899,7 +899,7 @@
         });
         loneTerms.forEach(t => {
           const ts = md.termSet.get(t.terminalId) || { name: '', forms: [] };
-          const tn = { key: 'term:' + t.terminalId, label: t.terminalId, tag: 'terminal', color: '#475569', place: { kind: 'terminal', id: t.terminalId }, dflt: false,
+          const tn = { key: 'term:' + t.terminalId, label: t.terminalId, tag: 'terminal', color: 'var(--d-n-36)', place: { kind: 'terminal', id: t.terminalId }, dflt: false,
             sub: `${ts.name ? ts.name + ' · ' : ''}${ts.forms.length} form${ts.forms.length === 1 ? '' : 's'}${forText(ts.for)}${t.simulated ? ' · simulated' : t.screen ? ' · ' + FP.identity.describe(t) : ''}`, children: ts.forms.map(f => formNode(f, `f:${S}:${t.terminalId}:${f}`, { site: S })) };
           sn.children.push(tn);
         });
@@ -953,7 +953,7 @@
       });
       // Lookups of data that has no structure here (the built-in users, sites…).
       const elsewhere = lookups.filter(f => !structs.some(x => x.id === f.def.reads.structure)).sort(byName);
-      if (elsewhere.length) dataKids.push({ key: 'kind:builtin', label: 'Built in', color: '#94a3b8', chips: [String(elsewhere.length)], sub: 'Lookups reading the kernel\'s own data: users, sites…', dflt: false, children: elsewhere.map(f => usedRow(f, () => 'lookup')) });
+      if (elsewhere.length) dataKids.push({ key: 'kind:builtin', label: 'Built in', color: 'var(--d-n-66)', chips: [String(elsewhere.length)], sub: 'Lookups reading the kernel\'s own data: users, sites…', dflt: false, children: elsewhere.map(f => usedRow(f, () => 'lookup')) });
       // The media library (0.61): one row; its entries open on the right (there can be hundreds).
       if (FP.media && FP.media.library) {
         const L = FP.media.library;
@@ -1008,16 +1008,16 @@
         });
         if (mapData && mapData.canPublish) {
           const b = btn('', null, () => { adding = false; paintLib(); openPlace('new-group', null); });
-          b.style.setProperty('--c', '#64748b'); b.append(el('b', null, 'A terminal group'), el('small', null, 'Terminals at one site that run the same forms'));
+          b.style.setProperty('--c', 'var(--d-n-48)'); b.append(el('b', null, 'A terminal group'), el('small', null, 'Terminals at one site that run the same forms'));
           m.appendChild(b);
           if (FP.centers) {
             const rc = btn('', null, () => { adding = false; paintLib(); openPlace('new-center', null); });
-            rc.style.setProperty('--c', '#0e7490'); rc.append(el('b', null, 'A responsibility center'), el('small', null, 'Who owns duties, and what they owe when'));
+            rc.style.setProperty('--c', 'var(--d-teal-45)'); rc.append(el('b', null, 'A responsibility center'), el('small', null, 'Who owns duties, and what they owe when'));
             m.appendChild(rc);
           }
         }
         if (mapData && mapData.isAdmin) {
-          [['new-person', '#9333ea', 'A person', 'Someone who signs in: their role and a temporary PIN'], ['new-site', '#0e7490', 'A site', 'A facility or area; every terminal is at one']].forEach(([k, c, l, h]) => {
+          [['new-person', 'var(--d-violet-45)', 'A person', 'Someone who signs in: their role and a temporary PIN'], ['new-site', 'var(--d-teal-45)', 'A site', 'A facility or area; every terminal is at one']].forEach(([k, c, l, h]) => {
             const b = btn('', null, () => { adding = false; paintLib(); openPlace(k, null); });
             b.style.setProperty('--c', c); b.append(el('b', null, l), el('small', null, h));
             m.appendChild(b);
@@ -1054,7 +1054,7 @@
         const curSub = current && current.subKey;
         const on = n.subKey ? curSub === n.subKey : (isDef && curKey === `${n.kind}:${n.id}` && !curSub) || (n.place && !n.add && curKey === `${n.place.kind}:${n.place.id}`);
         const b = btn('', (isDef ? 'fpe-item ' : '') + 'fpe-mrow' + (n.add ? ' add' : '') + (n.warn ? ' warn' : '') + (n.key && n.key.includes('>') ? ' part' : '') + (on ? ' on' : ''));
-        b.style.setProperty('--c', n.color || '#94a3b8');
+        b.style.setProperty('--c', n.color || 'var(--d-n-66)');
         b.style.marginLeft = (depth * 14) + 'px'; b.style.setProperty('--ml', (depth * 14) + 'px');
         const cv = el('i', 'cv', hasKids ? (openNow ? '▾' : '▸') : '');
         if (hasKids) cv.onclick = e => { e.stopPropagation(); openKeys[n.key] = !openNow; keepOpen(); paintLib(); };

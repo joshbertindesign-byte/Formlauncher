@@ -339,7 +339,7 @@
    * indented beneath it, and so on down, so indentation shows the level. Tapping a form's row jumps to it
    * (opts.onOpen); ▸ opens it in place. Tapping a structure or function lists everything that uses it. */
   const MAP_CSS = `
-  .fpm{--ink:#1b1f24;--muted:#5b6573;--line:#e3e7ec;font:14px/1.35 var(--font-sans,system-ui,"Segoe UI",sans-serif);color:var(--ink)}
+  .fpm{--ink:var(--d-n-12);--muted:var(--d-n-42);--line:var(--d-n-88);font:14px/1.35 var(--font-sans,system-ui,"Segoe UI",sans-serif);color:var(--ink)}
   .fpm-bar{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 0 10px}
   .fpm-bar span{color:var(--muted);font-size:12px;margin-right:4px}
   .fpm-bar button{font:inherit;font-size:12px;font-weight:600;min-height:30px;padding:2px 10px;border-radius:999px;border:1px solid var(--line);background:var(--s-n-100);color:var(--muted);cursor:pointer}
@@ -370,12 +370,12 @@
   const el = (tag, cls, text) => FP.dom.el(tag, cls, text);   // one copy, in fp-core (0.50)
   /* The kinds of row, their colour and the word on their block. */
   const KINDS = {
-    form: ['#1b2633', 'form'], from: ['#6b7280', 'from'], problem: ['#d03b3b', 'fix'], warn: ['#c98500', 'note'],
-    ack: ['#c98500', 'read first'], read: ['#0f8b8d', 'reads'], fn: ['#7c3aed', 'calls'],
-    field: ['#2a78d6', 'field'], shows: ['#64748b', 'shows'], save: ['#1f9d55', 'saves'], files: ['#0e9f6e', 'files'],
-    button: ['#eb6834', 'button'], down: ['#b45309', 'passes'], back: ['#b45309', 'hands back'], source: ['#0e7490', 'source'],
+    form: ['var(--d-blue-15)', 'form'], from: ['var(--d-n-48b)', 'from'], problem: ['var(--d-red-48)', 'fix'], warn: ['var(--d-amber-61)', 'note'],
+    ack: ['var(--d-amber-61)', 'read first'], read: ['var(--d-teal-52)', 'reads'], fn: ['var(--d-violet-43)', 'calls'],
+    field: ['var(--d-blue-50)', 'field'], shows: ['var(--d-n-48)', 'shows'], save: ['var(--d-green-57)', 'saves'], files: ['var(--d-green-58)', 'files'],
+    button: ['var(--d-red-60)', 'button'], down: ['var(--d-amber-47)', 'passes'], back: ['var(--d-amber-47)', 'hands back'], source: ['var(--d-teal-45)', 'source'],
   };
-  const GROUPS = [['fields', 'Fields', '#2a78d6'], ['data', 'Data', '#1f9d55'], ['buttons', 'Buttons and forms', '#eb6834'], ['reading', 'Read first', '#c98500']];
+  const GROUPS = [['fields', 'Fields', 'var(--d-blue-50)'], ['data', 'Data', 'var(--d-green-57)'], ['buttons', 'Buttons and forms', 'var(--d-red-60)'], ['reading', 'Read first', 'var(--d-amber-61)']];
   const GROUP_OF = { source: 'data', field: 'fields', shows: 'fields', read: 'data', fn: 'data', save: 'data', files: 'data', ack: 'reading', button: 'buttons', down: 'buttons', back: 'buttons' };
 
   /* Draw the map of a form into host.
