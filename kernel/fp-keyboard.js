@@ -39,7 +39,7 @@
   .fpk-keys{flex:1;display:grid;gap:6px;padding:0 8px 8px}
   .fpk.right .fpk-keys{grid-template-columns:repeat(3,1fr);grid-auto-rows:1fr;align-content:end;max-height:520px;margin-top:auto}
   .fpk.bottom .fpk-keys{grid-template-columns:repeat(20,1fr);grid-auto-rows:1fr}
-  .fpk-keys button{font:inherit;font-size:20px;min-height:44px;border:0;border-radius:8px;background:var(--s-n-100);color:var(--t-n-12);box-shadow:0 1px 0 #b8c0ca;cursor:pointer;padding:0}
+  .fpk-keys button{font:inherit;font-size:20px;min-height:44px;border:0;border-radius:8px;background:var(--s-n-100);color:var(--t-n-12);box-shadow:0 1px 0 var(--d-n-77);cursor:pointer;padding:0}
   .fpk-keys button:active,.fpk-keys button.down{background:var(--s-n-88)}
   .fpk-keys button.fn{background:var(--s-n-88);font-size:16px;font-weight:600}
   .fpk-keys button.go{background:var(--s-blue-42);color:var(--t-n-100);font-size:16px;font-weight:600}
