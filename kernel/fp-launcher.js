@@ -49,102 +49,130 @@ window.addEventListener('unhandledrejection', function (e) { window.__fpReport('
 
   const CSS = `
   *{box-sizing:border-box}
-  body{margin:0;background:var(--s-n-100);color:var(--t-n-12);font:16px/1.45 var(--font-sans,system-ui,"Segoe UI",sans-serif)}
-  .fpl-bar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--s-blue-15);color:var(--t-n-100)}
-  .fpl-here{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px 12px;background:var(--s-blue-93);border:1px solid var(--l-blue-85);border-radius:12px;margin-bottom:12px}
+  body{margin:0;background:var(--bg);color:var(--fg);font:var(--fs-base) /1.45 var(--font-sans,system-ui,"Segoe UI",sans-serif)}
+  .fpl-bar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:12px;padding:8px 18px;background:var(--head);color:var(--head-fg);flex-wrap:wrap}
+  .fpl-here{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:14px}
   .fpl-here[hidden]{display:none}
-  .fpl-check{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:10px 12px;background:var(--s-amber-97);border:1px solid var(--l-amber-86);border-radius:12px;margin-bottom:12px}
+  .fpl-here .k{font-weight:650;color:var(--muted);margin-right:4px}
+  .fpl-here button{font:inherit;font-weight:650;min-height:var(--touch);min-width:var(--touch);padding:8px 20px;border-radius:12px;border:1.5px solid var(--line-2);background:var(--surface);color:var(--fg);cursor:pointer}
+  .fpl-here button.on{background:var(--fg);border-color:var(--fg);color:var(--bg)}
+  .fpl-check{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 14px;background:var(--k-inv-t);border:1px solid var(--warn);border-radius:14px;margin-bottom:14px}
   .fpl-check[hidden]{display:none}
-  .fpl-alerts{margin-bottom:14px}.fpl-alerts[hidden]{display:none}.fpl-alerts h2{font-size:16px;margin:0 0 8px;color:var(--t-red-27)}
-  .fpl-acard{display:flex;flex-direction:column;gap:4px;padding:12px 14px;border-radius:12px;border:2px solid var(--l-red-78);background:var(--s-n-98);margin-bottom:8px}
-  .fpl-acard.high{border-color:var(--l-red-40)}.fpl-acard.acked{border-color:var(--l-n-88);background:var(--s-n-100)}
-  .fpl-acard .w{font-size:14px;color:var(--t-n-31)}.fpl-acard .s{font-weight:600;color:var(--t-red-27)}.fpl-acard.acked .s{color:var(--t-n-31)}
-  .fpl-acard ul{margin:4px 0;padding-left:18px;font-size:14px;color:var(--t-n-31)}
-  .fpl-acard .fix{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:4px}
-  .fpl-acard .fix input{flex:1 1 220px;font:inherit;min-height:44px;padding:6px 10px;border:1px solid var(--l-n-83);border-radius:10px}
-  .fpl-check .k{flex:1 1 260px;font-weight:600;color:var(--t-amber-30)}
-  .fpl-check button{font:inherit;font-weight:600;min-height:44px;padding:6px 16px;border-radius:10px;border:1px solid var(--l-blue-42);background:var(--s-blue-42);color:var(--t-n-100);cursor:pointer}
+  .fpl-check .k{flex:1 1 260px;font-weight:650;color:var(--fg)}
+  .fpl-check button{font:inherit;font-weight:650;min-height:var(--touch);padding:6px 18px;border-radius:12px;border:0;background:var(--accent);color:var(--accent-fg);cursor:pointer}
   .fpl-check button:disabled{opacity:.6;cursor:default}
-  .fpl-here .k{font-weight:600;color:var(--t-n-31);margin-right:4px}
-  .fpl-here button{font:inherit;font-weight:600;min-height:44px;padding:6px 16px;border-radius:999px;border:1px solid var(--l-n-79);background:var(--s-n-100);color:var(--t-blue-15);cursor:pointer}
-  .fpl-here button.on{background:var(--s-blue-42);border-color:var(--l-blue-42);color:var(--t-n-100)}
-  .fpl-bar h1{font-size:18px;margin:0;flex:1 1 auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .fpl-bar h1 small{font-size:13px;font-weight:600;color:var(--t-blue-15);background:var(--s-amber-82);border-radius:6px;padding:2px 7px;margin-left:8px;vertical-align:2px}
-  .fpl-meta{font-size:13px;color:var(--t-n-83);white-space:nowrap}
-  .fpl-bar button{white-space:nowrap;font:inherit;font-size:14px;min-height:40px;padding:6px 12px;border-radius:10px;border:1px solid var(--l-n-38);background:var(--s-blue-22);color:var(--t-n-100);cursor:pointer}
-  .fpl-dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--s-green-68);margin-right:6px;vertical-align:middle}
+  .fpl-alerts{margin-bottom:14px}.fpl-alerts[hidden]{display:none}.fpl-alerts h2{font-size:var(--fs-base);margin:0 0 8px;color:var(--bad)}
+  .fpl-acard{display:flex;flex-direction:column;gap:4px;padding:12px 14px;border-radius:14px;border:2px solid var(--bad);background:var(--surface);margin-bottom:8px}
+  .fpl-acard.acked{border-color:var(--line-2)}
+  .fpl-acard .w{font-size:var(--fs-md);color:var(--muted)}.fpl-acard .s{font-weight:650;color:var(--bad)}.fpl-acard.acked .s{color:var(--muted)}
+  .fpl-acard ul{margin:4px 0;padding-left:18px;font-size:var(--fs-md);color:var(--muted)}
+  .fpl-acard .fix{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:4px}
+  .fpl-acard .fix input{flex:1 1 220px;font:inherit;font-size:var(--fs-entry);min-height:var(--touch);padding:6px 12px;border:1.5px solid var(--line-2);border-radius:12px;background:var(--surface);color:var(--fg)}
+  .fpl-acard button,.fpl-dcard button{font:inherit;font-weight:650;min-height:var(--touch);padding:6px 18px;border-radius:12px;border:1.5px solid var(--line-2);background:var(--surface);color:var(--fg);cursor:pointer}
+  .fpl-acard button.primary,.fpl-dcard button.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+  .fpl-bar h1{font-size:var(--fs-lg);font-weight:650;margin:0;flex:1 1 auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .fpl-bar h1 small{font-size:var(--fs-sm);font-weight:650;color:var(--bg);background:var(--warn);border-radius:6px;padding:2px 7px;margin-left:8px;vertical-align:2px}
+  .fpl-spacer{display:none}
+  body.fpl-inform .fpl-bar h1{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  body.fpl-inform .fpl-spacer{display:block;flex:1 1 auto}
+  .fpl-meta{font-size:var(--fs-sm);color:var(--head-fg);white-space:nowrap;display:inline-flex;align-items:center;gap:8px}
+  .fpl-bar button{white-space:nowrap;font:inherit;font-size:var(--fs-md);font-weight:600;min-height:var(--touch);padding:6px 16px;border-radius:12px;border:1px solid var(--head-line);background:transparent;color:var(--head-fg);cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+  .fpl-bar button:hover{background:var(--head-line)}
+  .fpl-bar button[hidden]{display:none}
+  .fpl-dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--s-green-68);margin-right:0;vertical-align:middle}
   .fpl-dot.wait{background:var(--s-amber-70)}.fpl-dot.bad{background:var(--s-red-54)}
-  .fpl-sim{font-size:13px;font-weight:700;color:var(--t-blue-15);background:var(--s-amber-82);border-radius:6px;padding:3px 8px;white-space:nowrap}
+  .fpl-sim{font-size:var(--fs-sm);font-weight:700;color:var(--bg);background:var(--warn);border-radius:6px;padding:3px 8px;white-space:nowrap}
   .fpl-main{max-width:1100px;margin:0 auto;padding:18px 16px 0}
   .fpl-main.wide{max-width:1680px;padding-top:12px}
-  .fpl-notice{background:var(--s-amber-95);color:var(--t-amber-30);border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:14px}
-  .fpl-notice.info{background:var(--s-blue-93);color:var(--t-blue-27)}
-  .fpl-notice.bad{background:var(--s-red-94);color:var(--t-red-27);border:1px solid var(--l-red-78)}
-  .fpl-notice button{margin-left:8px;font:inherit;font-size:14px;padding:4px 10px;border-radius:8px;border:1px solid var(--l-amber-69);background:var(--s-n-100);cursor:pointer}
-  .fpl-menu{position:fixed;z-index:60;background:var(--s-n-100);color:var(--t-n-12);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.25);padding:6px;min-width:220px}
-  .fpl-menu button{display:block;width:100%;text-align:left;font:inherit;min-height:48px;padding:8px 14px;border:0;border-radius:8px;background:none;cursor:pointer}
-  .fpl-menu button:hover{background:var(--s-n-95)}
-  .fpl-menu small{display:block;color:var(--t-n-42);font-size:13px}
-  .fpl-err{background:var(--s-red-94);color:var(--t-red-27);border-radius:10px;padding:14px;white-space:pre-wrap}
+  .fpl-notice{background:var(--k-inv-t);color:var(--fg);border:1px solid var(--warn);border-radius:12px;padding:12px 16px;margin-bottom:14px;font-size:var(--fs-base);display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+  .fpl-notice.info{background:var(--accent-t);border-color:var(--accent)}
+  .fpl-notice.bad{background:var(--k-case-t);border-color:var(--bad)}
+  .fpl-notice button{margin-left:auto;font:inherit;font-weight:650;min-height:var(--touch);padding:6px 16px;border-radius:12px;border:1.5px solid var(--line-2);background:var(--surface);color:var(--fg);cursor:pointer}
+  .fpl-menu{position:fixed;z-index:60;background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:6px;min-width:240px}
+  .fpl-menu button{display:block;width:100%;text-align:left;font:inherit;min-height:var(--touch);padding:8px 14px;border:0;border-radius:10px;background:none;color:var(--fg);cursor:pointer}
+  .fpl-menu button:hover{background:var(--surface-2)}
+  .fpl-menu small{display:block;color:var(--muted);font-size:var(--fs-sm)}
+  .fpl-err{background:var(--k-case-t);color:var(--fg);border:1px solid var(--bad);border-radius:12px;padding:14px 16px;white-space:pre-wrap}
   .fpl-home{display:flex;flex-direction:column;gap:14px;padding-bottom:24px}
   .fpl-board{margin:0 0 16px}
-  .fpl-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
-  .fpl-tile{display:flex;flex-direction:column;justify-content:center;gap:4px;min-height:84px;padding:12px 16px;border:1px solid var(--l-n-88);border-left:5px solid var(--l-blue-50);border-radius:12px;background:var(--s-n-100);color:var(--t-n-12);font:inherit;text-align:left;cursor:pointer}
-  .fpl-tile b{font-size:17px}.fpl-tile:hover{border-color:var(--l-blue-75)}
+  .fpl-board .fpf-section{border:0;background:none;padding:0 0 4px;margin:0 0 8px}
+  .fpl-board .fpf-section>h3,.fpl-board .fpf-pane>h3{font-size:var(--fs-xs);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:650;margin:2px 0 8px}
+  .fpl-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+  .fpl-tile{position:relative;display:flex;flex-direction:column;justify-content:space-between;gap:14px;min-height:132px;padding:16px;border:1px solid var(--line);border-radius:16px;background:var(--surface);color:var(--fg);font:inherit;text-align:left;cursor:pointer;transition:transform .12s,box-shadow .12s}
+  .fpl-tile:hover{box-shadow:var(--shadow);transform:translateY(-1px);border-color:var(--line-2)}
+  .fpl-tile:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+  .fpl-tile .nm{display:block;font-size:var(--fs-entry);font-weight:650}
+  .fpl-tile .sub{display:block;color:var(--muted);font-size:var(--fs-sm);font-weight:400;margin-top:2px}
+  .fpl-tile .fpi-tile{--s:48px}
+  .fpl-tile .fpl-badge{position:absolute;top:16px;right:16px}
+  .fpl-tile.small{min-height:88px;gap:8px}.fpl-tile.small .fpi-tile{--s:36px}.fpl-tile.small .nm{font-size:var(--fs-base)}
   .fpl-due{display:flex;flex-direction:column;gap:8px;margin:0 0 14px}
   .fpl-due:empty{display:none}
-  .fpl-due h2{font-size:15px;margin:0;color:var(--t-n-29)}
-  .fpl-dcard{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px;padding:6px 12px;border:1px solid var(--l-n-88);border-left:6px solid var(--l-blue-50);border-radius:12px;background:var(--s-n-100)}
-  .fpl-dcard.late{border-left-color:var(--l-amber-60);background:var(--s-n-98)}.fpl-dcard.missed{border-left-color:var(--l-red-40);background:var(--s-n-98)}
-  .fpl-dcard b{font-size:16px}.fpl-dcard .w{font-size:14px;color:var(--t-n-29)}.fpl-dcard.late .w{color:var(--t-amber-39);font-weight:600}.fpl-dcard.missed .w{color:var(--t-red-36);font-weight:600}
-  .fpl-dcard .s{flex:1 1 200px;font-size:13px;color:var(--t-n-42)}
-  .fpl-dcard button{min-height:38px}.fpl-dcard .fix{display:flex;gap:6px;flex:1 1 100%}.fpl-dcard.fold .w{flex:1 1 auto}.fpl-dcard input{min-height:38px;font:inherit;padding:0 8px;border:1px solid var(--l-n-83);border-radius:8px;flex:1 1 160px}
-  .fpl-dnext{font-size:13px;color:var(--t-n-42)}
-  .fpl-badge{display:inline-block;align-self:flex-start;font-size:12px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--s-blue-93);color:var(--t-blue-27)}
-  .fpl-badge.late{background:var(--s-amber-97);color:var(--t-amber-39)}.fpl-badge.missed{background:var(--s-red-94);color:var(--t-red-36)}
+  .fpl-due h2{font-size:var(--fs-xs);letter-spacing:.07em;text-transform:uppercase;font-weight:650;margin:0;color:var(--muted)}
+  .fpl-dcard{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;padding:10px 14px;border:1px solid var(--line);border-left:6px solid var(--accent);border-radius:14px;background:var(--surface)}
+  .fpl-dcard.late{border-left-color:var(--warn)}.fpl-dcard.missed{border-left-color:var(--bad)}
+  .fpl-dcard b{font-size:var(--fs-base);font-weight:650}.fpl-dcard .w{font-size:var(--fs-md);color:var(--muted)}.fpl-dcard.late .w{color:var(--warn);font-weight:650}.fpl-dcard.missed .w{color:var(--bad);font-weight:650}
+  .fpl-dcard .s{flex:1 1 200px;font-size:var(--fs-sm);color:var(--muted)}
+  .fpl-dcard .fix{display:flex;gap:8px;flex:1 1 100%}.fpl-dcard.fold .w{flex:1 1 auto}.fpl-dcard input{min-height:var(--touch);font:inherit;font-size:var(--fs-entry);padding:0 12px;border:1.5px solid var(--line-2);border-radius:12px;flex:1 1 160px;background:var(--surface);color:var(--fg)}
+  .fpl-dnext{font-size:var(--fs-sm);color:var(--muted)}
+  .fpl-badge{display:inline-block;align-self:flex-start;font-size:var(--fs-xs);font-weight:650;padding:2px 10px;border-radius:999px;background:var(--accent-t);color:var(--accent)}
+  .fpl-badge.late{background:var(--k-inv-t);color:var(--warn)}.fpl-badge.missed{background:var(--k-case-t);color:var(--bad)}
   .fpl-side .fpl-badge{margin-left:6px}
-  .fpl-tile.small{min-height:60px;border-left-color:var(--l-n-68)}.fpl-tile.small b{font-size:15px}
-  .fpl-cap{font-size:13px;font-weight:700;color:var(--t-n-42);margin-top:4px}
-  .fpl-card{background:var(--s-n-100);border:1px solid var(--l-n-88);border-radius:12px;padding:14px 16px}
-  .fpl-card.quiet{background:var(--s-n-100)}
-  .fpl-card h2{margin:0 0 6px;font-size:19px}.fpl-card h3{margin:0 0 4px;font-size:16px}.fpl-card p{margin:0 0 8px}.fpl-card ul{margin:4px 0 0;padding-left:20px}
-  .fpl-sub{color:var(--t-n-42);font-size:14px}
-  .fpl-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}
-  .fpl-row button,.fpl-row select,.fpl-row input{font:inherit;font-size:15px;min-height:44px;padding:6px 14px;border-radius:10px;border:1px solid var(--l-n-83);background:var(--s-n-100)}
-  .fpl-row input{flex:1 1 200px}
-  .fpl-row button{cursor:pointer}.fpl-row button.primary{background:var(--s-blue-42);border-color:var(--l-blue-42);color:var(--t-n-100);font-weight:600}
-  .fpl-approvals{display:flex;flex-direction:column;gap:8px}.fpl-approvals>h2{margin:0;font-size:19px}
-  .fpl-appr{border-left:5px solid var(--l-amber-47)}
-  .fpl-entry{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:14px;padding:4px 0;border-bottom:1px solid var(--l-n-95)}
-  .fpl-this summary{cursor:pointer;font-weight:600}
+  .fpl-cap{font-size:var(--fs-xs);letter-spacing:.07em;text-transform:uppercase;font-weight:650;color:var(--muted);margin:6px 0 -2px}
+  .fpl-card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 18px}
+  .fpl-card.quiet{background:var(--surface)}
+  .fpl-card h2{margin:0 0 6px;font-size:var(--fs-xl);font-weight:650}.fpl-card h3{margin:0 0 4px;font-size:var(--fs-base);font-weight:650}.fpl-card p{margin:0 0 8px}.fpl-card ul{margin:4px 0 0;padding-left:20px}
+  .fpl-sub{color:var(--muted);font-size:var(--fs-md)}
+  .fpl-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:10px}
+  .fpl-row button,.fpl-row select,.fpl-row input{font:inherit;font-size:var(--fs-base);min-height:var(--touch);padding:6px 18px;border-radius:12px;border:1.5px solid var(--line-2);background:var(--surface);color:var(--fg)}
+  .fpl-row input{flex:1 1 200px;font-size:var(--fs-entry)}
+  .fpl-row button{cursor:pointer;font-weight:650}.fpl-row button.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+  .fpl-approvals{display:flex;flex-direction:column;gap:10px}.fpl-approvals>h2{margin:0;font-size:var(--fs-xl);font-weight:650}
+  .fpl-appr{border-left:6px solid var(--warn)}
+  .fpl-entry{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:var(--fs-md);padding:6px 0;border-bottom:1px solid var(--line)}
+  .fpl-this summary,.fpl-appr summary{cursor:pointer;font-weight:650;min-height:var(--touch);display:flex;align-items:center;list-style:none}
+  .fpl-this summary::-webkit-details-marker,.fpl-appr summary::-webkit-details-marker{display:none}
+  .fpl-this summary::before,.fpl-appr summary::before{content:'';flex:none;width:8px;height:8px;margin:0 14px 0 4px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg)}
+  .fpl-this[open] summary::before,.fpl-appr details[open] summary::before{transform:rotate(45deg)}
   .fpl-recs{display:grid;grid-template-columns:minmax(260px,380px) minmax(0,1fr);gap:14px;align-items:start}
   @media (max-width:820px){.fpl-recs{grid-template-columns:minmax(0,1fr)}}
   .fpl-rlist{display:flex;flex-direction:column;gap:6px;max-height:70vh;overflow:auto}
-  .fpl-rlist button{text-align:left;font:inherit;padding:10px 12px;border:1px solid var(--l-n-88);border-left:5px solid var(--l-blue-50);border-radius:10px;background:var(--s-n-100);cursor:pointer;min-height:48px}
-  .fpl-rlist button.fixed{border-left-color:var(--l-amber-47)}.fpl-rlist button.on{background:var(--s-blue-93)}
-  .fpl-rlist small{display:block;color:var(--t-n-42);font-size:13px}
-  .fpl-fix label{display:flex;flex-direction:column;gap:3px;margin:0 0 10px;font-size:14px;color:var(--t-n-42)}
-  .fpl-fix input,.fpl-fix select{font:inherit;font-size:16px;min-height:44px;padding:6px 10px;border-radius:10px;border:1px solid var(--l-n-83);color:var(--t-n-12)}
+  .fpl-rlist button{text-align:left;font:inherit;padding:10px 14px;border:1px solid var(--line);border-left:5px solid var(--accent);border-radius:12px;background:var(--surface);color:var(--fg);cursor:pointer;min-height:var(--touch)}
+  .fpl-rlist button.fixed{border-left-color:var(--warn)}.fpl-rlist button.on{background:var(--accent-t)}
+  .fpl-rlist small{display:block;color:var(--muted);font-size:var(--fs-sm)}
+  .fpl-fix label{display:flex;flex-direction:column;gap:3px;margin:0 0 10px;font-size:var(--fs-md);color:var(--muted)}
+  .fpl-fix input,.fpl-fix select{font:inherit;font-size:var(--fs-entry);min-height:var(--touch);padding:6px 12px;border-radius:12px;border:1.5px solid var(--line-2);background:var(--surface);color:var(--fg)}
   .fpl-side{display:none}
-  .fpl-menubtn{display:none}
+  .fpl-bar .fpl-menubtn{display:none}
+  .fpl-formhead{display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding:12px 18px;border:1px solid var(--line);border-bottom:0;border-radius:16px 16px 0 0;background:var(--kt,var(--surface-2));color:var(--fg)}
+  .fpl-formhead[hidden]{display:none}
+  .fpl-formhead .fpl-ft{font-size:var(--fs-lg);font-weight:650;margin:0;flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;color:var(--fg)}
+  .fpl-formhead .fpl-ft small{font-size:var(--fs-sm);font-weight:650;color:var(--bg);background:var(--warn);border-radius:6px;padding:2px 7px;margin-left:8px;vertical-align:2px}
+  .fpl-formhead .fpi-tile{--s:40px}
+  .fpl-back{font:inherit;font-weight:650;min-height:var(--touch);padding:6px 16px;border-radius:12px;border:1.5px solid var(--line-2);background:var(--surface);color:var(--fg);cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+  .fpl-back[hidden]{display:none}
+  #form.fpl-formbody{--fpf-pad:18px;background:var(--surface);border:1px solid var(--line);border-radius:0 0 16px 16px;padding:18px 18px 0;overflow:clip}
   .fpl-main.split{max-width:none;display:grid;grid-template-columns:270px minmax(0,1fr);column-gap:18px;align-items:start}
   .fpl-main.split>*{grid-column:2}
-  .fpl-main.split>.fpl-side{grid-column:1;grid-row:1 / span 3;display:flex;flex-direction:column;gap:4px;position:sticky;top:72px;max-height:calc(100vh - 86px);overflow:auto;padding-bottom:16px}
-  .fpl-side button{display:block;width:100%;text-align:left;font:inherit;font-size:15px;min-height:48px;padding:8px 12px;border:1px solid transparent;border-radius:10px;background:none;color:var(--t-n-12);cursor:pointer}
-  .fpl-side button:hover{background:var(--s-n-95)}.fpl-side button.on{background:var(--s-n-100);border-color:var(--l-blue-85);box-shadow:inset 4px 0 0 var(--d-blue-50);font-weight:600}
-  .fpl-side button.small{font-size:14px;min-height:40px;color:var(--t-n-29)}
-  .fpl-side .fpl-cap{padding:8px 12px 2px}
+  .fpl-main.split>.fpl-side{grid-column:1;grid-row:1 / span 4;display:flex;flex-direction:column;gap:4px;position:sticky;top:80px;max-height:calc(100vh - 94px);overflow:auto;padding-bottom:16px}
+  .fpl-side button{display:block;width:100%;text-align:left;font:inherit;font-size:var(--fs-base);font-weight:550;min-height:var(--touch);padding:8px 14px;border:1px solid transparent;border-radius:12px;background:none;color:var(--fg);cursor:pointer}
+  .fpl-side button:hover{background:var(--line)}.fpl-side button.on{background:var(--surface);border-color:var(--line);box-shadow:inset 4px 0 0 var(--accent);font-weight:650}
+  .fpl-side button.small{font-size:var(--fs-md);color:var(--muted)}
+  .fpl-side .fpl-cap{padding:8px 14px 2px}
   @media (max-width:900px){
     .fpl-main.split{display:block}
-    .fpl-main.split>.fpl-side{display:none;position:fixed;z-index:55;top:60px;left:0;bottom:0;width:min(320px,86vw);max-height:none;background:var(--s-n-100);padding:12px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+    .fpl-main.split>.fpl-side{display:none;position:fixed;z-index:55;top:72px;left:0;bottom:0;width:min(320px,86vw);max-height:none;background:var(--surface);padding:12px;box-shadow:var(--shadow)}
     .fpl-main.split>.fpl-side.open{display:flex}
-    body.fpl-split .fpl-menubtn{display:inline-block}
+    body.fpl-split .fpl-bar .fpl-menubtn{display:inline-flex}
   }
-  @media print{.fpl-bar,.fpl-notice,.fpl-side{display:none!important}.fpl-main.split{display:block}}
+  @media print{.fpl-bar,.fpl-notice,.fpl-side,.fpl-formhead{display:none!important}.fpl-main.split{display:block}#form.fpl-formbody{border:0;padding:0}}
   @media (max-width:640px){.fpl-meta.term{display:none}}`;
 
   const el = (tag, cls, text) => FP.dom.el(tag, cls, text);   // one copy, in fp-core (0.50)
   const button = (text, cls, onclick) => { const b = el('button', cls, text); b.type = 'button'; if (onclick) b.onclick = onclick; return b; };
+  /* The look of a form (UI Release B): the colour and glyph of the record it mainly makes. */
+  const lookOf = def => (FP.kinds && FP.kinds.formLook && def ? FP.kinds.formLook(def) : { tone: null, glyph: 'doc', label: '', structure: null });
+  const toneOf = tone => (FP.icons && FP.icons.toneClass ? FP.icons.toneClass(tone) : '');
   const timeOf = iso => { const d = new Date(iso); return isNaN(d) ? '' : (d.toDateString() === new Date().toDateString() ? d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : d.toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })); };
   const formTitle = id => { const d = FP.defs.get('form', id); return (d && d.def && d.def.title) || id; };
 
@@ -164,7 +192,11 @@ window.addEventListener('unhandledrejection', function (e) { window.__fpReport('
 
     const st = el('style'); st.textContent = CSS; document.head.appendChild(st);
     const bar = el('div', 'fpl-bar');
-    const homeBtn = button('⌂ Home'); homeBtn.hidden = true;
+    const homeBtn = button('Home', 'fpl-back'); homeBtn.hidden = true;
+    { const g = FP.icons && FP.icons.svg('back'); if (g) homeBtn.prepend(g); }
+    const spacer = el('span', 'fpl-spacer');
+    // The form's own head (UI Release B): tinted by the kind of record it makes, with the title and the way back home.
+    const formHead = el('div', 'fpl-formhead'); formHead.hidden = true;
     // The admin view (0.51): the terminal's forms listed down the left; on a narrow screen they fold into a menu.
     const menuBtn = button('☰ Forms', 'fpl-menubtn');
     const side = el('nav', 'fpl-side'); side.setAttribute('aria-label', 'Forms');
@@ -173,7 +205,7 @@ window.addEventListener('unhandledrejection', function (e) { window.__fpReport('
     const dot = el('span', 'fpl-dot');
     const outbox = el('span', null, 'Saved');
     // Folder permission can lapse mid-session (F19): a Reconnect button asks the browser again, then saves what is waiting.
-    const reconnect = button('Reconnect', 'fpl-reconnect'); reconnect.id = 'reconnect'; reconnect.hidden = true;
+    const reconnect = button('Reconnect the folder', 'fpl-reconnect'); reconnect.id = 'reconnect'; reconnect.hidden = true;
     reconnect.onclick = async () => {
       reconnect.disabled = true;
       try { await FP.folder.reauthorize(); if (FP.outbox) await FP.outbox.flush(); } catch (e) { outbox.title = e.message; }
@@ -186,7 +218,7 @@ window.addEventListener('unhandledrejection', function (e) { window.__fpReport('
     const editorBtn = button('Editor'); editorBtn.hidden = true;
     const who = button('Sign in');
     const themeBtn = button('Night'); themeBtn.className += ' fpl-themebtn'; if (FP.theme && FP.theme.toggle) FP.theme.toggle(themeBtn); else themeBtn.hidden = true;
-    bar.append(menuBtn, homeBtn, titleEl, saved, term, printBtn, editorBtn, themeBtn, who);
+    bar.append(menuBtn, titleEl, spacer, saved, term, printBtn, editorBtn, themeBtn, who);
     // A simulated terminal (0.52.1) says so, so it is never taken for the real one.
     if (FP.simulated) { const sb = el('span', 'fpl-sim', `Simulated ${FP.simulated}`); sb.title = 'This tab runs as that terminal, on a test folder'; bar.insertBefore(sb, saved); }
     const main = el('main', 'fpl-main');
@@ -201,7 +233,7 @@ window.addEventListener('unhandledrejection', function (e) { window.__fpReport('
     const hereBox = el('div', 'fpl-here'); hereBox.id = 'here'; hereBox.hidden = true;
     // A duty done by looking the form over (0.60): Checked, nothing new, over the open form.
     const checkBar = el('div', 'fpl-check'); checkBar.id = 'checkoff'; checkBar.hidden = true;
-    main.append(side, clockBox, hereBox, notice, checkBar, host);
+    main.append(side, clockBox, hereBox, notice, checkBar, formHead, host);
     menuBtn.onclick = () => side.classList.toggle('open');
     window.addEventListener('fp-clock', e => {
       const d = e.detail || {};
@@ -241,6 +273,28 @@ window.addEventListener('unhandledrejection', function (e) { window.__fpReport('
       titleEl.replaceChildren(document.createTextNode(t));
       if (formId && pinned != null) titleEl.appendChild(el('small', null, `v${pinned}${doc && doc.trial ? ' trial' : ''}`));
     };
+    /* The head over a screen that is not the home page: the form's title, a tile in its kind's colour, the way back home.
+     * With a form (def) the form's card goes round it; without one (Records, a refusal) the head stands alone. */
+    function showHead(def, title, doc) {
+      const lk = lookOf(def);
+      const tone = toneOf(lk.tone);
+      formHead.className = 'fpl-formhead' + (def ? '' : ' solo') + (tone ? ' ' + tone : '');
+      const t = el('h2', 'fpl-ft', title);
+      if (pinned != null && formId) t.appendChild(el('small', null, `v${pinned}${doc && doc.trial ? ' trial' : ''}`));
+      const kids = [homeBtn];
+      if (FP.icons) kids.push(FP.icons.tile({ glyph: def ? lk.glyph : 'list', tone: lk.tone, fill: lk.tone ? 'solid' : 'plain', size: 40 }));
+      kids.push(t);
+      if (def && lk.label && FP.icons) kids.push(FP.icons.chip(lk.label, { tone: lk.tone, glyph: lk.glyph }));
+      formHead.replaceChildren(...kids);
+      formHead.hidden = false;
+      host.className = def ? ('fpl-formbody ' + tone).trim() : '';
+      document.body.classList.add('fpl-inform');
+    }
+    function hideHead() {
+      formHead.hidden = true;
+      host.className = '';
+      document.body.classList.remove('fpl-inform');
+    }
     function showOutbox(s) {
       s = s || FP.outbox.status();
       if (s.pending > 0) { dot.className = 'fpl-dot ' + (s.state === 'waiting' ? 'bad' : 'wait'); outbox.textContent = `${s.pending} waiting to save`; }
@@ -374,6 +428,7 @@ window.addEventListener('unhandledrejection', function (e) { window.__fpReport('
       const u = await FP.users.current();
       const t = formTitle(formId);
       setTitle(t);
+      showHead(null, t);
       printBtn.hidden = true;
       const box = el('div', 'fpl-card');
       box.appendChild(el('h2', null, `${t} isn't on ${FP.identity.terminalId}`));
@@ -391,6 +446,7 @@ window.addEventListener('unhandledrejection', function (e) { window.__fpReport('
       const t = (doc.def && doc.def.title) || doc.id;
       const when = isNaN(new Date(doc.publishedAt)) ? '' : ` on ${new Date(doc.publishedAt).toLocaleDateString([], { year: 'numeric', month: 'long', day: 'numeric' })}`;
       setTitle(t);
+      showHead(null, t);
       printBtn.hidden = true;
       main.classList.remove('wide');
       const box = el('div', 'fpl-card');
@@ -449,6 +505,7 @@ window.addEventListener('unhandledrejection', function (e) { window.__fpReport('
           doc = FP.defs.get('form', formId);
         }
         setTitle(doc.def.title || formId, doc);
+        showHead(doc.def, doc.def.title || formId, doc);
         paintCheck();
         main.classList.toggle('wide', doc.def.density === 'compact' && !adminView());   // compact forms use a big screen's width (0.44)
         printBtn.hidden = !inst.canPrint();
@@ -457,6 +514,7 @@ window.addEventListener('unhandledrejection', function (e) { window.__fpReport('
       } catch (e) {
         host.replaceChildren(el('div', 'fpl-err', e.message));
         setTitle(formId);
+        showHead(null, formId);
       }
     }
 
@@ -469,6 +527,7 @@ window.addEventListener('unhandledrejection', function (e) { window.__fpReport('
       formId = null; pinned = null;
       history.replaceState(null, '', location.pathname);
       homeBtn.hidden = true; printBtn.hidden = true;
+      hideHead();
       main.classList.remove('wide');
       notice.replaceChildren();
       checkBar.hidden = true; checkBar.replaceChildren();
@@ -486,7 +545,13 @@ window.addEventListener('unhandledrejection', function (e) { window.__fpReport('
     const tile = (id, small) => {
       const t = el('button', 'fpl-tile' + (small ? ' small' : ''));
       t.type = 'button';
-      t.appendChild(el('b', null, formTitle(id)));
+      const d = FP.defs.get('form', id), def = d && d.def, lk = lookOf(def);
+      const sd = lk.structure && FP.structures && FP.structures.has && FP.structures.has(lk.structure) ? FP.structures.get(lk.structure) : null;
+      const sub = sd ? `Saves to ${sd.label || lk.structure}` : (def && (def.fields || []).some(f => f && f.writes) ? 'Fill it in' : 'See what is happening');
+      if (FP.icons) t.appendChild(FP.icons.tile({ glyph: lk.glyph, tone: lk.tone, size: small ? 36 : 48 }));
+      const txt = el('span');
+      txt.append(el('b', 'nm', formTitle(id)), el('span', 'sub', sub));
+      t.appendChild(txt);
       t.onclick = () => pick(id);
       t.dataset.form = id;
       return t;
@@ -655,14 +720,14 @@ window.addEventListener('unhandledrejection', function (e) { window.__fpReport('
       const tiles = adminView() ? [] : shown.filter(id => !homes.includes(id));
       if (adminView()) {
         // The forms are down the left: the home page holds the home form and what waits, nothing more.
-        if (!homes.length && !shared()) page.appendChild(el('div', 'fpl-card quiet', (place.setUp && !place.forms.length) || (!place.setUp && sup && !siteForms().length) ? `No forms on ${FP.identity.terminalId} yet: ask a supervisor.` : 'Choose a form on the left.'));
+        if (!homes.length && !shared()) page.appendChild(el('div', 'fpl-card quiet', (place.setUp && !place.forms.length) || (!place.setUp && sup && !siteForms().length) ? `No forms are set up on ${FP.identity.terminalId} yet. Ask a supervisor to add some.` : 'Pick a form from the list on the left.'));
       } else if (tiles.length) {
         if (sup || homeFormsList.length) page.appendChild(el('div', 'fpl-cap', homeFormsList.length ? 'Other forms' : `Forms on ${place.group ? place.group.name : FP.identity.terminalId}`));
         const grid = el('div', 'fpl-tiles');
         tiles.forEach(id => grid.appendChild(tile(id)));
         page.appendChild(grid);
       } else if (!sup && !homeFormsList.length) {
-        page.appendChild(el('div', 'fpl-card', `No forms on ${FP.identity.terminalId} yet: ask a supervisor.`));
+        page.appendChild(el('div', 'fpl-card', `No forms are set up on ${FP.identity.terminalId} yet. Ask a supervisor to add some.`));
       }
       if (sup && !adminView()) {
         const rest = siteForms().filter(d => !shown.includes(d.id) && !homeFormsList.includes(d.id));
@@ -688,13 +753,14 @@ window.addEventListener('unhandledrejection', function (e) { window.__fpReport('
      * A correction is a new entry naming the one it corrects, with the reason; the original stays in the history. */
     const recState = { structure: null, find: '', sel: null };
     async function recordsScreen() {
-      if (!(await FP.users.can('supervisor'))) throw new Error('Records are for supervisors.');
+      if (!(await FP.users.can('supervisor'))) throw new Error('Records are for supervisors. Ask one to sign in.');
       if (inst) { inst.destroy(); inst = null; }
       dropBoards();
       formId = null; homeBtn.hidden = adminView(); printBtn.hidden = true;
       recState.open = true;
       paintSide().catch(() => {});
       setTitle('Records');
+      showHead(null, 'Records');
       const structures = FP.defs.list('structure').filter(d => !d.retired && FP.defs.usedHere('structure', d.id)).sort((x, y) => String(x.def.label || x.id).localeCompare(String(y.def.label || y.id)));
       if (!recState.structure || !structures.some(d => d.id === recState.structure)) recState.structure = structures[0] ? structures[0].id : null;
       const users = new Map((await FP.users.list().catch(() => [])).map(u => [u.id, u.name]));
@@ -723,13 +789,13 @@ window.addEventListener('unhandledrejection', function (e) { window.__fpReport('
           b.append(el('b', null, r.item.id), el('small', null, `${formTitle(r.form && r.form.id)} · ${timeOf(r.writtenAt)} · ${who(r)}${r.corrections.length ? ' · corrected' : ''}`));
           return b;
         }));
-        if (!shown.length) list.appendChild(el('div', 'fpl-sub', rows.length ? 'Nothing matches.' : 'Nothing saved here yet.'));
+        if (!shown.length) list.appendChild(el('div', 'fpl-sub', rows.length ? 'Nothing matches that search. Try a shorter one.' : 'Nothing has been saved here yet.'));
       };
       fi.oninput = () => { recState.find = fi.value; paintList(); };
       async function paintRecord() {
         const r = rows.find(x => x.entryId === recState.sel);
         side.replaceChildren();
-        if (!r) { side.appendChild(el('p', 'fpl-sub', 'Pick a record to see it as it was saved.')); return; }
+        if (!r) { side.appendChild(el('p', 'fpl-sub', 'Tap a record in the list to see it as it was saved.')); return; }
         side.appendChild(await FP.forms.recordPart(r, { who: who(r) }));
         const row = el('div', 'fpl-row');
         row.append(button('Print', null, () => FP.forms.printRecord(r, { who: who(r) }).catch(e => say(e.message))), button('Correct…', 'primary', () => paintFix(r)));

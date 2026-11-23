@@ -138,7 +138,7 @@
     if (h.hash !== user.pin.hash) {
       await recordPin('fail', user, { failedAt: new Date().toISOString(), terminal: FP.identity.terminalId || null });
       if (await recordFail()) throw new Error(`That PIN is not right. Too many wrong PINs: wait ${LOCK_SECONDS} seconds.`);
-      throw new Error('That PIN is not right.');
+      throw new Error('That PIN is not right. Try again, or ask a supervisor to reset it.');
     }
     await clearFails();
     const it = await FP.current.item(FAILS, user.id).catch(() => null);
@@ -366,19 +366,21 @@
 
   /* ---------- Sign-in screen ---------- */
   const CSS = `
-    .fp-u{position:fixed;inset:0;z-index:9998;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(15,20,25,.6);font:16px/1.45 var(--font-sans,system-ui,"Segoe UI",sans-serif)}
-    .fp-u-card{width:100%;max-width:420px;max-height:calc(100vh - 32px);overflow:auto;background:var(--s-n-100);color:var(--t-n-12);border-radius:14px;padding:22px;box-shadow:0 10px 40px rgba(0,0,0,.25)}
-    .fp-u-card h1{font-size:20px;margin:0 0 6px}.fp-u-card p{margin:0 0 14px;color:var(--t-n-42)}
-    .fp-u-card input{font:inherit;width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--l-n-83);border-radius:10px;margin:0 0 10px}
-    .fp-u-list{display:flex;flex-direction:column;gap:6px;max-height:280px;overflow:auto;margin-bottom:10px}
-    .fp-u-list button,.fp-u-keys button,.fp-u-act{font:inherit;min-height:48px;border-radius:10px;border:1px solid var(--l-n-88);background:var(--s-n-100);cursor:pointer;text-align:left;padding:10px 14px}
-    .fp-u-list button small{display:block;color:var(--t-n-42);font-size:13px}
-    .fp-u-dots{display:flex;gap:10px;justify-content:center;margin:6px 0 14px}.fp-u-dots span{width:14px;height:14px;border-radius:50%;border:2px solid var(--l-blue-42)}
-    .fp-u-dots span.on{background:var(--s-blue-42)}
-    .fp-u-keys{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.fp-u-keys button{text-align:center;font-size:20px;font-weight:600}
-    .fp-u-act{width:100%;text-align:center;font-weight:600;margin-top:10px}.fp-u-act.primary{background:var(--s-blue-42);border-color:var(--l-blue-42);color:var(--t-n-100)}
-    .fp-u.solid{background:var(--s-n-95)}
-    .fp-u-msg{min-height:1.4em;margin-top:10px;font-size:14px}.fp-u-msg.bad{color:var(--t-red-40)}`;
+    .fp-u{position:fixed;inset:0;z-index:9998;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(15,20,25,.6);font:var(--fs-base,16px)/1.45 var(--font-sans,system-ui,"Segoe UI",sans-serif)}
+    .fp-u-card{width:100%;max-width:440px;max-height:calc(100vh - 32px);overflow:auto;background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:16px;padding:24px;box-shadow:var(--shadow)}
+    .fp-u-card h1{font-size:var(--fs-xl,20px);font-weight:650;margin:0 0 6px}.fp-u-card p{margin:0 0 14px;color:var(--muted)}
+    .fp-u-card input{font:inherit;font-size:var(--fs-entry,17px);width:100%;box-sizing:border-box;min-height:var(--touch-lg,56px);padding:10px 14px;border:1.5px solid var(--line-2);border-radius:12px;margin:0 0 10px;background:var(--surface);color:var(--fg)}
+    .fp-u-list{display:flex;flex-direction:column;gap:8px;max-height:300px;overflow:auto;margin-bottom:10px}
+    .fp-u-list button,.fp-u-keys button,.fp-u-act{font:inherit;font-size:var(--fs-entry,17px);min-height:var(--touch-lg,56px);border-radius:14px;border:1.5px solid var(--line-2);background:var(--surface);color:var(--fg);cursor:pointer;text-align:left;padding:10px 16px}
+    .fp-u-list button{font-weight:650}
+    .fp-u-list button small{display:block;color:var(--muted);font-size:var(--fs-sm,13px);font-weight:400}
+    .fp-u-dots{display:flex;gap:12px;justify-content:center;margin:6px 0 16px}.fp-u-dots span{width:16px;height:16px;border-radius:50%;border:2px solid var(--accent)}
+    .fp-u-dots span.on{background:var(--accent)}
+    .fp-u-keys{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.fp-u-keys button{text-align:center;font-size:24px;font-weight:650}
+    .fp-u-keys button:active{background:var(--surface-2)}
+    .fp-u-act{width:100%;text-align:center;font-weight:650;margin-top:10px}.fp-u-act.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+    .fp-u.solid{background:var(--bg)}
+    .fp-u-msg{min-height:1.4em;margin-top:10px;font-size:var(--fs-base,16px)}.fp-u-msg.bad{color:var(--bad);font-weight:600}`;
 
   function el(tag, props, kids) {
     const n = document.createElement(tag);
