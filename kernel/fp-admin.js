@@ -205,17 +205,17 @@
     return view({
       build(a, box) {
         a.head(box, 'The launcher', 'launch.html, at the top of the data folder: every terminal opens it');
-        a.row(box, { key: 'home', depth: 1, color: home ? '#2a78d6' : '#e5484d', title: () => 'launch.html',
+        a.row(box, { key: 'home', depth: 1, color: home ? 'var(--d-blue-50)' : 'var(--d-red-54)', title: () => 'launch.html',
           sub: () => (home ? 'Its home screen shows the forms of the terminal it runs on, for whoever signs in' : 'not made yet: installing an update makes it'),
-          tags: () => [a.tag(home ? 'ready' : 'no file', home ? '#e5f4e4' : '#fde3e0')],
+          tags: () => [a.tag(home ? 'ready' : 'no file', home ? 'var(--d-green-95)' : 'var(--d-red-92)')],
           props: p => { p.appendChild(btn(home ? 'Make it again' : 'Make it', 'small', () => act(() => FP.launchers.makeHome(), 'launch.html is made.', again))); } });
         a.head(box, 'Shortcuts', 'straight to one form: launch.html?launcher=NAME; the same rules on who can use it');
         forms.forEach(d => {
           const mine = shortcuts.filter(f => f.form === d.id);
-          a.row(box, { key: 'f:' + d.id, depth: 1, color: mine.length ? '#2a78d6' : '#94a3b8',
+          a.row(box, { key: 'f:' + d.id, depth: 1, color: mine.length ? 'var(--d-blue-50)' : 'var(--d-n-66)',
             title: () => d.def.title || d.id,
             sub: () => (mine.length ? mine.map(f => `${f.name} (${f.version === 'latest' || f.version == null ? 'always the latest' : `version ${f.version}`})`).join(' · ') : 'no shortcut'),
-            tags: () => [a.tag(mine.length ? 'ready' : 'none', mine.length ? '#e5f4e4' : '#eef1f5')],
+            tags: () => [a.tag(mine.length ? 'ready' : 'none', mine.length ? 'var(--d-green-95)' : 'var(--d-n-95)')],
             props: async p => {
               if (!mine.some(f => f.version === 'latest' || f.version == null)) p.appendChild(btn('Make a shortcut', 'small', () => act(() => FP.launchers.make(d.id), n => `Shortcut ${n} is made: ${FP.launchers.addressOf(n)}`, again)));
               const hist = await FP.defs.history('form', d.id).catch(() => []);
@@ -238,9 +238,9 @@
         else a.addRow(box, '+all', '+ a shortcut for every launchable form that has none', 0, null, () => act(async () => { let n = 0; for (const d of forms) { if (!shortcuts.some(f => f.form === d.id && (f.version === 'latest' || f.version == null))) { await FP.launchers.make(d.id); n++; } } return n; }, n => `${n} shortcut${n === 1 ? '' : 's'} made.`, again));
         if (strays.length || oldFiles.length) {
           a.head(box, 'To tidy', 'shortcuts whose form is gone, and launcher files from before 0.48');
-          strays.forEach(f => a.row(box, { key: 'x:' + f.name, depth: 1, color: '#e5484d', title: () => f.name, sub: () => f.problem,
+          strays.forEach(f => a.row(box, { key: 'x:' + f.name, depth: 1, color: 'var(--d-red-54)', title: () => f.name, sub: () => f.problem,
             props: p => p.appendChild(btn('Remove the shortcut', 'small', () => act(() => FP.launchers.remove(f.name), `Shortcut ${f.name} is removed.`, again))) }));
-          oldFiles.forEach(f => a.row(box, { key: 'o:' + f.name, depth: 1, color: '#b45309', title: () => `launchers/${f.name}`, sub: () => f.problem,
+          oldFiles.forEach(f => a.row(box, { key: 'o:' + f.name, depth: 1, color: 'var(--d-amber-47)', title: () => `launchers/${f.name}`, sub: () => f.problem,
             props: p => p.appendChild(btn('Remove the file', 'small', () => { if (confirm(`Remove launchers/${f.name}? Windows shortcuts to the file stop working.`)) act(() => FP.launchers.remove(f.name), `launchers/${f.name} is removed.`, again); })) }));
         }
       },
@@ -261,9 +261,9 @@
     return view({
       build(a, box) {
         a.head(box, 'Running', cfg && cfg.current ? null : 'files from before releases');
-        if (cfg && cfg.current) a.row(box, { key: 'cur', depth: 1, color: '#1a7f37', cls: 'top', title: () => `Version ${cfg.current}`, sub: () => [cfg.installedAt ? `installed ${new Date(cfg.installedAt).toLocaleString()}` : null, cfg.by ? `by ${cfg.by}` : null, cfg.from ? `after ${cfg.from}` : null].filter(Boolean).join(' · '), act: () => {} });
+        if (cfg && cfg.current) a.row(box, { key: 'cur', depth: 1, color: 'var(--d-green-47)', cls: 'top', title: () => `Version ${cfg.current}`, sub: () => [cfg.installedAt ? `installed ${new Date(cfg.installedAt).toLocaleString()}` : null, cfg.by ? `by ${cfg.by}` : null, cfg.from ? `after ${cfg.from}` : null].filter(Boolean).join(' · '), act: () => {} });
         a.head(box, 'Waiting in updates', pending.length ? null : 'nothing');
-        pending.forEach(z => a.row(box, { key: 'p:' + z.name, depth: 1, color: z.problems.length ? '#e5484d' : z.newer ? '#1f5fbf' : '#c9d0d9',
+        pending.forEach(z => a.row(box, { key: 'p:' + z.name, depth: 1, color: z.problems.length ? 'var(--d-red-54)' : z.newer ? 'var(--d-blue-42)' : 'var(--d-n-83)',
           title: () => z.version ? `Version ${z.version}` : z.name, sub: () => (z.problems.length ? z.problems.join('; ') : z.newer ? `${z.name} · ready to install` : `${z.name} · not newer than what runs`),
           props: p => {
             if (z.problems.length) p.appendChild(el('p', 'ffe-note', 'It can\'t be installed. Put a fresh copy of the release zip in updates.'));
@@ -276,7 +276,7 @@
           fi.click();
         });
         a.head(box, 'Kept to go back to', kept.length > 1 ? null : 'none yet');
-        kept.filter(v => !cfg || v !== cfg.current).forEach(v => a.row(box, { key: 'k:' + v, depth: 1, color: '#94a3b8', title: () => `Version ${v}`, sub: () => (FP.updates.cmp(v, cfg.current) < 0 ? 'older' : 'newer'),
+        kept.filter(v => !cfg || v !== cfg.current).forEach(v => a.row(box, { key: 'k:' + v, depth: 1, color: 'var(--d-n-66)', title: () => `Version ${v}`, sub: () => (FP.updates.cmp(v, cfg.current) < 0 ? 'older' : 'newer'),
           props: p => p.appendChild(btn(`Use ${v} again`, 'small', () => { if (confirm(`Make ${v} the release every terminal runs?`)) act(() => FP.updates.useRelease(v), `${v} runs now; terminals move to it by themselves.`, again); })) }));
       },
       right(prev) {
@@ -305,9 +305,9 @@
           const sts = Object.entries(t.structures || {}).sort((x, y) => y[1].loadMs - x[1].loadMs);
           const slow = forms.filter(([, f]) => f.readyMs > FORM_BUDGET_MS).length + sts.filter(([, x]) => x.loadMs > LOAD_BUDGET_MS).length;
           a.head(box, `${FP.identity.label ? FP.identity.label(t.terminalId) : t.terminalId}${slow ? ` · ${slow} slow` : ''}`, `${t.screen ? t.screen + ' · ' : ''}${t.cores ? t.cores + ' cores · ' : ''}figures from ${new Date(t.at).toLocaleString()}`);
-          forms.forEach(([id, f]) => a.row(box, { key: `f:${t.terminalId}:${id}`, depth: 1, color: f.readyMs > FORM_BUDGET_MS ? '#b42318' : '#1a7f37', title: () => `${(FP.defs.get('form', id) || { def: {} }).def.title || id}: ready in ${ms(f.readyMs)}`,
+          forms.forEach(([id, f]) => a.row(box, { key: `f:${t.terminalId}:${id}`, depth: 1, color: f.readyMs > FORM_BUDGET_MS ? 'var(--d-red-40)' : 'var(--d-green-47)', title: () => `${(FP.defs.get('form', id) || { def: {} }).def.title || id}: ready in ${ms(f.readyMs)}`,
             sub: () => `form · slowest of the last ${f.runs}: ${ms(f.worstMs)}`, act: () => {} }));
-          sts.forEach(([id, x]) => a.row(box, { key: `s:${t.terminalId}:${id}`, depth: 1, color: x.loadMs > LOAD_BUDGET_MS ? '#b42318' : '#0e7490', title: () => `${id}: loads in ${ms(x.loadMs)}`,
+          sts.forEach(([id, x]) => a.row(box, { key: `s:${t.terminalId}:${id}`, depth: 1, color: x.loadMs > LOAD_BUDGET_MS ? 'var(--d-red-40)' : 'var(--d-teal-45)', title: () => `${id}: loads in ${ms(x.loadMs)}`,
             sub: () => `structure · ${x.entries} entries, ${x.items} items, ${x.filesRead} files read${x.windowed ? ' · live window' : ' · whole history'}`, act: () => {} }));
         });
       },
@@ -405,9 +405,9 @@
         const list = shown();
         if (st.structure) {
           a.head(box, 'Health', health.length ? `${health.length} note${health.length === 1 ? '' : 's'}` : 'nothing found');
-          health.forEach((h, i) => a.row(box, { key: 'h:' + i, depth: 1, color: /^Files checked [^:]*: all/.test(h) ? '#1a7f37' : '#b45309', title: () => h.length > 90 ? h.slice(0, 88) + '…' : h, sub: () => (h.length > 90 ? h : ''),
+          health.forEach((h, i) => a.row(box, { key: 'h:' + i, depth: 1, color: /^Files checked [^:]*: all/.test(h) ? 'var(--d-green-47)' : 'var(--d-amber-47)', title: () => h.length > 90 ? h.slice(0, 88) + '…' : h, sub: () => (h.length > 90 ? h : ''),
             act: () => {} }));
-          (data && data.twice || []).forEach(x => a.row(box, { key: 'tw:' + x.id, depth: 2, color: '#b42318', title: () => `${x.id}: saved new ${x.saves.length} times`,
+          (data && data.twice || []).forEach(x => a.row(box, { key: 'tw:' + x.id, depth: 2, color: 'var(--d-red-40)', title: () => `${x.id}: saved new ${x.saves.length} times`,
             sub: () => x.saves.map(s => `${FP.identity.label(s.terminalId)} ${new Date(s.at).toLocaleString()}${users.get(s.userId) ? ' · ' + users.get(s.userId) : ''}`).join(' · '),
             act: () => { st.filter = x.id; a.paint(); } }));
           a.addRow(box, '+verify', '+ check every file of this structure, line by line', 0, null, () => act(async () => {
@@ -417,10 +417,10 @@
           }, v => (v.broken.length ? `${v.broken.length} file${v.broken.length === 1 ? '' : 's'} changed after saving.` : `All ${v.files} files are as saved.`), again));
         }
         a.head(box, 'Saved', st.structure ? `${list.length} of ${rows.length}, newest first${list.length > 100 ? '; the first 100 shown' : ''}` : 'no structures yet');
-        list.slice(0, 100).forEach(r => a.row(box, { key: 'r:' + r.entryId, depth: 1, color: r.corrections.length ? '#b45309' : '#2a78d6', cls: st.sel === r.entryId ? 'on' : '',
+        list.slice(0, 100).forEach(r => a.row(box, { key: 'r:' + r.entryId, depth: 1, color: r.corrections.length ? 'var(--d-amber-47)' : 'var(--d-blue-50)', cls: st.sel === r.entryId ? 'on' : '',
           title: () => r.item.id,
           sub: () => [formTitle(r), r.action, new Date(r.writtenAt).toLocaleString(), who(r), FP.identity.label(r.terminalId)].filter(Boolean).join(' · '),
-          tags: () => (r.corrections.length ? [a.tag(`corrected${r.corrections.length > 1 ? ` ×${r.corrections.length}` : ''}`, '#fff1e6')] : []),
+          tags: () => (r.corrections.length ? [a.tag(`corrected${r.corrections.length > 1 ? ` ×${r.corrections.length}` : ''}`, 'var(--d-amber-96b)')] : []),
           act: () => { st.sel = r.entryId; a.paint(); showRecord(); } }));
       },
       right(prev) {
@@ -578,11 +578,11 @@
       build(a, box) {
         a.head(box, 'Purge all data', testFolder ? 'for clearing out test data; it can\'t be undone' : 'off: this folder isn\'t marked as a test folder');
         if (!testFolder) {
-          a.row(box, { key: 'purge-off', depth: 1, color: '#5b6573', title: () => 'Purge is off for this folder', sub: () => 'records here are kept for audit',
+          a.row(box, { key: 'purge-off', depth: 1, color: 'var(--d-n-42)', title: () => 'Purge is off for this folder', sub: () => 'records here are kept for audit',
             props: p => p.appendChild(el('p', 'ffe-note', 'Purge clears every record, and nothing in a production folder may be deleted. To use it on a test copy of the folder, mark that copy as a test folder (Admin > Test folder), then come back here.')) });
           return;
         }
-        a.row(box, { key: 'purge', depth: 1, color: '#b42318', title: () => 'Purge all data…', sub: () => 'everything but the people', tags: () => [a.tag('can\'t be undone', '#fde3e0')],
+        a.row(box, { key: 'purge', depth: 1, color: 'var(--d-red-40)', title: () => 'Purge all data…', sub: () => 'everything but the people', tags: () => [a.tag('can\'t be undone', 'var(--d-red-92)')],
           props: p => {
             const w = el('div', 'fpa-warn');
             w.appendChild(el('b', null, 'This deletes from the data folder, for every terminal:'));
@@ -603,7 +603,7 @@
               go.disabled = true;
               act(() => purgeAll(), g => `Purged: ${g.structures} structure${g.structures === 1 ? '' : 's'} of records, ${g.folders} folder${g.folders === 1 ? '' : 's'} of definitions and settings, ${g.captured} folder${g.captured === 1 ? '' : 's'} of captured files. The people are kept.`, again).then(() => { go.disabled = false; });
             });
-            go.style.background = '#b42318'; go.style.borderColor = '#b42318';
+            go.style.background = 'var(--d-red-40)'; go.style.borderColor = 'var(--d-red-40)';
             const r = el('div', 'fpa-row'); r.append(ti, go);
             p.appendChild(r);
           } });
@@ -918,7 +918,7 @@
     return view({
       build(a, box) {
         a.head(box, 'Install a pack', 'definitions and starting records made elsewhere, in one file');
-        a.row(box, { key: 'pick', depth: 1, color: '#2a78d6', title: () => (st.pack ? `${st.pack.name || 'Pack'}` : 'Choose a pack file…'), sub: () => (st.pack ? `${st.pack.definitions.length} definitions · ${Object.values(st.pack.items).reduce((n, l) => n + (Array.isArray(l) ? l.length : 0), 0)} items${st.pack.note ? ' · ' + st.pack.note : ''}` : 'a .json file made with Make a pack'),
+        a.row(box, { key: 'pick', depth: 1, color: 'var(--d-blue-50)', title: () => (st.pack ? `${st.pack.name || 'Pack'}` : 'Choose a pack file…'), sub: () => (st.pack ? `${st.pack.definitions.length} definitions · ${Object.values(st.pack.items).reduce((n, l) => n + (Array.isArray(l) ? l.length : 0), 0)} items${st.pack.note ? ' · ' + st.pack.note : ''}` : 'a .json file made with Make a pack'),
           props: p => {
             const i = input('', { type: 'file' }); i.accept = '.json,application/json';
             i.onchange = async () => { const f = i.files && i.files[0]; if (!f) return; try { st.pack = readPack(await f.text()); again(); } catch (e) { toast(e.message, true); } };
@@ -926,25 +926,25 @@
           } });
         if (plan && plan.error) box.appendChild(el('div', 'fpe-warn', plan.error));
         if (plan && !plan.error) {
-          const tagOf = h => ({ new: ['new', '#e5f4e4'], changed: ['replaces the one here', '#fff3d6'], same: ['already here', '#eef1f5'], 'built-in': ['built in: skipped', '#eef1f5'] })[h];
-          PACK_KINDS.forEach(k => plan.defs.filter(d => d.kind === k).forEach(d => a.row(box, { key: `d:${k}/${d.id}`, depth: 2, color: { function: '#7c3aed', structure: '#0e7490', form: '#2a78d6' }[k],
+          const tagOf = h => ({ new: ['new', 'var(--d-green-95)'], changed: ['replaces the one here', 'var(--d-amber-96)'], same: ['already here', 'var(--d-n-95)'], 'built-in': ['built in: skipped', 'var(--d-n-95)'] })[h];
+          PACK_KINDS.forEach(k => plan.defs.filter(d => d.kind === k).forEach(d => a.row(box, { key: `d:${k}/${d.id}`, depth: 2, color: { function: 'var(--d-violet-43)', structure: 'var(--d-teal-45)', form: 'var(--d-blue-50)' }[k],
             title: () => (d.def.title || d.def.label || d.id), sub: () => `${FP.defs.LABELS[k]} ${d.id}${d.cur ? ` · here: version ${d.cur.version}` : ''}`, tags: () => [a.tag(...tagOf(d.how))] })));
-          plan.items.forEach(it => a.row(box, { key: 'i:' + it.structure, depth: 2, color: '#b45309', title: () => `${it.structure}: ${it.all} item${it.all === 1 ? '' : 's'}`,
-            sub: () => (it.add.length ? `${it.add.length} new; ${it.all - it.add.length} already here (left as they are)` : 'all already here'), tags: () => [a.tag(it.add.length ? `${it.add.length} to add` : 'nothing to add', it.add.length ? '#e5f4e4' : '#eef1f5')] }));
+          plan.items.forEach(it => a.row(box, { key: 'i:' + it.structure, depth: 2, color: 'var(--d-amber-47)', title: () => `${it.structure}: ${it.all} item${it.all === 1 ? '' : 's'}`,
+            sub: () => (it.add.length ? `${it.add.length} new; ${it.all - it.add.length} already here (left as they are)` : 'all already here'), tags: () => [a.tag(it.add.length ? `${it.add.length} to add` : 'nothing to add', it.add.length ? 'var(--d-green-95)' : 'var(--d-n-95)')] }));
           // Where the forms go (0.52): sites, groups, terminals, and people for a test folder.
           const su = plan.setup;
-          const sTag = r => a.tag(...({ new: ['new', '#e5f4e4'], changes: ['brought up to the pack', '#fff3d6'], same: ['already here', '#eef1f5'], skipped: ['left out: not a test folder', '#eef1f5'] })[r.how]);
+          const sTag = r => a.tag(...({ new: ['new', 'var(--d-green-95)'], changes: ['brought up to the pack', 'var(--d-amber-96)'], same: ['already here', 'var(--d-n-95)'], skipped: ['left out: not a test folder', 'var(--d-n-95)'] })[r.how]);
           const setupRows = su.sites.length + su.groups.length + su.terminals.length + su.people.length + (su.centers || []).length;
           if (setupRows) {
             a.head(box, 'Where the forms go', su.test ? 'sites, terminal groups and terminals; people too, as this is a test folder' : 'sites, terminal groups and terminals; no people, as this isn\'t a test folder');
-            su.sites.forEach(r => a.row(box, { key: 's:' + r.x.id, depth: 2, color: '#0e7490', title: () => r.x.name || r.x.id, sub: () => `site ${r.x.id}`, tags: () => [sTag(r)] }));
-            su.groups.forEach(r => a.row(box, { key: 'g:' + r.x.site + ':' + r.x.name, depth: 2, color: '#64748b', title: () => r.x.name,
+            su.sites.forEach(r => a.row(box, { key: 's:' + r.x.id, depth: 2, color: 'var(--d-teal-45)', title: () => r.x.name || r.x.id, sub: () => `site ${r.x.id}`, tags: () => [sTag(r)] }));
+            su.groups.forEach(r => a.row(box, { key: 'g:' + r.x.site + ':' + r.x.name, depth: 2, color: 'var(--d-n-48)', title: () => r.x.name,
               sub: () => [`group at ${r.x.site}`, `${(r.x.forms || []).length} forms`, (r.x.terminals || []).length ? (r.x.terminals || []).join(', ') : 'no terminals', r.x.homeForm && r.x.homeForm !== 'none' ? `home ${r.x.homeForm}` : null, r.x.view ? `${r.x.view} view` : null, r.x.signIn === 'supervisors' ? 'supervisors sign in' : null, r.diff && r.diff.length ? `changes ${r.diff.join(', ')}` : null].filter(Boolean).join(' · '),
               tags: () => [sTag(r)] }));
-            su.terminals.forEach(r => a.row(box, { key: 't:' + r.id, depth: 2, color: '#475569', title: () => `${r.id}${r.x.name ? ' ' + r.x.name : ''}`,
+            su.terminals.forEach(r => a.row(box, { key: 't:' + r.id, depth: 2, color: 'var(--d-n-36)', title: () => `${r.id}${r.x.name ? ' ' + r.x.name : ''}`,
               sub: () => [`terminal${r.x.site ? ' at ' + r.x.site : ''}`, `${(r.x.forms || []).length} forms`, r.inGroup ? `in ${r.inGroup.name} here: its group's forms count` : null, r.diff && r.how === 'changes' ? `changes ${r.diff.join(', ')}` : null].filter(Boolean).join(' · '), tags: () => [sTag(r)] }));
-            su.people.forEach(r => a.row(box, { key: 'p:' + r.x.name, depth: 2, color: '#9333ea', title: () => r.x.name, sub: () => `${(r.x.roles || ['user']).join(', ')}${r.x.pin ? ' · with the pack\'s PIN' : ' · PIN 918273, changed at first sign-in'}`, tags: () => [sTag(r)] }));
-            (su.centers || []).forEach(r => a.row(box, { key: 'c:' + r.x.name, depth: 2, color: '#0e7490', title: () => r.x.name, sub: () => `responsibility center · ${(r.x.duties || []).length} dut${(r.x.duties || []).length === 1 ? 'y' : 'ies'}`, tags: () => [sTag(r)] }));
+            su.people.forEach(r => a.row(box, { key: 'p:' + r.x.name, depth: 2, color: 'var(--d-violet-45)', title: () => r.x.name, sub: () => `${(r.x.roles || ['user']).join(', ')}${r.x.pin ? ' · with the pack\'s PIN' : ' · PIN 918273, changed at first sign-in'}`, tags: () => [sTag(r)] }));
+            (su.centers || []).forEach(r => a.row(box, { key: 'c:' + r.x.name, depth: 2, color: 'var(--d-teal-45)', title: () => r.x.name, sub: () => `responsibility center · ${(r.x.duties || []).length} dut${(r.x.duties || []).length === 1 ? 'y' : 'ies'}`, tags: () => [sTag(r)] }));
           }
           const setupN = su.sites.filter(r => r.how === 'new').length + su.groups.filter(r => r.how !== 'same').length + su.terminals.filter(r => r.how !== 'same').length + su.people.filter(r => r.how === 'new').length + (su.centers || []).filter(r => r.how === 'new').length;
           const n = plan.defs.filter(d => d.how === 'new' || d.how === 'changed').length, m = plan.items.reduce((x, it) => x + it.add.length, 0);
@@ -955,7 +955,7 @@
           });
         }
         a.head(box, 'Make a pack', 'every form, structure and function published here, and the items of the structures you tick');
-        a.row(box, { key: 'make', depth: 1, color: '#0e7490', title: () => 'Make a pack…', sub: () => `${FP.defs.list().filter(d => PACK_KINDS.includes(d.kind) && !d.retired && !FP.defs.isBuiltIn(d.kind, d.id)).length} definitions`,
+        a.row(box, { key: 'make', depth: 1, color: 'var(--d-teal-45)', title: () => 'Make a pack…', sub: () => `${FP.defs.list().filter(d => PACK_KINDS.includes(d.kind) && !d.retired && !FP.defs.isBuiltIn(d.kind, d.id)).length} definitions`,
           props: p => {
             const name = input(st.name || '', { placeholder: 'e.g. Production pilot' });
             name.oninput = () => { st.name = name.value; };
@@ -1031,27 +1031,27 @@
             const u = FP.sources.upgrade(d.def);
             await FP.defs.publish('form', d.id, u.def, { basedOn: d.version, note: `Brought up to date (0.48): ${u.changes.join('; ')}` });
           };
-          L.older.forEach(d => a.row(box, { key: 'o:' + d.id, depth: 1, color: '#2a78d6', title: () => d.def.title || d.id,
+          L.older.forEach(d => a.row(box, { key: 'o:' + d.id, depth: 1, color: 'var(--d-blue-50)', title: () => d.def.title || d.id,
             sub: () => [!Array.isArray(d.def.sources) ? 'before sources' : null, d.def.action ? `its saves are named ${d.def.action} on the form` : null].filter(Boolean).join(' · '),
             props: p => p.appendChild(btn('Bring it up to date', 'small', () => act(() => upgradeOne(d), `${d.def.title || d.id} is up to date.`, again))) }));
           if (L.older.length > 1) a.addRow(box, '+older', `+ bring all ${L.older.length} up to date`, 0, null, () => act(async () => { let n = 0; for (const d of L.older) { await upgradeOne(d); n++; } return n; }, n => `${n} form${n === 1 ? '' : 's'} brought up to date.`, again));
         }
         if (L.homes.length) {
           a.head(box, 'Forms set to show on the home screen', 'each terminal or group picks its home form now (0.51): this moves the setting there and takes it off the form');
-          L.homes.forEach(d => a.row(box, { key: 'h:' + d.id, depth: 1, color: '#2a78d6', title: () => d.def.title || d.id,
+          L.homes.forEach(d => a.row(box, { key: 'h:' + d.id, depth: 1, color: 'var(--d-blue-50)', title: () => d.def.title || d.id,
             sub: () => { const to = homeTargets(d); return to.length ? `becomes the home form of ${to.map(x => x.name).join(', ')}` : 'no terminal or group without a home form has it: just taken off the form'; },
             props: p => p.appendChild(btn('Move it to its terminals', 'small', () => act(() => moveHome(d), n => `${d.def.title || d.id}: the home form of ${n} group${n === 1 ? '' : 's'} or terminal${n === 1 ? '' : 's'} now.`, again))) }));
         }
         if (L.opens.length) {
           a.head(box, 'Open and Apply buttons', 'gone (0.48): these forms keep working, but can\'t be published again until each becomes a sub-form');
-          L.opens.forEach(d => a.row(box, { key: 'b:' + d.id, depth: 1, color: '#b45309', title: () => d.def.title || d.id,
+          L.opens.forEach(d => a.row(box, { key: 'b:' + d.id, depth: 1, color: 'var(--d-amber-47)', title: () => d.def.title || d.id,
             sub: () => (d.def.buttons || []).filter(b => b && (b.action === 'open' || b.action === 'apply')).map(b => `${b.label || b.name} (${b.action === 'open' ? `opens ${b.form}` : 'apply'})`).join(', '),
             props: p => p.appendChild(el('p', 'ffe-note', 'Open the form in the editor, add a sub-form for what the button opened (its fields, and where they save), and point the button at it. Apply buttons go: a sub-form hands its values back by itself.')) }));
         }
         if (L.orphans.length) {
           a.head(box, 'Sub-form records', 'saved on their own, pointing at a record that was never saved');
           const users = L.users || new Map();
-          L.orphans.forEach((o, i) => a.row(box, { key: 'or:' + i, depth: 1, color: '#b42318', title: () => `${o.structure} ${o.id}`,
+          L.orphans.forEach((o, i) => a.row(box, { key: 'or:' + i, depth: 1, color: 'var(--d-red-40)', title: () => `${o.structure} ${o.id}`,
             sub: () => `from ${o.form} › ${o.sub} · points at ${o.ref} (${o.role}), not saved · ${new Date(o.at).toLocaleString()}${users.get(o.userId) ? ' · ' + users.get(o.userId) : ''}`,
             props: p => p.appendChild(el('p', 'ffe-note', `This record was saved from the sub-form ${o.sub} while ${o.form} was open, and ${o.form} was never saved (or not yet: it may still be open on a terminal). Find it in Records › ${o.structure} to correct it, or save the ${o.role} record it points at.`)) }));
         }
@@ -1059,7 +1059,7 @@
           a.head(box, 'Structures that still name sessions', 'each gets a new version without them');
           L.plans.forEach(pl => {
             const d = pl.doc;
-            a.row(box, { key: 's:' + d.id, depth: 1, color: '#0e7490', title: () => (d.def.label || d.id),
+            a.row(box, { key: 's:' + d.id, depth: 1, color: 'var(--d-teal-45)', title: () => (d.def.label || d.id),
               sub: () => `${d.id} · ${Object.entries(d.def.sessions).map(([t, raw]) => `${t} (${raw && typeof raw === 'object' ? raw.mode : raw})`).join(', ')}${pl.calc.length && calcOn.get(d.id) ? ` · ${pl.calc.map(c => c.name).join(', ')} becomes a calculated value` : ''}`,
               props: p => {
                 if (pl.calc.length) {
@@ -1075,13 +1075,13 @@
         }
         if (L.forms.length) {
           a.head(box, 'Forms that ask to read something every shift', 'every 12 hours instead');
-          L.forms.forEach(d => a.row(box, { key: 'f:' + d.id, depth: 1, color: '#2a78d6', title: () => d.def.title || d.id,
+          L.forms.forEach(d => a.row(box, { key: 'f:' + d.id, depth: 1, color: 'var(--d-blue-50)', title: () => d.def.title || d.id,
             sub: () => d.def.acknowledge.filter(x => x && x.every === 'shift').map(x => x.label || x.name).join(', '),
             props: p => p.appendChild(btn('Read every 12 hours', 'small', () => act(() => fixForm(d), `${d.def.title || d.id} asks every 12 hours.`, again))) }));
         }
         if (L.types.length) {
           a.head(box, 'Session types', 'retired: nothing uses them now');
-          L.types.forEach(d => a.row(box, { key: 't:' + d.id, depth: 1, color: '#94a3b8', title: () => d.id,
+          L.types.forEach(d => a.row(box, { key: 't:' + d.id, depth: 1, color: 'var(--d-n-66)', title: () => d.id,
             sub: () => [d.def.label, d.def.fallback && Array.isArray(d.def.fallback.rows) ? `time table ${d.def.fallback.rows.map(r => `${r.value} ${r.start}–${r.end}`).join(', ')}` : null, d.def.within ? `within ${d.def.within}` : null].filter(Boolean).join(' · '),
             props: p => p.appendChild(btn('Retire it', 'small', () => act(() => retireType(d), `Session type ${d.id} is retired.`, again))) }));
         }
