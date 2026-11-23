@@ -63,8 +63,8 @@ A test counts as failed if it crashes, times out, prints `pageerror`, or prints 
 
 ## Screenshots, colours and night mode
 
-`kernel/dev/shots/` is the visual safety net for the UI refresh: `node dev/shots/shots.js out [day|night]` opens ten key screens (editor, form editor, structure editor,
-Admin, Help, the launcher on a line terminal and the QC office, a form, the dashboard) against the Test pack's demo data, saves a PNG of each and measures text contrast
+`kernel/dev/shots/` is the visual safety net for the UI refresh: `node dev/shots/shots.js out [day|night]` opens thirteen key screens (editor, form editor, structure editor,
+Admin, Help, the launcher on a line terminal and the QC office, a form, the dashboard, Find, the Retire dialog and a retired form) against the Test pack's demo data, saves a PNG of each and measures text contrast
 (4.5:1; 3:1 for large text and symbols). `node dev/shots/compare.js baseline out 0.05` reports the pixels that changed per screen. The baselines for both modes are
 committed (`baseline/`, `baseline-night/`); take new ones when a change to the look is intended. `python3 dev/tools/tokenize.py check` must report 0 colour literals.
 See `docs/UI-REFRESH-RELEASE-A.md`. `l160` tests the Day/Night switch.

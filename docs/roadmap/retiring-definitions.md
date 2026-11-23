@@ -1,6 +1,6 @@
 # Roadmap: Retiring definitions
 
-Status: Agreed (design decided, not built). Proposed as a build step after the current editor work.
+Status: **Built in 0.65.0** (all five build steps; containers not covered), see `docs/RETIRING-DEFINITIONS.md`. Original status: Agreed (design decided). Proposed as a build step after the current editor work.
 
 ## Problem
 
