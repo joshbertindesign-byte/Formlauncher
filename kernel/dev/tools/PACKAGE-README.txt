@@ -1,0 +1,32 @@
+FORM PLATFORM: READ ME FIRST
+============================
+
+This folder IS the platform. There is no installer and no server. It runs in Microsoft Edge from a folder that is
+shared with every terminal (a SharePoint library synced by OneDrive).
+
+FIRST INSTALL (a new, empty folder)
+ 1. Copy everything in this folder (launch.html and the runtime folder) into the shared folder.
+    If you unzipped FormPlatform-X.Y.Z.zip, open the FormPlatform-X.Y.Z folder inside it and copy what is in there.
+    Do not add another folder level: launch.html must sit at the top of the shared folder.
+ 2. Wait for OneDrive to finish syncing on the terminal.
+ 3. On a terminal, open launch.html in Edge. It asks you to choose the data folder: choose the shared folder.
+ 4. Give the terminal an ID (for example T01) and pick or create its site. Then create the first admin (name and a
+    6-digit PIN). That person can then open the editor (runtime/editor.html) to build structures and forms.
+ 5. Share launch.html with the other terminals (a shortcut to it on each desktop). Each sets its own terminal ID once.
+
+UPDATING A FOLDER THAT IS ALREADY IN USE
+ Do not copy this whole folder over it. Use the update file instead:
+ 1. Save kernel-X.Y.Z.zip into the shared folder's "updates" folder (create it if it is missing).
+ 2. An admin opens the editor, then Admin > Updates, and installs it. Every file is checked before anything changes.
+ 3. The three newest releases are kept, so Admin > Updates can go back if something is wrong.
+ Your data (the "data" folder), people, forms and settings are never touched by an update.
+
+WHAT IS IN THIS PACKAGE
+ launch.html            the page every terminal opens
+ runtime/               the platform: boot.js, releases.js (which release runs), the pages, and one folder per release
+ No data, no people and no forms are included: a new folder starts empty.
+
+TROUBLESHOOTING
+ - A red "Problem found" bar at the top: a file has not finished syncing to this terminal. Wait and reload.
+ - "This browser cannot unzip files": use Microsoft Edge.
+ - Never edit the files in runtime/ by hand. Updates replace them.

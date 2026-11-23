@@ -1,5 +1,5 @@
 # A stable version is a tag: v0.60.0 (matching runtime/0.60.0/). Pushing the tag, or running this by hand, checks the
-# release zip and publishes it as the single download on the GitHub Releases page. Work in progress (untagged commits,
+# release zip and publishes it (and, when present, the full first-install folder) on the GitHub Releases page. Work in progress (untagged commits,
 # branches) publishes nothing.
 #
 # To use the download: save kernel-X.Y.Z.zip into the SharePoint data folder's updates/ folder (the OneDrive shortcut),
@@ -37,15 +37,19 @@ jobs:
       - name: Check the release zip against the committed files
         id: zip
         run: |
-          ZIP=$(python3 .github/scripts/verify_release.py "${{ steps.v.outputs.version }}" "$RUNTIME")
+          V="${{ steps.v.outputs.version }}"
+          # The packaged release (dist/<version>/) when there is one, else the deployed test folder.
+          if [ -d "dist/$V/runtime/$V" ]; then RT="dist/$V/runtime"; else RT="$RUNTIME"; fi
+          ZIP=$(python3 .github/scripts/verify_release.py "$V" "$RT")
           echo "path=$ZIP" >> "$GITHUB_OUTPUT"
+          FOLDER="dist/FormPlatform-$V.zip"; [ -f "$FOLDER" ] && echo "folder=$FOLDER" >> "$GITHUB_OUTPUT" || true
 
       - name: Publish
         run: |
-          V="${{ steps.v.outputs.version }}"; ZIP="${{ steps.zip.outputs.path }}"
+          V="${{ steps.v.outputs.version }}"; ZIP="${{ steps.zip.outputs.path }}"; FOLDER="${{ steps.zip.outputs.folder }}"
           if gh release view "v$V" >/dev/null 2>&1; then
-            gh release upload "v$V" "$ZIP" --clobber
+            gh release upload "v$V" "$ZIP" $FOLDER --clobber
           else
-            gh release create "v$V" "$ZIP" --target "${GITHUB_SHA}" --title "Form Platform $V" \
-              --notes "Download kernel-$V.zip, save it in the data folder's updates/ folder, then install it from the editor: Admin > Updates."
+            gh release create "v$V" "$ZIP" $FOLDER --target "${GITHUB_SHA}" --title "Form Platform $V" \
+              --notes "First install: download FormPlatform-$V.zip and copy its contents into the shared folder (see READ ME FIRST.txt inside). Update a folder already in use: download kernel-$V.zip, save it in the folder's updates/ folder, then install it from the editor: Admin > Updates."
           fi
