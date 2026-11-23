@@ -151,5 +151,5 @@
     },
   };
 
-  (window.FP.modules = window.FP.modules || {})['fp-lookup-tests'] = '0.62.0';
+  (window.FP.modules = window.FP.modules || {})['fp-lookup-tests'] = '0.63.0';
 })();

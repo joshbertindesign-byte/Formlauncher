@@ -456,5 +456,5 @@
   FP.sources = { KINDS, USES, singular, BUILT_IN, inferValues, writable, check, checkLegacy, normalize, fromLegacy, upgrade, carryFields, evaluate, reads, nameFor, publicValues, shapeItem, itemKeys, realStructure };
 
   /* Registered last, so a module that failed partway never reports as loaded. */
-  (window.FP.modules = window.FP.modules || {})['fp-sources'] = '0.62.0';
+  (window.FP.modules = window.FP.modules || {})['fp-sources'] = '0.63.0';
 })();
