@@ -24,3 +24,7 @@ dev/tests/*.png
 # Test fixtures are small synthetic images and are meant to be committed.
 !dev/tests/fixtures/**/*.png
 dev/tests/dummies/.seed-clock
+
+# Screenshot harness: the baseline images are committed; each run writes to out*/ (not committed)
+!dev/shots/baseline/*.png
+dev/shots/out*/
