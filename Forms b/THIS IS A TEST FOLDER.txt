@@ -1,0 +1,4 @@
+This data folder is a test folder.
+Marked by Joshua Bertin on 11/20/2026, 7:14:08 PM, from the editor (Admin > Test folder).
+On a test folder: Purge all data, the stress test, simulated terminals (launch.html?terminal=T02), and a pack's people.
+Delete this file, or use Admin > Test folder, to make it an ordinary folder again.
