@@ -2,4 +2,3 @@
 # Format: name  reason (fix-list number in docs/FIX-LIST.md). Remove a line when its test passes.
 l60 Needs the original snap15b seed (made by hand, not available); times out on "Go to this terminal" with the snap15 stand-in. Also fails on 0.60.0. (T2)
 l78 Needs the original snap15b seed; times out waiting for the old-board tile with the stand-in. Also fails on 0.60.0. (T2)
-l80 Installing the pilot pack fails: its form names a media-library entry the pack does not carry. Introduced in 0.61. (F5)
