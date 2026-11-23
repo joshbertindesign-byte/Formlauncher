@@ -634,6 +634,9 @@
     if (!p || p.fp !== 'pack' || !Array.isArray(p.definitions)) throw new Error('This file isn\'t a pack (it has no definitions).');
     p.definitions = p.definitions.filter(d => d && PACK_KINDS.includes(d.kind) && d.id && d.def && typeof d.def === 'object');
     p.items = p.items && typeof p.items === 'object' ? p.items : {};
+    // The media library entries, tag names and files the forms use (F5).
+    const lib = p.library && typeof p.library === 'object' ? p.library : {};
+    p.library = { entries: (Array.isArray(lib.entries) ? lib.entries : []).filter(x => x && typeof x === 'object' && typeof x.id === 'string'), tags: (Array.isArray(lib.tags) ? lib.tags : []).filter(x => x && typeof x.name === 'string') };
     const su = p.setup && typeof p.setup === 'object' ? p.setup : {};
     const list = x => (Array.isArray(x) ? x.filter(y => y && typeof y === 'object') : []);
     p.setup = { sites: list(su.sites).filter(x => x.id), groups: list(su.groups).filter(x => x.name && x.site), terminals: list(su.terminals).filter(x => x.id), people: list(su.people).filter(x => x.name), centers: list(su.centers).filter(x => x.name) };
@@ -730,6 +733,53 @@
     return n;
   }
   const same = (x, y) => JSON.stringify(x) === JSON.stringify(y);
+  /* ---- The media library in a pack (F5) ----
+   * library: { entries: [{ id, name, path, folder, tags, type, size, revision, note, file?: base64 }], tags: [{ name, list }] }
+   * A form that shows a library entry needs the entry on the folder it is installed on. The pack carries each active entry its
+   * forms use (named, or taken in by a tag rule), the tag names, and the file itself when it is small enough (2 MB each,
+   * 12 MB in all); the rest are listed as "not carried", the entry is made without its file, and the file is added to
+   * media/library/ by hand. Ids are kept; an entry with the same internal name already here is used instead and the forms
+   * are pointed at it. */
+  const LIB_FILE_MAX = 2 * 1024 * 1024, LIB_TOTAL_MAX = 12 * 1024 * 1024;
+  const toB64 = async blob => { const b = new Uint8Array(await blob.arrayBuffer()); let t = ''; for (let i = 0; i < b.length; i += 0x8000) t += String.fromCharCode.apply(null, b.subarray(i, i + 0x8000)); return btoa(t); };
+  const fromB64 = (t, type) => { const s2 = atob(t), b = new Uint8Array(s2.length); for (let i = 0; i < s2.length; i++) b[i] = s2.charCodeAt(i); return new Blob([b], { type: type || '' }); };
+  const mediaLines = def => (def && Array.isArray(def.media) ? def.media : []).filter(m => m && typeof m === 'object');
+  /* Point a form's media list at the entries here (when an entry went to a local one by name). */
+  function remapDef(d, map) {
+    if (!map.size || d.kind !== 'form' || !mediaLines(d.def).some(m => typeof m.entry === 'string' && map.has(m.entry))) return d;
+    return Object.assign({}, d, { def: Object.assign({}, d.def, { media: d.def.media.map(m => (m && typeof m.entry === 'string' && map.has(m.entry) ? Object.assign({}, m, { entry: map.get(m.entry) }) : m)) }) });
+  }
+  /* What the pack's library would do: entry by entry new | same | remapped, and the id map for the forms. */
+  async function libraryPlan(p) {
+    const out = { entries: [], tags: [], map: new Map() };
+    const lib = p.library || { entries: [], tags: [] };
+    if (!FP.media || !FP.media.library || (!lib.entries.length && !lib.tags.length)) return out;
+    await FP.media.library.load({ fresh: true }).catch(() => null);
+    const here = FP.media.library.cached();
+    for (const x of lib.entries) {
+      const sameId = here.find(e => e.id === x.id);
+      const named = sameId ? null : here.find(e => e.active && String(e.name).trim().toLowerCase() === String(x.name || '').trim().toLowerCase());
+      if (named) out.map.set(x.id, named.id);
+      out.entries.push({ x, how: sameId ? 'same' : named ? 'remapped' : 'new' });
+    }
+    const have = new Set(FP.media.library.tags().map(t => t.name));
+    out.tags = lib.tags.map(t => ({ x: t, how: have.has(t.name) ? 'same' : 'new' }));
+    return out;
+  }
+  async function installLibrary(p, plan) {
+    const r = { entries: 0, tags: 0, files: 0, notCarried: [] };
+    for (const t of plan.tags.filter(t => t.how === 'new')) { if (await FP.media.library.importTag(t.x.name, t.x.list)) r.tags++; }
+    for (const e of plan.entries) {
+      if (e.how === 'same' || e.how === 'remapped') continue;
+      let blob = null;
+      if (typeof e.x.file === 'string' && e.x.file) { try { blob = fromB64(e.x.file, e.x.type); } catch (_) { blob = null; } }
+      const got = await FP.media.library.importEntry(e.x, blob);
+      if (got.how === 'new') r.entries++;
+      if (blob && got.file) r.files++;
+      else if (!got.file) r.notCarried.push(e.x.name || e.x.id);
+    }
+    return r;
+  }
   /* What installing would do: per definition new | changed | same; per structure how many items are new. */
   async function packPlan(p) {
     const defs = p.definitions.map(d => {
@@ -737,6 +787,8 @@
       const builtIn = FP.defs.isBuiltIn(d.kind, d.id);
       return Object.assign({}, d, { cur, builtIn, how: builtIn ? 'built-in' : !cur || cur.retired ? 'new' : same(cur.def, d.def) ? 'same' : 'changed' });
     });
+    const library = await libraryPlan(p);
+    if (library.map.size) defs.forEach((d, i) => { const m = remapDef(d, library.map); if (m !== d) defs[i] = Object.assign(m, { how: !d.cur || d.cur.retired ? 'new' : same(d.cur.def, m.def) ? 'same' : 'changed' }); });
     const items = [];
     for (const [st, list] of Object.entries(p.items)) {
       if (!Array.isArray(list)) continue;
@@ -745,11 +797,15 @@
       const add = list.filter(x => x && x.id != null && !have.has(String(x.id)));
       items.push({ structure: st, all: list.length, add });
     }
-    return { defs, items, setup: await setupPlan(p) };
+    return { defs, items, library, setup: await setupPlan(p) };
   }
   async function installPack(p) {
     if (hasSetup(p) && !(await FP.users.can('admin'))) throw new Error('This pack sets up sites, groups and terminals: only an admin can install it.');
+    // Items are written straight into structures (the built-in ones too: users, sites...), so they take an admin (F36).
+    if (Object.values(p.items || {}).some(l => Array.isArray(l) && l.length) && !(await FP.users.can('admin'))) throw new Error('This pack adds items to structures: only an admin can install it.');
     const plan = await packPlan(p);
+    // The media library entries, tag names and files the forms name go in first, so the forms can be published.
+    const libDone = (plan.library.entries.length || plan.library.tags.length) ? await installLibrary(p, plan.library) : null;
     const todo = plan.defs.filter(d => d.how === 'new' || d.how === 'changed');
     // Functions, then structures, then forms; within that, whatever is refused for want of something else is tried again once that is in.
     const rank = { function: 0, structure: 1, form: 2 };
@@ -787,7 +843,7 @@
     if (FP.outbox) await FP.outbox.flush().catch(() => {});
     FP.current.clearCache();
     if (FP.editor.refreshMap) await FP.editor.refreshMap().catch(() => {});
-    return { defs: done.length, same: plan.defs.filter(d => d.how === 'same').length, items: added, setup };
+    return { defs: done.length, same: plan.defs.filter(d => d.how === 'same').length, items: added, setup, library: libDone };
   }
   /* A pack of what is published here, with the items of the structures picked. */
   async function makePack(o) {
@@ -802,6 +858,26 @@
       items[st].forEach(x => calc.forEach(c => delete x.values[c]));
     }
     const pack = { fp: 'pack', v: 1, name: o.name || 'Pack', note: o.note || '', madeAt: new Date().toISOString(), kernel: FP.version, definitions, items };
+    // The library entries the forms use, with their tag names and files (F5).
+    if (FP.media && FP.media.library && definitions.some(d => d.kind === 'form' && mediaLines(d.def).some(m => m.entry || m.library))) {
+      await FP.media.library.load({ fresh: true }).catch(() => null);
+      const want = new Map();
+      for (const d of definitions) if (d.kind === 'form') for (const m of mediaLines(d.def)) {
+        if (typeof m.entry === 'string') { const e = FP.media.library.get(m.entry); if (e && e.active) want.set(e.id, e); }
+        else if (m.library && typeof m.library === 'object') FP.media.library.cached().filter(e => e.active && FP.media.matches(e.tags, m.library)).forEach(e => want.set(e.id, e));
+      }
+      let total = 0;
+      const entries = [];
+      for (const e of want.values()) {
+        const x = { id: e.id, name: e.name, path: e.path, folder: e.folder, tags: e.tags, type: e.type, size: e.size, revision: e.revision, note: e.note };
+        const f = e.path ? await FP.media.file(e.path).catch(() => null) : null;
+        if (f && f.size <= LIB_FILE_MAX && total + f.size <= LIB_TOTAL_MAX) { x.file = await toB64(f); total += f.size; }
+        entries.push(x);
+      }
+      const names = new Set(entries.flatMap(e => Object.keys(e.tags || {})));
+      for (const d of definitions) if (d.kind === 'form') for (const m of mediaLines(d.def)) if (m.library && typeof m.library === 'object') Object.keys(m.library).forEach(k => names.add(k));
+      if (entries.length) pack.library = { entries, tags: FP.media.library.tags().filter(t => names.has(t.name)).map(t => ({ name: t.name, list: t.list || '' })) };
+    }
     // Where the forms go (0.52): the sites, their groups and the terminals in none, with their settings.
     if (o.setup) {
       const sites = (await FP.sites.list()).filter(x => x.active);
@@ -875,7 +951,7 @@
           a.addRow(box, '+install', n + m + setupN ? `+ install: ${n} definition${n === 1 ? '' : 's'}, ${m} item${m === 1 ? '' : 's'}${setupN ? `, ${setupN} site, group, terminal or person change${setupN === 1 ? '' : 's'}` : ''}` : '+ nothing to install: it is all here', 0, null, () => {
             if (!(n + m + setupN)) return;
             if (!confirm(`Install ${st.pack.name || 'the pack'}? ${n} definition${n === 1 ? ' is' : 's are'} published (a changed one gets a new version; History can go back) and ${m} item${m === 1 ? ' is' : 's are'} added, saved by you.`)) return;
-            act(() => installPack(st.pack), r => `Installed: ${r.defs} definition${r.defs === 1 ? '' : 's'} published, ${r.items} item${r.items === 1 ? '' : 's'} added${r.same ? `, ${r.same} already here` : ''}${r.setup ? `; ${r.setup.sites} site${r.setup.sites === 1 ? '' : 's'}, ${r.setup.groups} group${r.setup.groups === 1 ? '' : 's'}, ${r.setup.terminals} terminal${r.setup.terminals === 1 ? '' : 's'}${r.setup.people ? `, ${r.setup.people} ${r.setup.people === 1 ? 'person' : 'people'}` : ''}${r.setup.centers ? `, ${r.setup.centers} responsibility center${r.setup.centers === 1 ? '' : 's'}` : ''} set up` : ''}.`, () => { st.pack = null; return again(); });
+            act(() => installPack(st.pack), r => `Installed: ${r.defs} definition${r.defs === 1 ? '' : 's'} published, ${r.items} item${r.items === 1 ? '' : 's'} added${r.same ? `, ${r.same} already here` : ''}${r.setup ? `; ${r.setup.sites} site${r.setup.sites === 1 ? '' : 's'}, ${r.setup.groups} group${r.setup.groups === 1 ? '' : 's'}, ${r.setup.terminals} terminal${r.setup.terminals === 1 ? '' : 's'}${r.setup.people ? `, ${r.setup.people} ${r.setup.people === 1 ? 'person' : 'people'}` : ''}${r.setup.centers ? `, ${r.setup.centers} responsibility center${r.setup.centers === 1 ? '' : 's'}` : ''} set up` : ''}${r.library && (r.library.entries || r.library.tags) ? `; ${r.library.entries} media library entr${r.library.entries === 1 ? 'y' : 'ies'} added` : ''}.${r.library && r.library.notCarried.length ? ` Not carried (add the file to media/library by hand): ${r.library.notCarried.join(', ')}.` : ''}`, () => { st.pack = null; return again(); });
           });
         }
         a.head(box, 'Make a pack', 'every form, structure and function published here, and the items of the structures you tick');

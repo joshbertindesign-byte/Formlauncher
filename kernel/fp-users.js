@@ -147,17 +147,31 @@
   }
 
   /* ---------- Signed-in user ---------- */
-  let signedIn = null;
+  let signedIn = null, signinGate = null;
 
   async function currentUser() {
     const open = await FP.session.current();
     const s = open.user && open.user[0];
     signedIn = s ? { id: s.stamp.userId, name: s.stamp.name, roles: normRoles(s.stamp.roles), since: s.openedAt, sessionId: s.id } : null;
+    // The roles stored with the sign-in can be out of date: an admin may have demoted or retired this person since
+    // (perhaps on another terminal). Use what the users list says now (it is cached for a short while, so a change made
+    // elsewhere shows within about half a minute), and end the sign-in of someone retired.
+    if (signedIn) {
+      try {
+        const r = await FP.current.load(STRUCTURE);
+        const it = r.items.get(signedIn.id);
+        if (it) {
+          const u = shapeUser(it);
+          if (!u.active) { await FP.session.close('user', { reason: 'retired' }); signedIn = null; return null; }
+          if (u.roles.length) signedIn.roles = u.roles;
+        }
+      } catch (e) { /* the list can't be read now: keep what the sign-in says */ }
+    }
     return signedIn;
   }
 
   // Ranked: a publisher can do what a supervisor can, and so on. Old role names still work in calls.
-  const hasRole = (u, role) => !!u && normRoles(u.roles).some(r => rank(r) >= rank(role));
+  const hasRole = (u, role) => !!u && rank(role) >= 0 && normRoles(u.roles).some(r => rank(r) >= rank(role));   // an unknown role name is never held
 
   async function requireRole(role) {
     const u = await currentUser();
@@ -310,7 +324,9 @@
       // Someone signed in who may not sign in here (0.50.1: a terminal for supervisors only): they are signed out.
       if (u && opts && opts.role && !hasRole(u, opts.role)) await FP.users.signOut('not-here');
       else if (u) return u;
-      return gateUI(Object.assign({ mode: 'signin' }, opts || {}));
+      // Only one sign-in screen at a time: an idle sign-out and the watcher can both ask for it.
+      if (!signinGate) signinGate = gateUI(Object.assign({ mode: 'signin' }, opts || {})).finally(() => { signinGate = null; });
+      return signinGate;
     },
 
     /* Sign out after `minutes` without a tap or key press, then call onSignedOut. */
