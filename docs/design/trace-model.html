@@ -1,0 +1,346 @@
+<title>Trace Query Model</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* Concept: a containment worksheet. Start from a symptom, choose how far it reaches, act on the list.
+   Same tokens as the UI direction mockup: warm neutrals, one blue accent, data-kind colours. */
+:root{
+  --bg:#f2f2ef; --surface:#fff; --surface2:#f7f7f5; --line:#e1e0db; --line2:#cfcdc6;
+  --fg:#1c2128; --muted:#5d6570; --accent:#1f5fbf; --accent-t:#e4edfb; --accent-fg:#fff;
+  --head:#1a212b; --head-fg:#f1f3f5; --head-line:#323c49;
+  --good:#1f7a4d; --good-t:#e1f2e8; --warn:#9a5600; --warn-t:#fbedd6; --bad:#b3261e; --bad-t:#fbe5e3;
+  --grey:#4b5663; --grey-t:#e8e9ec;
+  --sans:Inter,system-ui,-apple-system,"Segoe UI",sans-serif; --mono:Consolas,"Cascadia Mono",monospace;
+  --shadow:0 1px 2px rgba(20,25,30,.06),0 4px 14px rgba(20,25,30,.06);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#13171c; --surface:#1c2229; --surface2:#222930; --line:#303943; --line2:#415060;
+  --fg:#e8ebef; --muted:#9aa5b1; --accent:#6fa3ff; --accent-t:#172a47; --accent-fg:#0d1624;
+  --head:#0e1217; --head-fg:#e8ebef; --head-line:#2a323c;
+  --good:#5fd199; --good-t:#17331f; --warn:#f0b45a; --warn-t:#3a2a10; --bad:#ff8f86; --bad-t:#47201d;
+  --grey:#aeb8c4; --grey-t:#2a313a; --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.35); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#13171c; --surface:#1c2229; --surface2:#222930; --line:#303943; --line2:#415060;
+  --fg:#e8ebef; --muted:#9aa5b1; --accent:#6fa3ff; --accent-t:#172a47; --accent-fg:#0d1624;
+  --head:#0e1217; --head-fg:#e8ebef; --head-line:#2a323c;
+  --good:#5fd199; --good-t:#17331f; --warn:#f0b45a; --warn-t:#3a2a10; --bad:#ff8f86; --bad-t:#47201d;
+  --grey:#aeb8c4; --grey-t:#2a313a; --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.35); color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:14px;line-height:1.45;margin:0}
+button,input{font:inherit;color:inherit} button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+svg.i{width:1em;height:1em;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.wrap{max-width:1180px;margin:0 auto;padding-block:20px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.intro{margin:0 0 14px;max-width:70ch}
+.intro h1{font-size:20px;margin:0 0 2px;font-weight:650}
+.intro p{margin:0;color:var(--muted)}
+.app{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow)}
+.bar{background:var(--head);color:var(--head-fg);display:flex;gap:12px;align-items:center;padding:11px 16px;flex-wrap:wrap}
+.bar b{font-size:16px;font-weight:650}.bar .sp{flex:1}.bar small{opacity:.65}
+.body{background:var(--bg);padding:14px;display:grid;gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;min-width:0}
+.card h3{margin:0 0 10px;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:650}
+.step{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--fg);color:var(--bg);font-size:11px;margin-right:6px;letter-spacing:0}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:600;background:var(--grey-t);color:var(--grey);white-space:nowrap}
+.chip.good{background:var(--good-t);color:var(--good)}.chip.warn{background:var(--warn-t);color:var(--warn)}.chip.bad{background:var(--bad-t);color:var(--bad)}.chip.acc{background:var(--accent-t);color:var(--accent)}
+.btn{border:1px solid var(--line2);background:var(--surface);border-radius:10px;padding:9px 15px;font-weight:600;display:inline-flex;gap:7px;align-items:center}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.btn.danger{background:var(--bad);border-color:var(--bad);color:var(--surface)}
+.btn[disabled]{opacity:.45;cursor:default}
+.seg{display:inline-flex;border:1px solid var(--line2);border-radius:10px;overflow:hidden;background:var(--surface);flex-wrap:wrap}
+.seg button{border:0;background:none;padding:8px 14px;font-weight:600;color:var(--muted);border-right:1px solid var(--line);white-space:nowrap}
+.seg button:last-child{border-right:0}.seg button.on{background:var(--fg);color:var(--bg)}.seg button[disabled]{opacity:.5;cursor:default}
+.top{display:grid;gap:14px;grid-template-columns:1fr}
+@media(min-width:900px){.top{grid-template-columns:minmax(0,5fr) minmax(0,7fr)}}
+.found{display:grid;gap:8px}
+.chain{display:flex;gap:10px;align-items:flex-start}
+.chain .dotl{width:10px;height:10px;border-radius:50%;background:var(--line2);margin-top:6px;flex:none;position:relative}
+.chain .dotl.bad{background:var(--bad)}
+.chain b{font-weight:600}.chain span{color:var(--muted)}
+.mono{font-family:var(--mono)}
+.scopes{display:grid;gap:8px}
+.scope{display:flex;gap:12px;align-items:center;text-align:left;border:1.5px solid var(--line2);background:var(--surface);border-radius:12px;padding:11px 13px;width:100%}
+.scope.on{border-color:var(--accent);background:var(--accent-t)}
+.scope .n{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;min-width:44px;text-align:center}
+.scope b{display:block;font-weight:650}.scope span{color:var(--muted);font-size:13px}
+.asof{display:flex;gap:10px;align-items:center;flex-wrap:wrap;color:var(--muted);font-size:13px;margin-top:10px}
+.sum{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.s{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--surface)}
+.s b{display:block;font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+.s span{color:var(--muted);font-size:13px}
+.s.bad{border-color:var(--bad);background:var(--bad-t)}
+.tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+.tl{display:grid;gap:18px}
+.lane h4{margin:0 0 6px;font-size:13px;font-weight:650;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.track{position:relative;height:78px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--surface2);border-radius:8px}
+.hrs{position:absolute;inset:auto 0 -20px 0;height:18px}
+.hrs i{position:absolute;transform:translateX(-50%);font-style:normal;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.band{position:absolute;top:0;bottom:0;background:var(--bad-t);border-left:2px solid var(--bad);border-right:2px solid var(--bad)}
+.band em{position:absolute;top:2px;left:6px;font-size:11px;font-style:normal;color:var(--bad);font-weight:650;white-space:nowrap}
+.ck{position:absolute;top:22px;width:12px;height:12px;border-radius:50%;transform:translateX(-50%);background:var(--good);border:2px solid var(--surface)}
+.ck.fail{background:var(--bad);width:16px;height:16px;top:20px}
+.rk{position:absolute;bottom:8px;width:8px;height:22px;border-radius:3px;transform:translateX(-50%);background:var(--grey);opacity:.28}
+.rk.in{opacity:1}.rk.stock{background:var(--warn)}.rk.ship{background:var(--grey)}.rk.hold{background:var(--bad)}
+.lab{position:absolute;left:6px;font-size:11px;color:var(--muted)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;color:var(--muted);font-size:12px;margin-top:24px}
+.legend span{display:inline-flex;gap:6px;align-items:center}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px}
+table{width:100%;border-collapse:collapse}
+th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:left;padding:6px 8px;font-weight:650}
+td{padding:8px;border-top:1px solid var(--line)}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+tr.g td{background:var(--surface2);font-weight:650;border-top:1px solid var(--line2)}
+.tw{overflow-x:auto}
+input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent)}
+.tree{display:grid;gap:2px;font-size:14px}
+.tr{display:flex;gap:8px;align-items:center;padding:5px 8px;border-radius:8px}
+.tr.hl{background:var(--bad-t)}
+.tr .m{color:var(--muted);font-size:12px}
+.act{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+.act .sp{flex:1}
+.panel{margin-top:12px;border:1.5px solid var(--bad);background:var(--bad-t);border-radius:12px;padding:14px;display:grid;gap:10px}
+.panel label{font-size:12px;font-weight:650;color:var(--muted);display:block;margin-bottom:3px}
+.panel input[type=text],.panel input[type=password]{width:100%;border:1px solid var(--line2);background:var(--surface);border-radius:10px;padding:9px 11px}
+.row2{display:grid;gap:10px;grid-template-columns:1fr}
+@media(min-width:700px){.row2{grid-template-columns:2fr 1fr}}
+.note{color:var(--muted);font-size:13px}
+.ok{border:1.5px solid var(--good);background:var(--good-t);border-radius:12px;padding:12px 14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.gaps{display:grid;gap:6px;color:var(--muted);font-size:13px}
+.gaps div{display:flex;gap:8px;align-items:flex-start}
+[hidden]{display:none!important}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></symbol>
+<symbol id="flag" viewBox="0 0 24 24"><path d="M6 21V4 M6 5h11l-2 4 2 4H6"/></symbol>
+<symbol id="check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+<symbol id="refresh" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-3-6.2 M20 4v5h-5"/></symbol>
+<symbol id="info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5 M12 8h.01"/></symbol>
+</defs></svg>
+
+<div class="wrap">
+  <div class="intro">
+    <h1>Trace query: how it would work</h1>
+    <p>A QC person starts from a customer complaint, decides how far the problem could reach, and puts the affected racks on hold. Everything on this page is example data for one invented run, and nothing here is saved.</p>
+  </div>
+
+  <div class="app">
+    <div class="bar"><b>Trace</b><span class="sp"></span><small>QC office · T02</small></div>
+    <div class="body">
+
+      <div class="top">
+        <div class="card">
+          <h3><span class="step">1</span>Start from</h3>
+          <div class="seg" style="margin-bottom:12px" role="group" aria-label="Start from">
+            <button type="button" class="on">Rack ID</button><button type="button" disabled title="Designed, not shown here">Complaint</button><button type="button" disabled title="Designed, not shown here">Failed check</button><button type="button" disabled title="Designed, not shown here">Material lot</button>
+          </div>
+          <div style="display:flex;gap:8px;margin-bottom:12px"><input id="startid" type="text" value="R41213" aria-label="Rack ID" style="flex:1;min-width:0;border:1px solid var(--line2);background:var(--surface);border-radius:10px;padding:10px 12px;font-family:var(--mono)" readonly><button class="btn" type="button"><svg class="i"><use href="#search"/></svg>Find</button></div>
+          <div class="found">
+            <div class="chain"><span class="dotl"></span><div><b class="mono">R41213</b> <span>Rack of P-2210 Black, 28 pieces, made 10:30</span></div></div>
+            <div class="chain"><span class="dotl"></span><div><b>Run L3-1118</b> <span>Line 3 · Day shift · Crew B · 06:00 to 18:00</span></div></div>
+            <div class="chain"><span class="dotl"></span><div><b>Shipped</b> <span>to Northline Doors on Nov 20</span></div></div>
+            <div class="chain"><span class="dotl bad"></span><div><b>Hourly check 11:00 failed: Colour</b> <span>Suggested as the bad point. <a href="#" id="chg" style="color:var(--accent)">Change</a></span></div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3><span class="step">2</span>How far could it reach?</h3>
+          <div class="scopes" id="scopes">
+            <button type="button" class="scope on" data-s="win"><span class="n" id="n-win">6</span><div><b>The suspect window</b><span>Racks made between the last passing check (10:00) and the next one (12:00)</span></div></button>
+            <button type="button" class="scope" data-s="run"><span class="n" id="n-run">36</span><div><b>The whole run</b><span>Every rack on the run, plus a partial rack carried to a later run</span></div></button>
+            <button type="button" class="scope" data-s="lot"><span class="n" id="n-lot">44</span><div><b>Everything from the same material lot</b><span>Adds other runs that used lot RL-5521. Needs the lot to be recorded at Start shift.</span></div></button>
+          </div>
+          <div class="asof"><span class="chip acc">As of Nov 23, 14:05</span><button class="btn" type="button" id="rerun" style="padding:5px 11px"><svg class="i"><use href="#refresh"/></svg>Run again</button><span>Every run of a trace is dated, so the answer can be compared later.</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3><span class="step">3</span>What is affected</h3>
+        <div class="sum" id="sum"></div>
+        <div class="tabs" style="margin-top:14px"><div class="seg" role="tablist" aria-label="View" id="views"><button type="button" class="on" data-v="tl">Timeline</button><button type="button" data-v="ls">List</button><button type="button" data-v="tr">Tree</button></div><span class="note" id="viewnote"></span></div>
+        <div id="v-tl"></div>
+        <div id="v-ls" hidden></div>
+        <div id="v-tr" hidden></div>
+
+        <div class="act">
+          <button class="btn danger" type="button" id="holdbtn"></button>
+          <button class="btn" type="button" id="exportbtn">Export list</button>
+          <button class="btn" type="button" id="casebtn">Save this trace as a case</button>
+          <span class="sp"></span>
+          <span class="note" id="shipnote"></span>
+        </div>
+        <div class="panel" id="holdpanel" hidden>
+          <b>Place on hold</b>
+          <div class="note" id="holdtext"></div>
+          <div class="row2">
+            <div><label for="reason">Reason (kept with every rack)</label><input id="reason" type="text" value="Colour mismatch: hourly check 11:00 failed"></div>
+            <div><label for="pin">Supervisor PIN</label><input id="pin" type="password" inputmode="numeric" placeholder="Any 4+ digits here"></div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn danger" type="button" id="holdok">Place on hold</button><button class="btn" type="button" id="holdno">Cancel</button></div>
+        </div>
+        <div class="ok" id="done" hidden role="status"><svg class="i" style="font-size:20px;color:var(--good)"><use href="#check"/></svg><span id="donetext"></span></div>
+      </div>
+
+      <div class="card">
+        <h3>What this trace could and could not link</h3>
+        <div class="gaps" id="gaps"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  /* ---- invented example data ---- */
+  var T0=6*60+10,STEP=20;
+  function hm(m){m=((m%1440)+1440)%1440;var h=Math.floor(m/60),mm=m%60;return (h<10?'0':'')+h+':'+(mm<10?'0':'')+mm}
+  var racks=[],i;
+  for(i=0;i<35;i++){racks.push({id:'R'+(41200+i),t:T0+i*STEP,pcs:28,run:'L3-1118',where:i<=13?'ship':'stock',cust:i<=13?'Northline Doors':'',lane:1})}
+  racks.push({id:'R41302',t:1440+7*60+40,pcs:28,run:'L5-1119',where:'stock',cust:'',lane:2,carried:true});
+  var lot=[];
+  for(i=0;i<8;i++){lot.push({id:'R'+(41303+i),t:1440+8*60+i*40,pcs:28,run:'L5-1119',where:i<3?'ship':'stock',cust:i<3?'Harlan Supply':'',lane:2,lotonly:true})}
+  var checks=[];for(i=6;i<=17;i++){checks.push({h:i,fail:i===11})}
+  var WIN={from:10*60,to:12*60};
+  var state={scope:'win',view:'tl',hold:{},sel:{},case:false,justHeld:0};
+
+  function inScope(r){
+    if(state.scope==='win')return r.lane===1&&r.t>WIN.from&&r.t<WIN.to;
+    if(state.scope==='run')return r.lane===1||r.carried;
+    return true;
+  }
+  function pool(){return racks.concat(lot)}
+  function scoped(){return pool().filter(inScope)}
+  function where(r){return state.hold[r.id]?'hold':r.where}
+  function word(w){return w==='ship'?'Shipped':w==='hold'?'On hold':'In stock'}
+  function cls(w){return w==='ship'?'':w==='hold'?'bad':'warn'}
+  var $=function(id){return document.getElementById(id)};
+
+  function counts(){
+    var s=scoped(),c={ship:0,stock:0,hold:0,pcs:0};
+    s.forEach(function(r){c[where(r)]++;c.pcs+=r.pcs});c.n=s.length;return c;
+  }
+
+  function renderScopes(){
+    var save=state.scope;
+    ['win','run','lot'].forEach(function(k){state.scope=k;$('n-'+k).textContent=scoped().length});
+    state.scope=save;
+    document.querySelectorAll('.scope').forEach(function(b){b.classList.toggle('on',b.dataset.s===state.scope)});
+  }
+
+  function renderSum(){
+    var c=counts();
+    $('sum').innerHTML=
+      '<div class="s bad"><b>'+c.n+' racks</b><span>'+c.pcs.toLocaleString()+' pieces in scope</span></div>'+
+      '<div class="s"><b>'+c.ship+'</b><span>already shipped to a customer</span></div>'+
+      '<div class="s"><b>'+c.stock+'</b><span>still in stock, can be held now</span></div>'+
+      '<div class="s"><b>'+c.hold+'</b><span>on hold</span></div>';
+  }
+
+  function track(lane,items,withChecks,band,title,sub){
+    var lo=6*60,hi=18*60,pct=function(m){return ((m-lo)/(hi-lo)*100)};
+    var h='<div class="lane"><h4>'+title+' <span class="chip">'+sub+'</span></h4><div class="track">';
+    if(band)h+='<div class="band" style="left:'+pct(WIN.from)+'%;width:'+(pct(WIN.to)-pct(WIN.from))+'%"><em>Suspect window</em></div>';
+    if(withChecks)checks.forEach(function(k){h+='<span class="ck'+(k.fail?' fail':'')+'" style="left:'+pct(k.h*60)+'%" title="'+hm(k.h*60)+(k.fail?' failed: Colour':' passed')+'"></span>'});
+    items.forEach(function(r){
+      var t=r.t-(r.lane===2?1440:0);
+      var w=where(r),on=inScope(r);
+      h+='<span class="rk '+(w==='ship'?'ship':w==='hold'?'hold':'stock')+(on?' in':'')+'" style="left:'+pct(t)+'%" title="'+r.id+' · '+hm(r.t)+' · '+word(w)+'"></span>';
+    });
+    h+='<div class="hrs">';for(var x=6;x<=18;x+=2)h+='<i style="left:'+pct(x*60)+'%">'+hm(x*60)+'</i>';
+    return h+'</div></div></div>';
+  }
+
+  function renderTl(){
+    var h='<div class="tl">';
+    h+=track(1,racks.filter(function(r){return r.lane===1}),true,true,'Line 3 · Nov 18','Run L3-1118');
+    if(state.scope!=='win'){
+      var l2=racks.filter(function(r){return r.lane===2}).concat(state.scope==='lot'?lot:[]);
+      h+=track(2,l2,false,false,'Line 5 · Nov 19',state.scope==='lot'?'Run L5-1119 · lot RL-5521':'Run L5-1119 · finished a partial rack');
+    }
+    h+='</div><div class="legend"><span><i style="background:var(--good)"></i>Check passed</span><span><i style="background:var(--bad)"></i>Check failed</span><span><i style="background:var(--warn)"></i>Rack in stock</span><span><i style="background:var(--grey)"></i>Rack shipped</span><span><i style="background:var(--bad)"></i>Rack on hold</span><span>Faded racks are outside the chosen scope</span></div>';
+    $('v-tl').innerHTML=h;
+  }
+
+  function renderLs(){
+    var s=scoped(),groups={stock:[],hold:[],ship:[]};
+    s.forEach(function(r){groups[where(r)].push(r)});
+    var h='<div class="tw"><table><thead><tr><th></th><th>Rack</th><th>Made</th><th>Run</th><th class="n">Pieces</th><th>Where now</th></tr></thead><tbody>';
+    [['stock','In stock'],['hold','On hold'],['ship','Shipped']].forEach(function(g){
+      var a=groups[g[0]];if(!a.length)return;
+      h+='<tr class="g"><td colspan="6">'+g[1]+' · '+a.length+'</td></tr>';
+      a.forEach(function(r){
+        var can=g[0]==='stock';
+        h+='<tr><td>'+(can?'<input type="checkbox" data-r="'+r.id+'"'+(state.sel[r.id]!==false?' checked':'')+' aria-label="Select '+r.id+'">':'')+'</td><td class="mono">'+r.id+'</td><td>'+hm(r.t)+(r.t>=1440?' next day':'')+'</td><td>'+r.run+(r.carried?' <span class="chip">carried partial rack</span>':'')+'</td><td class="n">'+r.pcs+'</td><td><span class="chip '+cls(g[0])+'">'+word(g[0])+(r.cust?' · '+r.cust:'')+'</span></td></tr>';
+      });
+    });
+    $('v-ls').innerHTML=h+'</tbody></table></div>';
+    $('v-ls').querySelectorAll('input[data-r]').forEach(function(cb){cb.addEventListener('change',function(){state.sel[cb.dataset.r]=cb.checked;renderAct()})});
+  }
+
+  function renderTr(){
+    var s=scoped(),n1=s.filter(function(r){return r.lane===1}).length,rest=s.length-n1;
+    var rows=[
+      [0,'Rack <b class="mono">R41213</b>','start',''],
+      [1,'Run <b>L3-1118</b> · Line 3 · Day · Crew B','',''],
+      [2,'Hourly checks · 12 (11 passed, 1 failed)','',''],
+      [3,'11:00 failed: Colour','hl','suggested bad point'],
+      [2,'Racks in scope on this run · '+n1,'',state.scope==='win'?'suspect window only':'whole run'],
+      [2,'Shift: Day · Need: N-2210-14 · Profile P-2210 Black','','']
+    ];
+    if(state.scope!=='win')rows.push([2,'Partial rack PR 261118-1750 · 14 pieces left at changeover','','carried'],[3,'Run L5-1119 · Line 5 · finished the partial rack with rack R41302','','']);
+    if(state.scope==='lot')rows.push([2,'Material lot RL-5521','',''],[3,'Run L5-1119 · 8 more racks from the same lot','','']);
+    var h='<div class="tree">';
+    rows.forEach(function(r){h+='<div class="tr'+(r[2]==='hl'?' hl':'')+'" style="margin-left:'+(r[0]*22)+'px"><span class="chip '+(r[2]==='hl'?'bad':'')+'">'+(r[0]===0?'Start':r[0]===1?'Run':r[0]===2?'Link':'Found')+'</span><span>'+r[1]+'</span>'+(r[3]?'<span class="m">'+r[3]+'</span>':'')+'</div>'});
+    $('v-tr').innerHTML=h+'</div><p class="note" style="margin:10px 0 0">This is the existing trace tree. The new part is the other two views and the scope above.</p>';
+  }
+
+  function selectedStock(){
+    return scoped().filter(function(r){return where(r)==='stock'&&state.sel[r.id]!==false});
+  }
+  function renderAct(){
+    var n=selectedStock().length,c=counts();
+    $('holdbtn').textContent='Place '+n+' on hold';$('holdbtn').disabled=n===0;
+    $('shipnote').textContent=c.ship?c.ship+' already shipped can’t be held. They need a customer notice (needs the email dispatcher, not built).':'';
+    $('casebtn').textContent=state.case?'Case C-0042 opened ✓':'Save this trace as a case';$('casebtn').disabled=state.case;
+  }
+
+  function renderGaps(){
+    var c=counts(),g=[];
+    g.push('<div><svg class="i" style="margin-top:3px"><use href="#check"/></svg><span>'+c.n+' of '+c.n+' racks linked to a run. None were left out.</span></div>');
+    g.push('<div><svg class="i" style="margin-top:3px"><use href="#info"/></svg><span>Searched the live window (the last 60 days) plus the year-back lookups. Racks older than that would need the weekly files and take longer.</span></div>');
+    g.push('<div><svg class="i" style="margin-top:3px"><use href="#info"/></svg><span>“Shipped” is known only because the Ship form was used. Racks shipped without it show as In stock until someone corrects that.</span></div>');
+    if(state.scope==='lot')g.push('<div><svg class="i" style="margin-top:3px"><use href="#info"/></svg><span>Lot RL-5521 is on 2 runs. Runs from before the lot was recorded can’t be matched.</span></div>');
+    $('gaps').innerHTML=g.join('');
+  }
+
+  function render(){
+    renderScopes();renderSum();renderTl();renderLs();renderTr();renderAct();renderGaps();
+    ['tl','ls','tr'].forEach(function(v){$('v-'+v).hidden=(v!==state.view)});
+    document.querySelectorAll('#views button').forEach(function(b){b.classList.toggle('on',b.dataset.v===state.view)});
+    $('viewnote').textContent=state.view==='tl'?'When the problem could have been made':state.view==='ls'?'What to act on, grouped by where it is now':'How the racks link back to the cause';
+  }
+
+  document.querySelectorAll('.scope').forEach(function(b){b.addEventListener('click',function(){state.scope=b.dataset.s;state.sel={};$('done').hidden=true;render()})});
+  document.querySelectorAll('#views button').forEach(function(b){b.addEventListener('click',function(){state.view=b.dataset.v;render()})});
+  $('chg').addEventListener('click',function(e){e.preventDefault()});
+  $('rerun').addEventListener('click',function(){var b=$('rerun');b.textContent='Same result as before';setTimeout(function(){b.innerHTML='<svg class="i"><use href="#refresh"/></svg>Run again'},1600)});
+  $('exportbtn').addEventListener('click',function(){var b=$('exportbtn');b.textContent='Exported (not in this model)';setTimeout(function(){b.textContent='Export list'},1600)});
+  $('holdbtn').addEventListener('click',function(){
+    var n=selectedStock().length;
+    $('holdtext').textContent=n+' racks will be marked On hold on every terminal. Each gets the reason below and your name, and nothing is deleted. A supervisor PIN is needed.';
+    $('holdpanel').hidden=false;$('done').hidden=true;
+  });
+  $('holdno').addEventListener('click',function(){$('holdpanel').hidden=true});
+  $('holdok').addEventListener('click',function(){
+    var pin=$('pin').value;if(!/^\d{4,}$/.test(pin)){$('pin').focus();$('pin').style.borderColor='var(--bad)';return}
+    $('pin').style.borderColor='';
+    var s=selectedStock();s.forEach(function(r){state.hold[r.id]=true});
+    $('holdpanel').hidden=true;$('pin').value='';
+    $('donetext').textContent=s.length+' racks placed on hold at '+hm(14*60+9)+'. They show as On hold on every terminal and in the weekly tables.';
+    $('done').hidden=false;render();
+  });
+  $('casebtn').addEventListener('click',function(){state.case=true;renderAct();$('donetext').textContent='Case C-0042 opened with this trace: the start rack, the scope, the counts and the time it was run.';$('done').hidden=false});
+  render();
+})();
+</script>
