@@ -6,7 +6,7 @@ verified here. `docs/FIX-LIST.md` is the list it worked from; `docs/REVIEW-0.60-
 ## Result
 
 - **43 of the 44 fix-list items are done.** The one left is **F20** (the Admin "move a terminal" control), which needs your decision.
-- **Regression, from nothing: 84 passed, 0 known failing, 0 failed.** 17 new tests were added, each written to fail on the old code first.
+- **Regression, from nothing: 85 passed, 0 known failing, 0 failed.** 17 new tests were added, each written to fail on the old code first.
   The lost `snap15b` seed was worked out and is rebuilt by a script, so `l60` and `l78` pass too (`docs/SNAP15B.md`). The 78-passed, 2-known-failing
   result was the run before that.
 - **Unit tests:** formula 129/129 (was 90) and lookup 36/36 (was 26), also under four time zones.

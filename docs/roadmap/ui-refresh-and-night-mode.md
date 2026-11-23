@@ -1,6 +1,6 @@
 # Engineering order: UI refresh and day/night mode
 
-Status: Agreed direction (design decided, not built). Reference mockup: `docs/design/ui-mockup.html`
+Status: **Release A (steps 1 to 6) built in 0.64.0**, see `docs/UI-REFRESH-RELEASE-A.md`. Release B (steps 7 to 11) not started. Original status: Agreed direction (design decided). Reference mockup: `docs/design/ui-mockup.html`
 (Editor, Operator and Key tabs; light and dark).
 
 ## Goal
