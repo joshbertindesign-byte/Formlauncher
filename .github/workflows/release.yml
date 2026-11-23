@@ -1,0 +1,51 @@
+# A stable version is a tag: v0.60.0 (matching runtime/0.60.0/). Pushing the tag, or running this by hand, checks the
+# release zip and publishes it as the single download on the GitHub Releases page. Work in progress (untagged commits,
+# branches) publishes nothing.
+#
+# To use the download: save kernel-X.Y.Z.zip into the SharePoint data folder's updates/ folder (the OneDrive shortcut),
+# then an admin installs it from the editor: Admin > Updates.
+name: Publish release
+
+on:
+  push:
+    tags: ['v[0-9]+.[0-9]+.[0-9]+']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish, e.g. 0.60.0 (the tag v0.60.0 is made if it is missing)'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      RUNTIME: Forms b/runtime
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Work out the version
+        id: v
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then V="${{ inputs.version }}"; else V="${GITHUB_REF_NAME#v}"; fi
+          echo "$V" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$' || { echo "Not a version: $V"; exit 1; }
+          echo "version=$V" >> "$GITHUB_OUTPUT"
+
+      - name: Check the release zip against the committed files
+        id: zip
+        run: |
+          ZIP=$(python3 .github/scripts/verify_release.py "${{ steps.v.outputs.version }}" "$RUNTIME")
+          echo "path=$ZIP" >> "$GITHUB_OUTPUT"
+
+      - name: Publish
+        run: |
+          V="${{ steps.v.outputs.version }}"; ZIP="${{ steps.zip.outputs.path }}"
+          if gh release view "v$V" >/dev/null 2>&1; then
+            gh release upload "v$V" "$ZIP" --clobber
+          else
+            gh release create "v$V" "$ZIP" --target "${GITHUB_SHA}" --title "Form Platform $V" \
+              --notes "Download kernel-$V.zip, save it in the data folder's updates/ folder, then install it from the editor: Admin > Updates."
+          fi
