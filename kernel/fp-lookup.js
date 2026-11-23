@@ -24,7 +24,8 @@
  * holding "all" matches every value (a procedure tagged profile: ["all"]).
  *
  * Time: lookups read as of the form's as-of time and, by default, inside the
- * form's window (ctx.window = { from, to }). reads.window can instead be
+ * form's window (ctx.window = { from, to }). No form has a date filter today, so nothing
+ * passes ctx.window and the default reads everything loaded (F11: needs a decision). reads.window can instead be
  * { days: 30 } (a fixed baseline ending at the as-of time), 'all', or
  * 'always-current' (today's data even when reviewing an old record).
  *
@@ -58,6 +59,8 @@
     const ret = r.return;
     if (!(ret === '*' || (typeof ret === 'string' && ret) || (Array.isArray(ret) && ret.length))) problems.push('return needs a container, a list of containers, or *');
     if (r.summary && !FP.summary.rules.includes(r.summary)) problems.push(`summary must be ${FP.summary.rules.join(', ')}`);
+    // sum, average, min and max work on one container's values; over * or several containers they were ignored (F4).
+    if (['sum', 'average', 'min', 'max'].includes(r.summary) && !(typeof ret === 'string' && ret !== '*')) problems.push(`summary ${r.summary} needs one container to return, not * or several: use latest, first, count or list`);
     if ((r.from || 'items') === 'items' && r.summary && !['latest', 'first', 'count', 'list'].includes(r.summary)) problems.push('Over items, summary must be latest, first, count or list');
     const w = r.window;
     if (w != null && !['form', 'all', 'always-current'].includes(w) && !(w && typeof w === 'object' && w.days > 0)) problems.push(`window must be form, all, always-current or { days }`);
@@ -89,7 +92,8 @@
   const same = (a, b) => {
     if (a === ANY) return true;
     if (a == null || b == null) return false;
-    if (typeof a === 'number' || typeof b === 'number') return Number(a) === Number(b);
+    // A number matches a number, or text that is one; an empty value is not 0 (F28).
+    if (typeof a === 'number' || typeof b === 'number') return String(a).trim() !== '' && String(b).trim() !== '' && Number(a) === Number(b);
     return String(a).toLowerCase() === String(b).toLowerCase();
   };
 

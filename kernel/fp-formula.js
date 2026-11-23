@@ -178,8 +178,18 @@
    * out: result type for type checking; min/max: argument count. */
   const num = v => (typeof v === 'number' ? v : (typeof v === 'string' && v.trim() !== '' && !isNaN(Number(v)) ? Number(v) : NaN));
   const flat = args => args.reduce((a, v) => a.concat(Array.isArray(v) ? v : [v]), []);
-  const numbersOf = args => flat(args).filter(v => !isBlank(v) && !special(v)).map(num);
-  const timeOf = v => (v instanceof Date ? v.getTime() : Date.parse(v));
+  // Text that is not a number is skipped, never NaN (F23).
+  const numbersOf = args => flat(args).filter(v => !isBlank(v) && !special(v)).map(num).filter(v => !isNaN(v));
+  // A date alone ("2026-11-18") is a LOCAL day, like TODAY() gives and like HOUR, WEEKDAY, STARTOF and TEXT read it (F3).
+  const DAY_ONLY = /^\d{4}-\d\d-\d\d$/;
+  const timeOf = v => {
+    if (v instanceof Date) return v.getTime();
+    if (typeof v === 'string' && DAY_ONLY.test(v.trim())) {
+      const [y, m, d] = v.trim().split('-').map(Number), t = new Date(y, m - 1, d);
+      return t.getFullYear() === y && t.getMonth() === m - 1 && t.getDate() === d ? t.getTime() : NaN;
+    }
+    return Date.parse(v);
+  };
 
   const LAMBDA = new Set(['FILTER', 'EACH', 'SORT']);
   const BUILTINS = {
@@ -208,7 +218,10 @@
     ROUND: { min: 1, max: 2, out: 'number', fn: a => {
       if (isBlank(a[0])) return null;
       const d = a.length > 1 ? num(a[1]) : 0, f = Math.pow(10, d), v = num(a[0]);
-      return isNaN(v) ? err('ROUND needs a number') : Math.round((v + Number.EPSILON) * f) / f;
+      if (isNaN(v)) return err('ROUND needs a number');
+      // Halves go away from zero, as in Excel: ROUND(-2.5) is -3 (F22).
+      const r = Math.round((Math.abs(v) + Number.EPSILON) * f) / f;
+      return r === 0 ? 0 : v < 0 ? -r : r;
     } },
     ABS: { min: 1, max: 1, out: 'number', fn: a => (isBlank(a[0]) ? null : Math.abs(num(a[0]))) },
     MIN: { aggregate: true, min: 1, max: 99, out: 'number', fn: a => { const n = numbersOf(a); return n.length ? Math.min.apply(null, n) : NODATA; } },
@@ -223,7 +236,10 @@
     } },
     DATEDIFF: { min: 2, max: 3, out: 'number', fn: a => {
       if (isBlank(a[0]) || isBlank(a[1])) return null;
-      const ms = timeOf(a[1]) - timeOf(a[0]);
+      // Two dates alone count calendar days, so a clock change between them never makes a day 23 or 25 hours.
+      const dayMs = v => { const [y, m, d] = String(v).trim().split('-').map(Number); return Date.UTC(y, m - 1, d); };
+      const ms = typeof a[0] === 'string' && typeof a[1] === 'string' && DAY_ONLY.test(a[0].trim()) && DAY_ONLY.test(a[1].trim()) && !isNaN(timeOf(a[0])) && !isNaN(timeOf(a[1]))
+        ? dayMs(a[1]) - dayMs(a[0]) : timeOf(a[1]) - timeOf(a[0]);
       if (isNaN(ms)) return err('DATEDIFF needs two dates');
       const unit = String(a[2] || 'days').toLowerCase();
       const per = { days: 864e5, hours: 36e5, minutes: 6e4 }[unit];
@@ -249,8 +265,8 @@
     LEN: { min: 1, max: 1, out: 'number', fn: a => (isBlank(a[0]) ? 0 : String(a[0]).length) },
     UPPER: { min: 1, max: 1, out: 'text', fn: a => (isBlank(a[0]) ? null : String(a[0]).toUpperCase()) },
     LOWER: { min: 1, max: 1, out: 'text', fn: a => (isBlank(a[0]) ? null : String(a[0]).toLowerCase()) },
-    LEFT: { min: 2, max: 2, out: 'text', fn: a => (isBlank(a[0]) ? null : String(a[0]).slice(0, num(a[1]))) },
-    RIGHT: { min: 2, max: 2, out: 'text', fn: a => (isBlank(a[0]) ? null : String(a[0]).slice(-num(a[1]))) },
+    LEFT: { min: 2, max: 2, out: 'text', fn: a => { if (isBlank(a[0])) return null; const n = Math.floor(num(a[1])); return isNaN(n) ? err('LEFT needs a number of characters') : n > 0 ? String(a[0]).slice(0, n) : ''; } },
+    RIGHT: { min: 2, max: 2, out: 'text', fn: a => { if (isBlank(a[0])) return null; const n = Math.floor(num(a[1])); return isNaN(n) ? err('RIGHT needs a number of characters') : n > 0 ? String(a[0]).slice(-n) : ''; } },
     CONCAT: { aggregate: true, min: 1, max: 99, out: 'text', fn: a => flat(a).map(v => (isBlank(v) ? '' : String(v))).join('') },
     // The site of this terminal: SITE() -> "ABI".
     SITE: { min: 0, max: 0, out: 'text', fn: () => (window.FP.identity && window.FP.identity.site) || null },
@@ -331,7 +347,12 @@
       else if (unit === 'hour') d.setTime(d.getTime() + n * 36e5);
       else if (unit === 'day') d.setDate(d.getDate() + n);
       else if (unit === 'week') d.setDate(d.getDate() + n * 7);
-      else if (unit === 'month') d.setMonth(d.getMonth() + n);
+      else if (unit === 'month') {
+        // Stop at the end of a shorter month: Jan 31 + 1 month is Feb 28 (F25).
+        const day = d.getDate();
+        d.setDate(1); d.setMonth(d.getMonth() + n);
+        d.setDate(Math.min(day, new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate()));
+      }
       else return err('DATEADD unit must be "minutes", "hours", "days", "weeks" or "months"');
       return dayOnly && ['day', 'week', 'month'].includes(unit) ? FP.util.localDate(d) : d.toISOString();
     } },
@@ -495,7 +516,9 @@
       }
       case 'bin': {
         const a = ev(node.a), b = ev(node.b);
+        // Error beats Waiting beats No data, whichever side each is on (F26).
         for (const v of [a, b]) if (isError(v)) return v;
+        for (const v of [a, b]) if (isWaiting(v)) return v;
         for (const v of [a, b]) if (special(v)) return v;
         if (node.op === '&') return (isBlank(a) ? '' : String(a)) + (isBlank(b) ? '' : String(b));
         if (['=', '<>', '<', '>', '<=', '>='].includes(node.op)) return compare(node.op, a, b);
@@ -596,7 +619,9 @@
         }
         const f = find(node.name);
         if (!f) { problems.push(`Unknown function ${node.name}`); return 'any'; }
-        if (node.args.length !== f.inputs.length) problems.push(`${f.name} takes ${f.inputs.length} inputs, not ${node.args.length}`);
+        // An optional input may be left out, but only from the end (F27).
+        const needed = f.inputs.reduce((n, inp, i) => (inp.required !== false ? i + 1 : n), 0);
+        if (node.args.length > f.inputs.length || node.args.length < needed) problems.push(`${f.name} takes ${needed === f.inputs.length ? f.inputs.length : `${needed} to ${f.inputs.length}`} inputs, not ${node.args.length}`);
         f.inputs.forEach((inp, i) => {
           const a = argTypes[i];
           if (a && a !== 'any' && inp.type !== 'any' && inp.type !== a && !(inp.type === 'date' && a === 'text')) {
@@ -652,7 +677,8 @@
     // an optional one is treated as blank.
     const isND = v => special(v) && v.__fp === 'nodata';
     if (f.inputs.some(i => i.required !== false && isND(args[i.name]))) return NODATA;
-    f.inputs.forEach(i => { if (isND(args[i.name])) args[i.name] = null; });
+    // A lookup's optional input that is still Waiting is blank too: it matches anything, as if it were left empty (F28).
+    f.inputs.forEach(i => { if (isND(args[i.name]) || (f.kind === 'lookup' && i.required === false && isWaiting(args[i.name]))) args[i.name] = null; });
     // Inputs must match their declared type: text typed into a number field is an error, never a Fail.
     for (const i of f.inputs) {
       const v = args[i.name];
