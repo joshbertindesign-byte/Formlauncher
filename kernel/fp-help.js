@@ -218,7 +218,7 @@
     const list = chapters().filter(c => !want || want.includes(c.id));
     const body = list.map(c => chapterHtml(c, '')).join('');
     return `<!doctype html><html><head><meta charset="utf-8"><title>Form Platform reference ${esc(FP.version)}</title><style>
-body{font:14px/1.5 system-ui,"Segoe UI",sans-serif;color:#1b2633;max-width:900px;margin:24px auto;padding:0 16px}
+body{font:14px/1.5 var(--font-sans,system-ui,"Segoe UI",sans-serif);color:#1b2633;max-width:900px;margin:24px auto;padding:0 16px}
 h1{font-size:24px}h2{font-size:20px;border-bottom:2px solid #d9dee5;padding-bottom:4px;margin-top:28px}h3{font-size:14px;text-transform:uppercase;letter-spacing:.04em;color:#5b6573}
 pre{background:#f4f6f8;border:1px solid #e3e7ec;border-radius:6px;padding:10px;font:12px/1.45 Consolas,monospace}
 table{border-collapse:collapse;width:100%}td{border-top:1px solid #eef1f5;padding:4px 8px;vertical-align:top}td:first-child{font-family:Consolas,monospace;white-space:nowrap;color:#1f5fbf;width:1%}

@@ -53,7 +53,7 @@
 
   const CSS = `
   *{box-sizing:border-box}
-  body{margin:0;background:#f4f6f8;color:#1b1f24;font:15px/1.45 system-ui,"Segoe UI",sans-serif}
+  body{margin:0;background:#f4f6f8;color:#1b1f24;font:15px/1.45 var(--font-sans,system-ui,"Segoe UI",sans-serif)}
   .fpe-bar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:8px;padding:4px 12px;min-height:40px;box-sizing:border-box;background:#1b2633;color:#fff}
   .fpe-bar h1{font-size:15px;margin:0 6px 0 0;flex:1 1 auto}
   .fpe-bar .meta{font-size:12px;color:#c6d0dc;white-space:nowrap}

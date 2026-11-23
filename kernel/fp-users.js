@@ -366,7 +366,7 @@
 
   /* ---------- Sign-in screen ---------- */
   const CSS = `
-    .fp-u{position:fixed;inset:0;z-index:9998;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(15,20,25,.6);font:16px/1.45 system-ui,"Segoe UI",sans-serif}
+    .fp-u{position:fixed;inset:0;z-index:9998;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(15,20,25,.6);font:16px/1.45 var(--font-sans,system-ui,"Segoe UI",sans-serif)}
     .fp-u-card{width:100%;max-width:420px;max-height:calc(100vh - 32px);overflow:auto;background:#fff;color:#1b1f24;border-radius:14px;padding:22px;box-shadow:0 10px 40px rgba(0,0,0,.25)}
     .fp-u-card h1{font-size:20px;margin:0 0 6px}.fp-u-card p{margin:0 0 14px;color:#5b6573}
     .fp-u-card input{font:inherit;width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid #c9d0d9;border-radius:10px;margin:0 0 10px}

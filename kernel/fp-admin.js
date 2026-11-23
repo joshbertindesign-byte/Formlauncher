@@ -63,7 +63,7 @@
   .fpa-warn{background:#fff6e5;border:1px solid #f0d9b0;border-radius:8px;padding:8px 10px;font-size:13px;margin:0 0 10px}
   .fpa-warn ul{margin:4px 0 0;padding-left:18px}
   .fpa-paper{padding:12px;background:#eef1f5}
-  .fpa-paper .fpp{display:block!important;background:#fff;color:#000;font:13px/1.4 system-ui,"Segoe UI",sans-serif;padding:18px 22px;border:1px solid #d9dee5;border-radius:6px;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+  .fpa-paper .fpp{display:block!important;background:#fff;color:#000;font:13px/1.4 var(--font-sans,system-ui,"Segoe UI",sans-serif);padding:18px 22px;border:1px solid #d9dee5;border-radius:6px;box-shadow:0 2px 10px rgba(0,0,0,.06)}
   .fpa-actions{display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;border-bottom:1px solid #e3e7ec}
   .fpa-fix{padding:10px 12px}.fpa-fix:empty{display:none}
   .fpa-fix .ffe-set input,.fpa-fix .ffe-set select{width:100%}

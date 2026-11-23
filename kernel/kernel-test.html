@@ -14,7 +14,7 @@ window.__fpReport = function (msg) {
     if (!b) {
       b = document.createElement('div');
       b.id = 'fp-problems';
-      b.style.cssText = 'position:sticky;top:0;z-index:10000;background:#fde8e6;color:#7a1a12;border-bottom:2px solid #b42318;padding:12px 16px;font:14px/1.45 system-ui,"Segoe UI",sans-serif;white-space:pre-wrap';
+      b.style.cssText = 'position:sticky;top:0;z-index:10000;background:#fde8e6;color:#7a1a12;border-bottom:2px solid #b42318;padding:12px 16px;font:14px/1.45 var(--font-sans,system-ui,"Segoe UI",sans-serif);white-space:pre-wrap';
       document.body.prepend(b);
     }
     b.textContent = 'Problem found. This page will not work until it is fixed:\n- ' + window.__fpProblems.join('\n- ');
@@ -34,7 +34,7 @@ window.addEventListener('unhandledrejection', function (e) {
 <style>
   :root { --bg:#f6f7f9; --card:#fff; --ink:#1b1f24; --quiet:#5b6573; --line:#d9dee5; --ok:#1f7a3a; --bad:#b42318; --accent:#1f5fbf; }
   * { box-sizing: border-box; }
-  body { margin:0; font:15px/1.45 system-ui, "Segoe UI", sans-serif; background:var(--bg); color:var(--ink); }
+  body { margin:0; font:15px/1.45 var(--font-sans,system-ui,"Segoe UI",sans-serif); background:var(--bg); color:var(--ink); }
   main { max-width:760px; margin:0 auto; padding:16px; }
   h1 { font-size:20px; margin:8px 0 4px; }
   p.lead { color:var(--quiet); margin:0 0 16px; }
@@ -101,6 +101,8 @@ window.addEventListener('unhandledrejection', function (e) {
 </main>
 
 <script src="fp-config.js"></script>
+<script src="fp-theme.js"></script>
+<script src="fp-fonts.js"></script>
 <script src="fp-core.js"></script>
 <script src="fp-identity.js"></script>
 <script src="fp-entry.js"></script>
@@ -118,7 +120,7 @@ window.addEventListener('unhandledrejection', function (e) {
   if (window.__fpBootRetrying) return;   // runtime/kernel-test.html: boot.js is moving to another release
   /* Every kernel file must be present, fully loaded, and the same version as this page. */
   const EXPECTED = '0.63.1';
-  const NEEDED = ['fp-config', 'fp-core', 'fp-identity', 'fp-entry', 'fp-session', 'fp-formula', 'fp-formula-tests', 'fp-current', 'fp-kinds', 'fp-sites', 'fp-lookup', 'fp-lookup-tests', 'fp-users'];
+  const NEEDED = ['fp-config', 'fp-theme', 'fp-fonts', 'fp-core', 'fp-identity', 'fp-entry', 'fp-session', 'fp-formula', 'fp-formula-tests', 'fp-current', 'fp-kinds', 'fp-sites', 'fp-lookup', 'fp-lookup-tests', 'fp-users'];
   const mods = (window.FP && window.FP.modules) || {};
   const wrong = NEEDED.filter(m => mods[m] !== EXPECTED).map(m => mods[m]
     ? `${m}.js is version ${mods[m]}; this page needs ${EXPECTED}. Replace it with the new copy.`

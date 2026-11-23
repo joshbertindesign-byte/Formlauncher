@@ -46,7 +46,7 @@
 
   const CSS = `
   .fpv{background:${INK.surface};border:1px solid rgba(11,11,11,.08);border-radius:12px;padding:12px 14px;position:relative}
-  .fpv svg{display:block;width:100%;overflow:visible;font:12px system-ui,"Segoe UI",sans-serif}
+  .fpv svg{display:block;width:100%;overflow:visible;font:12px var(--font-sans,system-ui,"Segoe UI",sans-serif)}
   .fpv-legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin:0 0 8px;font-size:13px;color:${INK.secondary}}
   .fpv-legend span{display:inline-flex;align-items:center;gap:6px}
   .fpv-key{display:inline-block;width:14px;height:3px;border-radius:2px}
@@ -62,7 +62,7 @@
   .fpv-table td.num,.fpv-table th.num{text-align:right}
   .fpv-scroll{max-height:320px;overflow:auto}
   .fpv-scroll .fpv-table th{position:sticky;top:0;z-index:1;background:${INK.surface}}
-  .fpv-tip{position:fixed;z-index:9600;pointer-events:none;background:#fff;border:1px solid rgba(11,11,11,.12);border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.14);padding:8px 10px;font:13px/1.35 system-ui,"Segoe UI",sans-serif;color:${INK.primary};max-width:280px}
+  .fpv-tip{position:fixed;z-index:9600;pointer-events:none;background:#fff;border:1px solid rgba(11,11,11,.12);border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.14);padding:8px 10px;font:13px/1.35 var(--font-sans,system-ui,"Segoe UI",sans-serif);color:${INK.primary};max-width:280px}
   .fpv-tip .h{color:${INK.secondary};margin-bottom:4px}
   .fpv-tip .r{display:flex;align-items:center;gap:8px}
   .fpv-tip .r b{font-weight:700}

@@ -229,7 +229,7 @@ window.FP_RELEASES = ${JSON.stringify(cfg)};
    * is still going. Leaving the page while it runs asks first, and this page doesn't move to the new release until
    * the panel has shown how it went. */
   const PCSS = `
-  .fpu-veil{position:fixed;inset:0;z-index:10050;background:rgba(15,23,32,.45);display:flex;align-items:center;justify-content:center;padding:16px;font:16px/1.45 system-ui,"Segoe UI",sans-serif}
+  .fpu-veil{position:fixed;inset:0;z-index:10050;background:rgba(15,23,32,.45);display:flex;align-items:center;justify-content:center;padding:16px;font:16px/1.45 var(--font-sans,system-ui,"Segoe UI",sans-serif)}
   .fpu-card{background:#fff;color:#1b1f24;border-radius:14px;padding:22px 24px 18px;width:min(460px,100%);box-shadow:0 20px 50px rgba(0,0,0,.3)}
   .fpu-card h2{margin:0 0 6px;font-size:19px;display:flex;align-items:center;gap:12px}
   .fpu-spin{width:22px;height:22px;box-sizing:border-box;border:3px solid #c7d7ef;border-top-color:#1f5fbf;border-radius:50%;animation:fpu-spin .8s linear infinite;flex:none}

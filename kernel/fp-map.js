@@ -339,7 +339,7 @@
    * indented beneath it, and so on down, so indentation shows the level. Tapping a form's row jumps to it
    * (opts.onOpen); ▸ opens it in place. Tapping a structure or function lists everything that uses it. */
   const MAP_CSS = `
-  .fpm{--ink:#1b1f24;--muted:#5b6573;--line:#e3e7ec;font:14px/1.35 system-ui,"Segoe UI",sans-serif;color:var(--ink)}
+  .fpm{--ink:#1b1f24;--muted:#5b6573;--line:#e3e7ec;font:14px/1.35 var(--font-sans,system-ui,"Segoe UI",sans-serif);color:var(--ink)}
   .fpm-bar{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 0 10px}
   .fpm-bar span{color:var(--muted);font-size:12px;margin-right:4px}
   .fpm-bar button{font:inherit;font-size:12px;font-weight:600;min-height:30px;padding:2px 10px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--muted);cursor:pointer}

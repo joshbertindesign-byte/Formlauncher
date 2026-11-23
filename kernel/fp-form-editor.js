@@ -187,13 +187,13 @@
   .ffo-screen{position:absolute;top:0;left:0;display:flex;align-items:flex-start;transform-origin:0 0;background:#e4e6ea}
   .ffo-scr{background:#f4f6f8;flex:none}
   .ffo-scr .fpf-foot{position:static}
-  .ffo-bar{height:60px;display:flex;align-items:center;padding:0 16px;background:#1b2633;color:#fff;font:700 18px/1 system-ui,"Segoe UI",sans-serif}
+  .ffo-bar{height:60px;display:flex;align-items:center;padding:0 16px;background:#1b2633;color:#fff;font:700 18px/1 var(--font-sans,system-ui,"Segoe UI",sans-serif)}
   .ffo-main{box-sizing:border-box;margin:0 auto;padding:18px 16px 0}
-  .ffo-pad{flex:none;width:320px;box-sizing:border-box;border-left:2px dashed #8a93a3;background:repeating-linear-gradient(135deg,#e9ecf1 0 12px,#f4f5f8 12px 24px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:#3e4450;font:15px/1.3 system-ui,"Segoe UI",sans-serif;text-align:center;padding:0 24px}
+  .ffo-pad{flex:none;width:320px;box-sizing:border-box;border-left:2px dashed #8a93a3;background:repeating-linear-gradient(135deg,#e9ecf1 0 12px,#f4f5f8 12px 24px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:#3e4450;font:15px/1.3 var(--font-sans,system-ui,"Segoe UI",sans-serif);text-align:center;padding:0 24px}
   .ffo-pad b{font-size:18px}
   .ffo-below{position:absolute;left:0;right:0;bottom:0;background:rgba(154,63,6,.10);pointer-events:none}
   .ffo-fold{position:absolute;left:0;right:0;border-top:3px dashed #9a3f06;pointer-events:none}
-  .ffo-fold span{position:absolute;left:12px;top:6px;background:#9a3f06;color:#fff;font:700 14px/1 system-ui,"Segoe UI",sans-serif;padding:5px 10px;border-radius:6px}
+  .ffo-fold span{position:absolute;left:12px;top:6px;background:#9a3f06;color:#fff;font:700 14px/1 var(--font-sans,system-ui,"Segoe UI",sans-serif);padding:5px 10px;border-radius:6px}
   @container (min-width:600px){.ffo-it{flex-direction:row;align-items:center}.ffo-l1{flex:1 1 auto;min-width:0}.ffo-l2{flex:none}.ffo-l2 select{width:160px;flex:none}}
   .ffe3{display:grid;grid-template-columns:minmax(190px,230px) minmax(0,1fr) minmax(250px,290px);gap:10px;align-items:start}
   .ffe3-left .ffm-r .body{flex-wrap:nowrap;overflow:hidden}.ffe3-left .ffm-r{font-size:13px;min-height:32px}.ffe3-left .ffm-r .t{flex:0 0 auto;max-width:100%;overflow:hidden;text-overflow:ellipsis}.ffe3-left .ffm-r .d{flex:1 1 0;min-width:0}
@@ -218,10 +218,10 @@
   .ffe3-seltag{position:absolute;left:-2px;top:-24px;background:#1f5fbf;color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:5px;white-space:nowrap}
   .ffe3-handle{position:absolute;right:-8px;top:50%;width:12px;height:30px;margin-top:-15px;background:#fff;border:2px solid #1f5fbf;border-radius:5px;cursor:ew-resize;pointer-events:auto;touch-action:none;box-sizing:border-box}
   .ffe3-drop{position:absolute;background:#1f5fbf;border-radius:2px;z-index:5;pointer-events:none}
-  .ffe3-ghost{position:fixed;z-index:9999;pointer-events:none;background:#fff;border:1px solid #9db3ea;border-radius:7px;padding:6px 10px;font:600 13px system-ui,"Segoe UI",sans-serif;box-shadow:0 8px 20px rgba(16,24,40,.18)}
+  .ffe3-ghost{position:fixed;z-index:9999;pointer-events:none;background:#fff;border:1px solid #9db3ea;border-radius:7px;padding:6px 10px;font:600 13px var(--font-sans,system-ui,"Segoe UI",sans-serif);box-shadow:0 8px 20px rgba(16,24,40,.18)}
   .ffe3.dragging .fpf-cell{cursor:grabbing}
   .ffe3 .ffo-on .fpf-cell[hidden]{display:block !important;opacity:.5;outline:1px dashed #9aa4b2;outline-offset:2px;position:relative}
-  .ffe3 .ffo-on .fpf-cell[hidden]::after{content:"sometimes shown";position:absolute;right:4px;top:2px;font:600 10px system-ui,sans-serif;color:#5b6573;background:#fff;padding:1px 4px;border-radius:4px}
+  .ffe3 .ffo-on .fpf-cell[hidden]::after{content:"sometimes shown";position:absolute;right:4px;top:2px;font:600 10px var(--font-sans,system-ui,sans-serif);color:#5b6573;background:#fff;padding:1px 4px;border-radius:4px}
   .ffe3-hint{font-size:12px;color:#5b6573;padding:0 12px}
   .ffe3-ih{display:flex;flex-direction:column;gap:2px;margin:2px 2px 10px;font-size:15px;font-weight:700}
   .ffe3-ih small{font-size:12px;color:#5b6573;font-weight:400}

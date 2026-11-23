@@ -23,7 +23,7 @@
 
   const VERSION = '0.63.1';
   /* The runtime, in load order. */
-  const KERNEL = ['fp-config', 'fp-core', 'fp-identity', 'fp-entry', 'fp-session', 'fp-formula', 'fp-current', 'fp-kinds', 'fp-sites', 'fp-lookup',
+  const KERNEL = ['fp-config', 'fp-theme', 'fp-fonts', 'fp-core', 'fp-identity', 'fp-entry', 'fp-session', 'fp-formula', 'fp-current', 'fp-kinds', 'fp-sites', 'fp-lookup',
     'fp-users', 'fp-media', 'fp-sources', 'fp-forms', 'fp-controls', 'fp-visuals', 'fp-keyboard', 'fp-defs', 'fp-due', 'fp-launcher', 'fp-updates'];
   const LAUNCHERS = ['launchers'];
 
@@ -34,7 +34,7 @@ window.__fpReport = function (msg) {
   var show = function () {
     var b = document.getElementById('fp-problems');
     if (!b) { b = document.createElement('div'); b.id = 'fp-problems';
-      b.style.cssText = 'position:sticky;top:0;z-index:10000;background:#fde8e6;color:#7a1a12;border-bottom:2px solid #b42318;padding:12px 16px;font:14px/1.45 system-ui,"Segoe UI",sans-serif;white-space:pre-wrap';
+      b.style.cssText = 'position:sticky;top:0;z-index:10000;background:#fde8e6;color:#7a1a12;border-bottom:2px solid #b42318;padding:12px 16px;font:14px/1.45 var(--font-sans,system-ui,"Segoe UI",sans-serif);white-space:pre-wrap';
       document.body.prepend(b); }
     b.textContent = 'Problem found. This page will not work until it is fixed:\\n- ' + window.__fpProblems.join('\\n- ');
   };
@@ -49,7 +49,7 @@ window.addEventListener('unhandledrejection', function (e) { window.__fpReport('
 
   const CSS = `
   *{box-sizing:border-box}
-  body{margin:0;background:#f4f6f8;color:#1b1f24;font:16px/1.45 system-ui,"Segoe UI",sans-serif}
+  body{margin:0;background:#f4f6f8;color:#1b1f24;font:16px/1.45 var(--font-sans,system-ui,"Segoe UI",sans-serif)}
   .fpl-bar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:12px;padding:10px 16px;background:#1b2633;color:#fff}
   .fpl-here{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px 12px;background:#eef3fa;border:1px solid #d5deea;border-radius:12px;margin-bottom:12px}
   .fpl-here[hidden]{display:none}

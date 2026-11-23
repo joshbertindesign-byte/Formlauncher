@@ -684,7 +684,7 @@
   /* ---------- Styles ---------- */
   const CSS = `
   .fpf [hidden]{display:none!important}
-  .fpf{container-type:inline-size;--ink:#1b1f24;--muted:#5b6573;--line:#d9dee5;--accent:#1f5fbf;--good:#1a7f37;--bad:#b42318;--warn:#9a6700;font:16px/1.45 system-ui,"Segoe UI",sans-serif;color:var(--ink)}
+  .fpf{container-type:inline-size;--ink:#1b1f24;--muted:#5b6573;--line:#d9dee5;--accent:#1f5fbf;--good:#1a7f37;--bad:#b42318;--warn:#9a6700;font:16px/1.45 var(--font-sans,system-ui,"Segoe UI",sans-serif);color:var(--ink)}
   .fpf-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:14px 16px;margin-bottom:14px}
   .fpf-cell{min-width:0;grid-column:span var(--pc,12)}
   @container (max-width:999px){.fpf-cell{grid-column:span var(--tablet,12)}}
@@ -800,7 +800,7 @@
   .fpf-queue-row span{flex:1 1 auto}
   .fpf-queue-row button{font:inherit;min-height:44px;padding:6px 14px;border:1px solid #c9d0d9;border-radius:10px;background:#fff;cursor:pointer}
   .fpf-sheet{position:fixed;inset:0;z-index:8000;background:#f4f6f8;overflow-y:auto}
-  .fpf-crumbs{position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:4px;flex-wrap:wrap;padding:8px 16px;background:#1b2633;color:#c6d0dc;font:15px/1.3 system-ui,"Segoe UI",sans-serif}
+  .fpf-crumbs{position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:4px;flex-wrap:wrap;padding:8px 16px;background:#1b2633;color:#c6d0dc;font:15px/1.3 var(--font-sans,system-ui,"Segoe UI",sans-serif)}
   .fpf-crumbs button{font:inherit;min-height:44px;padding:6px 6px;background:none;border:0;color:#c6d0dc;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
   .fpf-crumbs button.back{text-decoration:none;color:#fff;border:1px solid #4a5a6c;background:#26364a;border-radius:10px;padding:6px 14px;margin-right:10px}
   .fpf-crumbs .here{color:#fff;font-weight:700}
@@ -824,7 +824,7 @@
   @media print{
     body.fpp-printing>*:not(.fpp){display:none!important}
     body.fpp-printing{background:#fff!important}
-    body.fpp-printing .fpp{display:block;color:#000;font:11pt/1.35 system-ui,"Segoe UI",sans-serif}
+    body.fpp-printing .fpp{display:block;color:#000;font:11pt/1.35 var(--font-sans,system-ui,"Segoe UI",sans-serif)}
   }
   .fpp .part+.part{break-before:page}
   .fpp .note{font-size:9.5pt;color:#7a4a00;margin:-6pt 0 8pt}
@@ -865,7 +865,7 @@
   .fpf-substate{font-size:13px;font-weight:500;opacity:.8}
   .fpf-substate[hidden]{display:none}
   .fpf-veil{position:fixed;inset:0;z-index:8500;background:rgba(20,27,36,.45);display:flex;align-items:center;justify-content:center;padding:16px}
-  .fpf-dialog{background:#fff;border-radius:14px;max-width:640px;width:100%;max-height:90vh;overflow:auto;padding:18px 20px;box-shadow:0 12px 40px rgba(0,0,0,.25);font:16px/1.4 system-ui,sans-serif;color:#1b2633}
+  .fpf-dialog{background:#fff;border-radius:14px;max-width:640px;width:100%;max-height:90vh;overflow:auto;padding:18px 20px;box-shadow:0 12px 40px rgba(0,0,0,.25);font:16px/1.4 var(--font-sans,system-ui,sans-serif);color:#1b2633}
   .fpf-dialog h3{margin:0 0 8px;font-size:19px}
   .fpf-dialog p{margin:6px 0}
   .fpf-dialog table{border-collapse:collapse;width:100%;margin:8px 0;font-size:15px}
@@ -1185,10 +1185,10 @@
     const title = (doc && doc.def.title) || row.item.structure;
     const page = el('style');
     page.textContent = `@page{size:${cfg.page || 'letter'} ${cfg.orientation || 'portrait'};margin:${cfg.margin || 14}mm ${cfg.margin || 12}mm;`
-      + `@top-left{content:${cssText(title)};font:9pt system-ui,sans-serif;color:#444}`
-      + `@top-right{content:${cssText(`${row.item.structure} ${row.item.id}`)};font:9pt system-ui,sans-serif;color:#444}`
-      + `@bottom-left{content:${cssText(`Printed ${new Date().toLocaleString()} · ${FP.identity.label(FP.identity.terminalId)}`)};font:8pt system-ui,sans-serif;color:#666}`
-      + `@bottom-right{content:"Page " counter(page) " of " counter(pages);font:8pt system-ui,sans-serif;color:#666}}`;
+      + `@top-left{content:${cssText(title)};font:9pt var(--font-sans,system-ui,sans-serif);color:#444}`
+      + `@top-right{content:${cssText(`${row.item.structure} ${row.item.id}`)};font:9pt var(--font-sans,system-ui,sans-serif);color:#444}`
+      + `@bottom-left{content:${cssText(`Printed ${new Date().toLocaleString()} · ${FP.identity.label(FP.identity.terminalId)}`)};font:8pt var(--font-sans,system-ui,sans-serif);color:#666}`
+      + `@bottom-right{content:"Page " counter(page) " of " counter(pages);font:8pt var(--font-sans,system-ui,sans-serif);color:#666}}`;
     document.head.appendChild(page);
     document.body.appendChild(docEl);
     document.body.classList.add('fpp-printing');
@@ -2317,10 +2317,10 @@
       const stamp = new Date().toLocaleString();
       const page = el('style');
       page.textContent = `@page{size:${cfg.page || 'letter'} ${cfg.orientation || 'portrait'};margin:${cfg.margin || 14}mm ${cfg.margin || 12}mm;`
-        + `@top-left{content:${cssText(title + (tree ? ' and linked forms' : ''))};font:9pt system-ui,sans-serif;color:#444}`
-        + `@top-right{content:${cssText(mode === 'blank' ? 'Blank form' : printedId)};font:9pt system-ui,sans-serif;color:#444}`
-        + `@bottom-left{content:${cssText(`Printed ${stamp} · ${FP.identity.label(FP.identity.terminalId)}`)};font:8pt system-ui,sans-serif;color:#666}`
-        + `@bottom-right{content:"Page " counter(page) " of " counter(pages);font:8pt system-ui,sans-serif;color:#666}}`;
+        + `@top-left{content:${cssText(title + (tree ? ' and linked forms' : ''))};font:9pt var(--font-sans,system-ui,sans-serif);color:#444}`
+        + `@top-right{content:${cssText(mode === 'blank' ? 'Blank form' : printedId)};font:9pt var(--font-sans,system-ui,sans-serif);color:#444}`
+        + `@bottom-left{content:${cssText(`Printed ${stamp} · ${FP.identity.label(FP.identity.terminalId)}`)};font:8pt var(--font-sans,system-ui,sans-serif);color:#666}`
+        + `@bottom-right{content:"Page " counter(page) " of " counter(pages);font:8pt var(--font-sans,system-ui,sans-serif);color:#666}}`;
       document.head.appendChild(page);
       document.body.appendChild(docEl);
       document.body.classList.add('fpp-printing');

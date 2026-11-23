@@ -30,7 +30,7 @@
   body{padding-right:var(--fp-kb-right,0px);padding-bottom:var(--fp-kb-bottom,0px)}
   .fpf-sheet{right:var(--fp-kb-right,0px);bottom:var(--fp-kb-bottom,0px)}
   .fpf-foot{bottom:var(--fp-kb-bottom,0px)}
-  .fpk{position:fixed;z-index:9500;background:#e7eaee;border-color:#c9d0d9;border-style:solid;border-width:0;box-shadow:0 -4px 18px rgba(0,0,0,.12);font:18px/1 system-ui,"Segoe UI",sans-serif;color:#1b1f24;user-select:none;-webkit-user-select:none;touch-action:manipulation;display:flex;flex-direction:column}
+  .fpk{position:fixed;z-index:9500;background:#e7eaee;border-color:#c9d0d9;border-style:solid;border-width:0;box-shadow:0 -4px 18px rgba(0,0,0,.12);font:18px/1 var(--font-sans,system-ui,"Segoe UI",sans-serif);color:#1b1f24;user-select:none;-webkit-user-select:none;touch-action:manipulation;display:flex;flex-direction:column}
   .fpk.right{top:0;right:0;bottom:0;width:${NUMPAD_W}px;border-left-width:1px}
   .fpk.bottom{left:0;right:0;bottom:0;height:${FULL_H}px;border-top-width:1px}
   .fpk-bar{display:flex;align-items:center;gap:8px;height:${BAR_H}px;padding:0 8px 0 14px;font-size:14px;color:#5b6573;flex:0 0 auto}
