@@ -152,6 +152,7 @@
         simulated: FP.simulated ? true : undefined,   // a simulated terminal on someone's computer (0.52.1)
         keysSeenAt: later(device.keysSeenAt, same.keysSeenAt),
         scannerSeenAt: later(device.scannerSeenAt, same.scannerSeenAt),
+        checkpoints: same.checkpoints === false ? false : undefined,   // the per-terminal opt-out is kept (F2)
       });
       device.written = { screen: JSON.stringify(sizeKey()), keys: device.keysSeenAt, scanner: device.scannerSeenAt, at: Date.now() };
     },

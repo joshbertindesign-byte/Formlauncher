@@ -286,16 +286,16 @@
 
   /* ---------- Submissions: which saves are complete ---------- */
   const committedCache = new Map();
-  async function committedIds(structure) {
+  async function committedIds(structure, fresh) {
     const hit = committedCache.get(structure);
-    if (hit && Date.now() - hit.at < 15000) return hit.ids;
-    const { entries } = await loadEntriesCached(structure, false, sinceFor(structure, new Date(), {}));
+    if (!fresh && hit && Date.now() - hit.at < 15000) return hit.ids;
+    const { entries } = await loadEntriesCached(structure, !!fresh, sinceFor(structure, new Date(), {}));
     const ids = new Set(entries.filter(e => e.commit).map(e => e.submissionId));
     committedCache.set(structure, { at: Date.now(), ids });
     return ids;
   }
 
-  async function committedFilter(structure, entries, health, asOf) {
+  async function committedFilter(structure, entries, health, asOf, fresh) {
     const local = new Set(entries.filter(e => e.commit).map(e => e.submissionId));
     const elsewhere = {};
     for (const e of entries) {
@@ -303,7 +303,7 @@
       (elsewhere[e.commitIn] = elsewhere[e.commitIn] || new Set()).add(e.submissionId);
     }
     for (const other of Object.keys(elsewhere)) {
-      const ids = await committedIds(other);
+      const ids = await committedIds(other, fresh);
       elsewhere[other].forEach(id => { if (ids.has(id)) local.add(id); });
     }
     const dayAgo = asOf.getTime() - 864e5;
@@ -360,12 +360,21 @@
     // Corrections replace the values of the entry they name (in order), then drop out.
     const effective = new Map(visible.map(e => [e.entryId, Object.assign({}, e.values)]));
     const corrections = visible.filter(e => e.corrects);
+    // A correction of a correction applies to the entry at the root of the chain (F39).
+    const byId = new Map(visible.map(e => [e.entryId, e]));
+    const rootOf = c => {
+      let t = byId.get(c.corrects), hops = 0;
+      while (t && t.corrects && hops++ < 50) t = byId.get(t.corrects);
+      return t && !t.corrects ? t : null;
+    };
+    const rootFor = new Map();
     for (const c of corrections) {
-      const target = effective.get(c.corrects);
+      const target = rootOf(c);
       if (!target) { health.push(`Correction ${c.entryId} names an entry that wasn't found`); continue; }
+      rootFor.set(c.entryId, target.entryId);
       const v = Object.assign({}, c.values);
       delete v.reason;
-      Object.assign(target, v);
+      Object.assign(effective.get(target.entryId), v);
     }
     const counted = visible.filter(e => !e.corrects);
 
@@ -386,7 +395,7 @@
       Object.entries(e.refs || {}).forEach(([role, r]) => { if (r != null) it.refs[role] = r; });
     }
     for (const c of corrections) {
-      const target = visible.find(e => e.entryId === c.corrects);
+      const target = byId.get(rootFor.get(c.entryId));
       if (target && items.has(target.item.id)) items.get(target.item.id).corrected++;
     }
 
@@ -443,7 +452,7 @@
     // Rows: every counted entry with its corrected values, for lookups that read entries.
     // Each with the form that saved it, what it first held, and its corrections (for viewing and correcting records).
     const fixes = new Map();
-    corrections.forEach(c => { if (!fixes.has(c.corrects)) fixes.set(c.corrects, []); fixes.get(c.corrects).push({ entryId: c.entryId, at: c.writtenAt, reason: (c.values || {}).reason || '', userId: c.userId, terminalId: c.terminalId, values: c.values }); });
+    corrections.forEach(c => { const root = rootFor.get(c.entryId) || c.corrects; if (!fixes.has(root)) fixes.set(root, []); fixes.get(root).push({ entryId: c.entryId, at: c.writtenAt, reason: (c.values || {}).reason || '', userId: c.userId, terminalId: c.terminalId, values: c.values }); });
     const rows = counted.map(e => ({
       entryId: e.entryId, entry: e.entry, action: actionOf(e), item: e.item, refs: e.refs || {},
       values: effective.get(e.entryId), writtenAt: e.writtenAt, terminalId: e.terminalId, site: e.site || null, userId: e.userId,
@@ -582,6 +591,18 @@
     return out;
   }
 
+  /* Checkpoints (F2): the first time this page loads a structure it is noted, and a minute or two later (then hourly)
+   * the structures used are checkpointed, unless the terminal's registry entry says checkpoints: false. */
+  const usedStructures = new Set();
+  let autoArmed = false;
+  function noteUsed(structure) {
+    usedStructures.add(structure);
+    if (autoArmed || FP.current.autoCheckpointOff || (FP.identity && FP.identity.editor)) return;
+    autoArmed = true;
+    FP.current.autoCheckpoint(usedStructures);
+    setInterval(() => FP.current.autoCheckpoint(usedStructures, { delayMs: 0 }), 36e5);
+  }
+
   FP.current = {
     verifyFiles,
     noteForm,
@@ -596,13 +617,14 @@
       const asOf = opts.asOf || new Date();
       const live = !opts.asOf;
       const plain = live && !opts.since && !opts.history;
+      noteUsed(structure);
       const hit = cache.get(structure);
       if (plain && !opts.fresh && hit && Date.now() - hit.at < 15000) return hit.result;
       const t0 = performance.now();
       const since = sinceFor(structure, asOf, opts);
       const raw = await loadEntriesCached(structure, opts.fresh, since);
       const health = raw.health.slice();
-      const kept = await committedFilter(structure, raw.entries, health, asOf);
+      const kept = await committedFilter(structure, raw.entries, health, asOf, opts.fresh);
       const { items, rows } = fold(structure, kept, asOf, health, live ? Infinity : undefined);
       if (live) clockHealth(kept, asOf, health);
       const twice = savedTwice(structure, kept, health);
@@ -630,7 +652,7 @@
       if (!extra.length) return null;
       const asOf = opts.asOf || new Date();
       const mine = r._raw.entries.filter(e => e.item.id === id).concat(extra);
-      const kept = await committedFilter(structure, mine, health, asOf);
+      const kept = await committedFilter(structure, mine, health, asOf, opts.fresh);
       return fold(structure, kept, asOf, health, opts.asOf ? undefined : Infinity).items.get(id) || null;
     },
 
@@ -710,9 +732,10 @@
       opts = opts || {};
       setTimeout(async () => {
         try {
+          if (!FP.identity.terminalId) return;
           const me = await FP.identity.lookup(FP.identity.terminalId);
           if (me && me.checkpoints === false) return;
-          for (const s of structures) {
+          for (const s of Array.from(structures)) {
             try { await FP.current.checkpoint(s); } catch (e) { console.warn('Checkpoint for ' + s + ' failed:', e); }
           }
         } catch (e) { console.warn('Checkpoint housekeeping failed:', e); }
