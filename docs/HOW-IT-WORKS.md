@@ -58,8 +58,10 @@ last (that is the switch). The three newest releases are kept. The GitHub releas
 ```
 kernel/            the source: fp-*.js, launcher.html, editor.html, boot.js, ...
   dev/tests/       the regression suite (docs/TESTING.md)
-  dev/tools/       release.py builds kernel-X.Y.Z.zip; bump.py
-Forms b/           what is deployed to SharePoint: runtime/0.60.0 etc., the PDFs, the WIP zip
+  dev/tools/       release.py builds kernel-X.Y.Z.zip; bump.py sets the version; build-package.js makes the end-user folder
+  dev/packs/       the Test pack (made-up data, every pilot feature)
+dist/              the latest end-user package: FormPlatform-X.Y.Z.zip (first install), kernel-X.Y.Z.zip (update), the unzipped folder
+Forms b/           the repo's copy of a deployed test folder: runtime/0.60.0, the PDFs, the WIP zip
 .github/           the release workflow
 ```
 

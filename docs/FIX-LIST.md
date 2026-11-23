@@ -10,6 +10,11 @@ Line numbers are for `kernel/` at 0.62.0 and move as code changes; search the fu
 `docs/REVIEW-0.60-0.62.md` has the reasoning behind each. Work through P0, then P1. Each fix should come with a test
 (a new `lNN.js`, or a line in an existing one) and a run of `dev/tests/regress.sh`.
 
+> **Status at 0.63.0 (see `docs/FIX-REPORT-0.63.0.md`):** every item below is done except **F20** (needs your decision). **F11** was resolved
+> by relabelling (the default window is real; there is no form date filter). F44's repeat-miss count was a real bug and is fixed; the
+> two-terminal climb was not a bug. T1, T4 and T5 are done; T2, T3, T6 and T7 are open. The text below is the list as it was written, so
+> "Sure?" and "Where" describe the code before the fixes.
+
 ---
 
 ## P0: broken, or data at risk

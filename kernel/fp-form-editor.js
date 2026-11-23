@@ -3423,7 +3423,7 @@
   /* ---------- The function editor: inputs, then a formula or what it reads; tried out on the right ---------- */
   const TYPES = ['text', 'number', 'date', 'boolean', 'list', 'record', 'item', 'any'];
   const SUMMARY_TEXT = { latest: 'the latest match', first: 'the first match', count: 'how many match', list: 'every match, as a list', sum: 'the matches added up', average: 'the average of the matches', min: 'the smallest match', max: 'the largest match' };
-  const WINDOW_TEXT = { form: 'the form\'s time window (forms have none yet, so everything loaded)', all: 'everything', 'always-current': 'always today\'s data' };
+  const WINDOW_TEXT = { form: 'recent data (what the structure keeps loaded)', all: 'everything', 'always-current': 'always today\'s data' };
   function functionEditor(draft, ctx) {
     draft.inputs = Array.isArray(draft.inputs) ? draft.inputs : [];
     const isLookup = () => draft.kind === 'lookup';
@@ -3566,7 +3566,7 @@
       const r = draft.reads;
       const w = r.window;
       const wv = w && typeof w === 'object' ? 'days' : w || 'form';
-      const ws = select([['form', 'the form\'s time window (forms have none yet: reads everything loaded)'], ['days', 'the last few days'], ['all', 'everything'], ['always-current', 'always today\'s data']], wv);
+      const ws = select([['form', 'recent data (what the structure keeps loaded)'], ['days', 'the last few days'], ['all', 'everything'], ['always-current', 'always today\'s data']], wv);
       const dn = input(w && w.days ? String(w.days) : '30', { type: 'number', min: 1 });
       dn.hidden = wv !== 'days';
       const setW = () => { if (ws.value === 'form') delete r.window; else if (ws.value === 'days') r.window = { days: Math.max(1, Number(dn.value) || 30) }; else r.window = ws.value; changed(); api.soft(); };

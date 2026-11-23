@@ -23,10 +23,10 @@
  * A container holding a list matches when the list contains the value; a list
  * holding "all" matches every value (a procedure tagged profile: ["all"]).
  *
- * Time: lookups read as of the form's as-of time and, by default, inside the
- * form's window (ctx.window = { from, to }). No form has a date filter today, so nothing
- * passes ctx.window and the default reads everything loaded (F11: needs a decision). reads.window can instead be
- * { days: 30 } (a fixed baseline ending at the as-of time), 'all', or
+ * Time: lookups read as of the form's as-of time. By default (window 'form', also what an unset window means) they
+ * read the recent data the structure keeps loaded; no date filter is applied, because no form has a date-range
+ * setting (ctx.window = { from, to } is accepted if a caller ever supplies one). reads.window can instead be
+ * { days: 30 } (a fixed baseline ending at the as-of time), 'all' (the whole history), or
  * 'always-current' (today's data even when reviewing an old record).
  *
  * Lookups only read data that has been loaded. FP.fn.callAsync and

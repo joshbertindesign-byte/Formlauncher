@@ -21,10 +21,21 @@ UPDATING A FOLDER THAT IS ALREADY IN USE
  3. The three newest releases are kept, so Admin > Updates can go back if something is wrong.
  Your data (the "data" folder), people, forms and settings are never touched by an update.
 
+TRYING IT OUT: THE TEST PACK
+ packs/Test pack.json is a complete example with made-up data: profiles, lines, needs, shifts, runs, hour checks,
+ racks, partial racks, the needs board, trace and production report, two terminal groups, four responsibility
+ centers with an escalation ladder, and two instruction files in the media library.
+ 1. Use a TEST folder only (Admin > Test folder marks one; it lets the pack add six test people).
+ 2. In the editor open Admin > Packs, choose "Test pack.json" and install. Installing again changes nothing.
+ 3. Test people (PIN): Sam Supervisor 135790, Quinn Quality 975310, Mo Manager 579135, Olive Operator 246802,
+    Omar Operator 357913, Pat Packer 468024. Terminal T01 is the line terminal, T02 the QC office.
+ Never install the Test pack on a folder with real data or real people.
+
 WHAT IS IN THIS PACKAGE
  launch.html            the page every terminal opens
  runtime/               the platform: boot.js, releases.js (which release runs), the pages, and one folder per release
- No data, no people and no forms are included: a new folder starts empty.
+ packs/                the Test pack (optional; see above)
+ No data, no people and no forms are installed: a new folder starts empty.
 
 TROUBLESHOOTING
  - A red "Problem found" bar at the top: a file has not finished syncing to this terminal. Wait and reload.

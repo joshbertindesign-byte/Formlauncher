@@ -56,6 +56,10 @@ const start = require(path.join(ROOT, 'dev/tests/dummies/base.js'));
   cfg.by = null; cfg.from = null;
   fs.writeFileSync(rel, "/* Which release of the platform runs, written by the installer. Don't edit: use Updates in the editor. */\nwindow.FP_RELEASES = " + JSON.stringify(cfg) + ";\n");
   fs.copyFileSync(path.join(ROOT, 'dev/tools/PACKAGE-README.txt'), path.join(pkg, 'READ ME FIRST.txt'));
+  // The Test pack (made-up data, every pilot feature): installed from Admin > Packs on a test folder.
+  cp.execFileSync('node', [path.join(ROOT, 'dev/packs/test-pack/build.js')], { stdio: 'inherit' });
+  fs.mkdirSync(path.join(pkg, 'packs'), { recursive: true });
+  fs.copyFileSync(path.join(ROOT, 'dev/packs/test-pack/test-pack.json'), path.join(pkg, 'packs', 'Test pack.json'));
   fs.copyFileSync(zipPath, path.join(outDir, zipName));
 
   // The same folder as one zip, for a first install (folders and files in the order a person would expect).
