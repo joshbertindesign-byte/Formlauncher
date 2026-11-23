@@ -677,6 +677,7 @@
       return { state: 'value', text: Object.entries(v).filter(([k]) => k !== 'id' && k[0] !== '$').map(([k, x]) => `${k} ${x}`).join(', ') };
     }
     if (f.format && typeof v !== 'object') return { state: 'value', text: /\{\w+\}/.test(f.format) ? f.format.replace(/\{value\}/g, d.text) : FP.fn.format(v, f.format) };
+    if (typeof v === 'number' && isFinite(v) && Number.isInteger(f.decimals) && f.decimals >= 0 && !f.format) return { state: 'value', text: v.toFixed(f.decimals) };
     return d;
   }
 
@@ -759,7 +760,7 @@
   .fpf-seg{display:flex;flex-wrap:wrap;gap:6px}
   .fpf-seg button{font:inherit;flex:1 1 auto;min-width:76px;white-space:nowrap;min-height:48px;padding:8px 14px;border:1px solid #c9d0d9;border-radius:10px;background:#fff;cursor:pointer}
   .fpf-seg button.on{background:var(--accent);border-color:var(--accent);color:#fff}
-  .fpf-seg button.on.good{background:var(--good);border-color:var(--good)}.fpf-seg button.on.bad{background:var(--bad);border-color:var(--bad)}
+  .fpf-seg button.on.good{background:var(--good);border-color:var(--good)}.fpf-seg button.on.bad{background:var(--bad);border-color:var(--bad)}.fpf-seg button.on.warn{background:var(--warn);border-color:var(--warn)}
   .fpf-value{min-height:48px;display:flex;align-items:center;padding:0 2px;font-size:18px;font-weight:600}
   .fpf-tiles{display:flex;flex-wrap:wrap;gap:8px}
   .fpf-tile{font:inherit;font-weight:700;min-width:64px;min-height:52px;padding:6px 14px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);cursor:pointer}
@@ -909,10 +910,11 @@
       case 'number': {
         const box = el('div', 'unitwrap');
         const i = el('input'); i.inputMode = 'decimal'; i.autocomplete = 'off'; i.oninput = fire;
+        if (f.placeholder) i.placeholder = f.placeholder;
         box.appendChild(i);
         if (f.unit) box.appendChild(el('span', 'unit', f.unit));
         wrap.appendChild(box);
-        get = () => { const s = i.value.trim().replace(',', '.'); if (!s) return null; const n = Number(s); return isNaN(n) ? { bad: s } : n; };
+        get = () => { const s = i.value.trim().replace(',', '.'); if (!s) return null; const n = Number(s); if (isNaN(n) || !isFinite(n)) return { bad: s }; return Number.isInteger(f.decimals) && f.decimals >= 0 ? Math.round(n * 10 ** f.decimals) / 10 ** f.decimals : n; };
         set = v => { i.value = v == null ? '' : String(v); }; focus = () => i.focus();
         i.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); onChange(f.name, { next: true }); } };
         break;
@@ -1252,7 +1254,8 @@
     const withSources = vals => (hasSources ? Object.assign({}, vals, srcValues) : vals);
     const fields = def.fields;
     const byName = new Map(fields.map(f => [f.name, f]));
-    const draftKey = 'formDraft:' + formId;
+    // A draft belongs to the form and the person (F32): the next person on a shared terminal does not inherit typed values.
+    const draftKey = () => { const u = FP.users && FP.users.now ? FP.users.now() : null; return 'formDraft:' + formId + (u && u.id ? ':' + u.id : ''); };
     const title = def.title || formId;
 
     /* Buttons: the form's own, or one Save. A form opened by another gets Apply. */
@@ -1309,6 +1312,15 @@
       fields.filter(isEntry).forEach(f => {
         const c = ui[f.name].control;
         const x = c.formulaValue ? c.formulaValue() : c.get();
+        v[f.name] = x && typeof x === 'object' && !Array.isArray(x) && 'bad' in x ? null : x;
+      });
+      return v;
+    };
+    // What a field really holds (the photos, the drawing), not what formulas see of it: for drafts and held sub-form records (F6).
+    const rawValues = () => {
+      const v = {};
+      fields.filter(isEntry).forEach(f => {
+        const x = ui[f.name].control.get();
         v[f.name] = x && typeof x === 'object' && !Array.isArray(x) && 'bad' in x ? null : x;
       });
       return v;
@@ -1599,10 +1611,13 @@
           if (f.control === 'number' && f.limits) {
             const r = rangeNow[f.name] || {};
             const lo = r.limMin, hi = r.limMax;
-            if (lo != null && v < lo) out[f.name] = `Must be at least ${fmtNum(lo)}${f.unit ? ' ' + f.unit : ''}`;
-            if (hi != null && v > hi) out[f.name] = `Must be at most ${fmtNum(hi)}${f.unit ? ' ' + f.unit : ''}`;
+            if (r.limBad) out[f.name] = 'Waiting for the limit to be worked out';
+            if (!r.limBad && lo != null && v < lo) out[f.name] = `Must be at least ${fmtNum(lo)}${f.unit ? ' ' + f.unit : ''}`;
+            if (!r.limBad && hi != null && v > hi) out[f.name] = `Must be at most ${fmtNum(hi)}${f.unit ? ' ' + f.unit : ''}`;
           }
-          if (ruleOk[f.name] === false && !out[f.name]) out[f.name] = f.ruleText ? String(f.ruleText).replace(/\{value\}/g, Array.isArray(v) ? v.join(', ') : String(v)) : 'Not allowed';
+          if (ruleOk[f.name] === 'waiting' && !out[f.name]) out[f.name] = 'Waiting for what its rule needs';
+          else if (ruleOk[f.name] === 'error' && !out[f.name]) out[f.name] = "Its rule can't be checked";
+          else if (ruleOk[f.name] === false && !out[f.name]) out[f.name] = f.ruleText ? String(f.ruleText).replace(/\{value\}/g, Array.isArray(v) ? v.join(', ') : String(v)) : 'Not allowed';
         } else if (f.required && computed(f)) {
           const v = display[f.name];
           if (f.control === 'media') {
@@ -1641,7 +1656,10 @@
     }
     /* Why a button can't be used right now, beyond its scope's own problems. */
     function blockedBy(b) {
-      if ((b.action === 'save' || b.action === 'apply') && ackPending()) return ackPending();
+      // Read first (F9): until what must be read is confirmed, nothing that saves, fills in or opens another form works,
+      // here or in a sub-form run opened over this form. Optional items never count (F8).
+      // While the list is still being worked out (the profile not entered yet) only saving waits; the rest goes on.
+      if (b.action !== 'finish') { const held = lockedBy(b) || (opts.lockedBy && opts.lockedBy(b)); if (held) return held; }
       if (b.action === 'save' && stayed && !scopeOf(b)) return 'Saved. Change something to start the next one.';
       if (b.action === 'save') {
         if (parent && parent.link && !parent.link.exists && !sub) return `The ${parent.title} record isn't saved yet: use Apply, and this is saved with it.`;
@@ -1860,13 +1878,19 @@
         if (u && isEntry(f) && f.control === 'number' && (f.warn || f.limits)) {
           const end = async x => { if (x == null) return null; if (typeof x === 'number') return x; const r = await FP.fn.evaluateAsync(String(x), inputs, ctx).catch(() => null); return typeof r === 'number' && isFinite(r) ? r : null; };
           const r = { warnMin: await end((f.warn || {}).min), warnMax: await end((f.warn || {}).max), limMin: await end((f.limits || {}).min), limMax: await end((f.limits || {}).max) };
+          // A hard limit that can't be worked out (waiting for a field, an error) is not a limit that passes (F10).
+          r.limBad = ((f.limits || {}).min != null && r.limMin == null) || ((f.limits || {}).max != null && r.limMax == null);
           if (seq !== calcSeq) return;
           rangeNow[f.name] = r;
         }
         if (u && isEntry(f) && f.rule) {
           const cur = u.control.get();
           let ok = true;
-          if (shown && !blank(cur)) { const r = await FP.fn.evaluateAsync(f.rule, inputs, ctx).catch(() => null); ok = r !== false; }
+          if (shown && !blank(cur)) {
+            // Waiting or an error is not a pass: the value stays unsaved until the rule can say (F10).
+            const r = await FP.fn.evaluateAsync(f.rule, inputs, ctx).catch(() => ({ __fp: 'error' }));
+            ok = r == null || FP.fn.isWaiting(r) || FP.fn.isNoData(r) ? 'waiting' : FP.fn.isError(r) ? 'error' : r !== false;
+          }
           if (seq !== calcSeq) return;
           ruleOk[f.name] = ok;
         }
@@ -2088,10 +2112,14 @@
     const hashText = t => { let h = 5381; for (let i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) | 0; return (h >>> 0).toString(36); };
     const sameDay = (a, b) => new Date(a).toDateString() === new Date(b).toDateString();
 
+    const lockedBy = b => (b.action === 'save' || b.action === 'apply' ? ackPending() : ackLocked());
+    // A sub-form run opened over this form: its own save waits for the list too; its Done only once there is something to read.
+    const lockForRun = b => (b.action === 'save' ? ackPending() : ackLocked());
+    function ackLocked() { return !ackWaiting && ackItems.some(x => !x.done && !x.optional) ? ackPending() : null; }
     function ackPending() {
       if (!acks.length) return null;
       if (ackWaiting) return `First fill ${ackWaiting}, then read and confirm what appears at the top.`;
-      const left = ackItems.filter(x => !x.done);
+      const left = ackItems.filter(x => !x.done && !x.optional);
       return left.length ? `Read and confirm ${left.length === 1 ? left[0].title : left.length + ' items'} at the top first.` : null;
     }
 
@@ -2102,7 +2130,7 @@
       for (const a of acks) {
         if (a.when && (await FP.fn.evaluateAsync(a.when, inputs, ctx)) !== true) continue;
         if (a.show === 'text') {
-          items.push({ a, key: `text:${formId}:${a.name}:${hashText(a.text || '')}`, title: a.label || a.name, text: a.text });
+          items.push({ a, key: `text:${formId}:${a.name}:${hashText(a.text || '')}`, title: a.label || a.name, text: a.text, optional: a.required === false });
           continue;
         }
         // Files of the form's media list whose tags match; each is read once per version of the file (its modified time).
@@ -2217,7 +2245,7 @@
         u.cell.inert = lock;
         u.cell.classList.toggle('fpf-locked', lock);
       });
-      buttons.forEach(b => { if (b.cell) { b.cell.inert = locked && b.action === 'open'; b.cell.classList.toggle('fpf-locked', locked && b.action === 'open'); } });
+      buttons.forEach(b => { if (b.cell) { const lk = locked && b.action !== 'finish'; b.cell.inert = lk; b.cell.classList.toggle('fpf-locked', lk); } });
     }
 
     /* ---------- Printing ----------
@@ -2227,6 +2255,7 @@
      * a new page. Uses the browser's print dialog, so Save as PDF comes free. */
     let activeChild = null; // the form open over this one, if any
     const hasTree = () => buttons.some(b => b.action === 'open');
+    let printedId = '';   // the record's ID as printParts last found it, for the page margin (as printRecord does)
     async function printParts(mode, tree, seen) {
       seen = seen || new Set();
       const user = await FP.users.current().catch(() => null);
@@ -2241,6 +2270,7 @@
       const vals = entryValues();
       const idName = st => { const sd = FP.structures.get(realSt(st)); return (sd.itemId && sd.itemId.label) || `${sd.label || st} ID`; };
       const idText = Object.entries(def.items || {}).map(([st, c]) => { const id = c.field ? vals[c.field] : c.fixed || ids[st]; return id ? `${idName(st)} ${id}` : null; }).filter(Boolean).join(' · ');
+      printedId = idText;
       const ctx = opts.asOf ? { asOf: opts.asOf } : {};
       const inputs = withSources(Object.assign({}, vals, display));
       const parts = [await printPart(def, {
@@ -2288,7 +2318,7 @@
       const page = el('style');
       page.textContent = `@page{size:${cfg.page || 'letter'} ${cfg.orientation || 'portrait'};margin:${cfg.margin || 14}mm ${cfg.margin || 12}mm;`
         + `@top-left{content:${cssText(title + (tree ? ' and linked forms' : ''))};font:9pt system-ui,sans-serif;color:#444}`
-        + `@top-right{content:${cssText(mode === 'blank' ? 'Blank form' : '')};font:9pt system-ui,sans-serif;color:#444}`
+        + `@top-right{content:${cssText(mode === 'blank' ? 'Blank form' : printedId)};font:9pt system-ui,sans-serif;color:#444}`
         + `@bottom-left{content:${cssText(`Printed ${stamp} · ${FP.identity.label(FP.identity.terminalId)}`)};font:8pt system-ui,sans-serif;color:#666}`
         + `@bottom-right{content:"Page " counter(page) " of " counter(pages);font:8pt system-ui,sans-serif;color:#666}}`;
       document.head.appendChild(page);
@@ -2327,8 +2357,8 @@
 
     async function saveDraft() {
       if (opts.draft === false) return; // a form opened by another keeps no draft of its own
-      const v = entryValues();
-      await FP.kv.set(draftKey, { at: new Date().toISOString(), values: v }).catch(() => {});
+      const v = rawValues();
+      await FP.kv.set(draftKey(), { at: new Date().toISOString(), values: v }).catch(() => {});
     }
 
     /* ---------- Saving ---------- */
@@ -2542,6 +2572,7 @@
         paintQueue();
         const childValues = Object.assign(entryValues(), display);
         const childInput = entryValues();
+        const childRaw = rawValues();
         const savedIds = Object.assign({}, ids);
         // What next (0.44): a form opened by another always goes back to it; otherwise the button's then.
         const then = parent ? 'next' : b.then === 'close' && opts.onClose ? 'close' : b.then === 'stay' ? 'stay' : 'next';
@@ -2551,7 +2582,7 @@
           fields.filter(isEntry).forEach(f => { ui[f.name].touched = false; });
           dirty = false;
           stayed = true;
-          await FP.kv.del(draftKey).catch(() => {});
+          await FP.kv.del(draftKey()).catch(() => {});
           toast(savedText(b.savedMessage || def.savedMessage || 'Saved', snap), true);
           await recalc();
           paintFoot(problemsNow());
@@ -2563,9 +2594,9 @@
         Object.keys(ids).forEach(k => delete ids[k]);
         edited.clear();
         dirty = false;
-        await FP.kv.del(draftKey).catch(() => {});
+        await FP.kv.del(draftKey()).catch(() => {});
         toast(savedText(b.savedMessage || def.savedMessage || 'Saved', snap), true);
-        if (parent) { parent.applyBack(childValues, { input: childInput, ids: savedIds, how: 'saved' }); parent.close(true); if (opts.onSaved) opts.onSaved(result); return result; }
+        if (parent) { parent.applyBack(childValues, { input: childInput, raw: childRaw, ids: savedIds, how: 'saved' }); parent.close(true); if (opts.onSaved) opts.onSaved(result); return result; }
         if (then === 'close') { if (opts.onSaved) opts.onSaved(result); opts.onClose(result); return result; }
         await recalc();
         // Back to the start: the first step (or the step of the first field to fill in), first tab.
@@ -2600,7 +2631,7 @@
         parent.hold({ title, summary, values: snap.values, snap, formId, build: () => buildPlan(snap, refs) });
       }
       dirty = false;
-      parent.applyBack(all, { input: entryValues(), ids: Object.assign({}, ids), how: held ? 'held' : 'done' });
+      parent.applyBack(all, { input: entryValues(), raw: rawValues(), ids: Object.assign({}, ids), how: held ? 'held' : 'done' });
       parent.close(true);
     }
 
@@ -2616,6 +2647,7 @@
         recalc();
         return;
       }
+      if (['subform', 'open'].includes(b.action) && blockedBy(b)) return;
       // The editor's preview: buttons say what they would do, and nothing is saved or opened.
       if (opts.preview) { paintFoot(problemsNow(), `Preview: ${b.action === 'open' ? `this would open ${b.form}` : b.action === 'apply' ? 'this would apply' : 'this would save'}. Nothing is saved here.`); return; }
       if (b.action === 'save') return runSave(b);
@@ -3021,9 +3053,9 @@
         });
         crumbs.appendChild(el('span', 'here', shown));
         open(hostEl, `${formId}.${sf.name}`, {
-          def: Object.assign({}, sdef, { title: shown }), prefill: prev ? prev.input : {}, draft: false, restoreDraft: false, trail: names, asOf: opts.asOf,
+          def: Object.assign({}, sdef, { title: shown }), prefill: prev ? Object.assign({}, prev.input, prev.raw || {}) : {}, draft: false, restoreDraft: false, trail: names, asOf: opts.asOf,
           formRef: { id: formRef.id, version: formRef.version, sub: sf.name },
-          ids: prev ? prev.ids : null, site: opts.site, density, keyboard,
+          ids: prev ? prev.ids : null, site: opts.site, density, keyboard, lockedBy: lockForRun,
           sub: { outer: allValues, each: st.each, index: st.index, since: o.since,
             others: () => runsOf[sf.name].map((r, i) => (r && i !== st.index - 1 && r.how !== 'skipped' ? Object.assign({}, r.input || {}, { $each: r.each === undefined ? null : r.each, $index: i + 1 }) : null)).filter(Boolean), buttons: btns, approval: !!def.approval, title: `${title} › ${shown}`, skip: () => {
             // Someone else saw to it: it counts as done, and sends nothing back.
@@ -3035,7 +3067,7 @@
             title: shown, link, canApply: true, holdAlways: mode === 'with',
             applyBack: (vals, info) => {
               info = info || {};
-              runsOf[sf.name][st.index - 1] = { values: vals, input: info.input || {}, ids: info.ids || {}, how: info.how || 'done', each: st.each, at: new Date().toISOString(), linked: !!(link && !link.exists) };
+              runsOf[sf.name][st.index - 1] = { values: vals, input: info.input || {}, raw: info.raw || null, ids: info.ids || {}, how: info.how || 'done', each: st.each, at: new Date().toISOString(), linked: !!(link && !link.exists) };
               applyBackSub(sf);
               recalc();
             },
@@ -3082,7 +3114,12 @@
     window.addEventListener('fp-here', hereMoved);
 
     // Starting values: prefill from the caller, then an unsaved draft from this device.
-    const draft = opts.restoreDraft === false || opts.draft === false ? null : await FP.kv.get(draftKey).catch(() => null);
+    let draft = opts.restoreDraft === false || opts.draft === false ? null : await FP.kv.get(draftKey()).catch(() => null);
+    // A draft kept before drafts were per person: the first person to open the form takes it, and it is gone for the rest.
+    if (!draft && opts.restoreDraft !== false && opts.draft !== false && draftKey() !== 'formDraft:' + formId) {
+      draft = await FP.kv.get('formDraft:' + formId).catch(() => null);
+      if (draft) FP.kv.del('formDraft:' + formId).catch(() => {});
+    }
     const start = Object.assign({}, draft ? draft.values : {}, opts.prefill || {});
     fields.filter(isEntry).forEach(f => { if (start[f.name] !== undefined) { ui[f.name].control.set(start[f.name]); if (!blank(start[f.name])) personSet.add(f.name); } else if (f.default !== undefined) ui[f.name].control.set(f.default); });
     if (draft && Object.values(draft.values).some(v => !blank(v))) dirty = true;
