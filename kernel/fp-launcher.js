@@ -386,6 +386,26 @@ window.addEventListener('unhandledrejection', function (e) { window.__fpReport('
       host.replaceChildren(box);
     }
 
+    /* A retired form's notice card: what happened, when, and the way back (never an error or a blank page). */
+    function retiredCard(doc, openable, replacement) {
+      const t = (doc.def && doc.def.title) || doc.id;
+      const when = isNaN(new Date(doc.publishedAt)) ? '' : ` on ${new Date(doc.publishedAt).toLocaleDateString([], { year: 'numeric', month: 'long', day: 'numeric' })}`;
+      setTitle(t);
+      printBtn.hidden = true;
+      main.classList.remove('wide');
+      const box = el('div', 'fpl-card');
+      box.id = 'retired-card';
+      box.appendChild(el('h2', null, `${t} was retired`));
+      const why = replacement ? `This form was retired${when}. It was replaced by ${formTitle(replacement)}${openable ? '.' : ', which is not on this terminal. Ask a supervisor.'}` : `This form was retired${when} and has no replacement. Ask a supervisor.`;
+      box.appendChild(el('p', null, why));
+      if (doc.note) box.appendChild(el('p', 'fpl-sub', doc.note));
+      const row = el('div', 'fpl-row');
+      if (openable) row.appendChild(button(`Open ${formTitle(replacement)}`, 'primary', () => pick(replacement)));
+      if (!launch.form) row.appendChild(button('Go to this terminal\'s forms', openable ? null : 'primary', () => { if (oneForm) location.assign(location.pathname); else goHome(); }));
+      if (row.childNodes.length) box.appendChild(row);
+      host.replaceChildren(box);
+    }
+
     // A save button with then: "close" goes back to the home screen; a one-form launcher has none, so it starts the next record.
     const closer = () => { goHome().catch(() => {}); };
     async function openForm() {
@@ -397,6 +417,25 @@ window.addEventListener('unhandledrejection', function (e) { window.__fpReport('
       dropBoards();
       notice.replaceChildren();
       const prefill = startWith; startWith = null;
+      // A retired form (0.66): replaced by an active form this terminal may open, it goes there with a one-line notice;
+      // otherwise a notice card says so. A pinned or trial launcher of a retired form stops launching too: it gets the card.
+      const gone = FP.defs.get('form', formId);
+      if (gone && gone.retired) {
+        const to = FP.defs.supersededBy(formId);
+        const ok = !!to && await mayOpen(to);
+        if (ok && pinned == null) {
+          const from = formId;
+          formId = to;
+          if (!oneForm) history.replaceState(null, '', `${location.pathname}?form=${encodeURIComponent(to)}`);
+          await openForm();
+          const n = el('div', 'fpl-notice info', `${formTitle(from)} was replaced by ${formTitle(to)}. `);
+          n.id = 'retired-redirect';
+          if (!launch.form) n.appendChild(button('Back to home', null, () => { if (oneForm) location.assign(location.pathname); else goHome(); }));
+          notice.prepend(n);
+          return;
+        }
+        return retiredCard(gone, ok ? to : null, to);
+      }
       if (!(await mayOpen(formId))) return refuse();
       try {
         let doc;
@@ -1010,8 +1049,11 @@ ${preamble('Check the runtime folder (next to this file) has finished syncing.')
       const out = [];
       for (const x of await readList()) {
         const doc = FP.defs.get('form', x.form);
+        const to = doc && doc.retired ? FP.defs.supersededBy(x.form) : null;
+        const toDoc = to ? FP.defs.get('form', to) : null;
         out.push(Object.assign({}, x, { address: addressOf(x.name),
-          problem: !doc ? `form ${x.form} is not published` : doc.retired ? `form ${x.form} is retired` : !doc.def.launchable ? `form ${x.form} is no longer launchable` : null }));
+          retired: !!(doc && doc.retired), supersededBy: to, repointable: !!(toDoc && toDoc.def && toDoc.def.launchable),
+          problem: !doc ? `form ${x.form} is not published` : doc.retired ? `form ${x.form} is retired${to ? `, replaced by ${(toDoc.def && toDoc.def.title) || to}` : ' and has no replacement'}` : !doc.def.launchable ? `form ${x.form} is no longer launchable` : null }));
       }
       const names = (await FP.files.list(LAUNCHERS).catch(() => [])).filter(n => n.endsWith('.html'));
       for (const n of names) {
@@ -1020,6 +1062,19 @@ ${preamble('Check the runtime folder (next to this file) has finished syncing.')
           problem: old ? 'an older launcher file: installing a release puts it on the list' : `an older file: point shortcuts at ${addressOf(n.replace(/\.html$/, ''))}, then remove it` });
       }
       return out;
+    },
+    /* Point a shortcut at another form (the one that replaced a retired form): it follows the latest version. */
+    async repoint(name, formId) {
+      await requirePublisher();
+      const doc = FP.defs.get('form', formId);
+      if (!doc || doc.retired) throw new Error(`No published form named ${formId}.`);
+      if (!doc.def.launchable) throw new Error(`Form ${formId} isn't launchable. Set launchable: true on it first.`);
+      const list = await readList();
+      const x = list.find(y => y.name === name);
+      if (!x) throw new Error(`There is no shortcut named ${name}.`);
+      x.form = formId; x.version = 'latest';
+      await writeList(list);
+      return name;
     },
     async remove(name) {
       await requirePublisher();
