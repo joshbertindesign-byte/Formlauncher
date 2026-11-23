@@ -59,7 +59,7 @@ A test counts as failed if it crashes, times out, prints `pageerror`, or prints 
 - `dev/packs/test-pack/build.js` builds `test-pack.json`: the pilot's functionality with made-up data (a guard refuses plant-specific words). `l150` installs it.
 - `dev/tools/build-package.js <out dir>` builds the end-user package with the platform's own installer and opens the result from disk; it is the
   last step of a release (`node dev/tools/build-package.js ../dist`). `l151` tests the update path (an installed 0.60.0 folder updated by this kernel's zip).
-- Last full result (0.63.0, from nothing): 85 passed, 0 known failing, 0 failed.
+- Last full run from nothing (0.65.0, 95 tests): 94 passed, 1 failed. The failure was `l175`, which wrote a browser preference, reloaded and expected the browser to have kept it; headless Chromium sometimes drops `file://` storage across a reload (an unrelated key vanishes too). The test now restores the saved value before the reload and passes 5 of 5 alone; `l160` had the same fix. Two earlier test selectors (`l44`, `l179`) matched the new Retire UI first and were corrected.
 
 ## Screenshots, colours and night mode
 

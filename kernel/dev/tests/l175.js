@@ -66,7 +66,9 @@ const R = require('./retire-ui.js');
   // 3. The choice is remembered: a fresh page with the key set opens with the box ticked and Find showing them.
   const B = await start({ seed: 'out/l175snap.json', at: '2026-11-19T08:30:00-06:00', noSignIn: true });
   B.p.on('dialog', d => d.accept().catch(() => {}));
-  await B.w(4000); await B.p.evaluate(() => localStorage.setItem('fpe-show-retired', '1'));
+  await B.w(4000);
+  // Headless Chromium sometimes drops file:// storage across a reload, so the saved value is put back before the page loads (as a real saved preference is): what is tested is that the editor reads it.
+  await B.p.addInitScript(() => { try { localStorage.setItem('fpe-show-retired', '1'); } catch (_) { /* best effort */ } });
   await B.p.reload(); await B.w(4000);
   if (await B.p.$('.fp-u-card')) { await B.p.click('.fp-u-card >> text=Josh').catch(() => {}); await B.w(300); await B.p.keyboard.type('482913'); await B.w(2500); }
   B.say('state', JSON.stringify(await B.p.evaluate(() => [localStorage.getItem('fpe-show-retired'), !!document.querySelector('.fpe-showret-cb'), document.querySelector('.fpe-showret-cb') && document.querySelector('.fpe-showret-cb').checked, !!document.querySelector('.fp-u-card'), document.body.innerText.slice(0, 80)])));
