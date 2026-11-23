@@ -467,12 +467,14 @@
         else series.push({ key: `group:${group.id}`, label: group.name, done: x => group.terminals.includes(x.terminalId) });
       }
       for (const z of series) {
+        const claimed = new Set();   // a save counts for one slot only: the earliest one it can still meet (F18)
         for (const pd of periods(s, Math.max(since, z.anchor || 0), now + (s.every ? s.every * MIN : 8 * 864e5), z.anchor)) {
           if (pd.start < since && pd.end + grace < now) continue;
           if (z.anchor != null && pd.start < z.anchor) continue;
           if (z.closedAt != null && pd.end > z.closedAt) continue;     // the item closed before this period ended
           if (pd.start > now) { out.push(slotOf(o, z, pd, grace, 'upcoming', null, recorded)); break; }
-          const save = saves.find(x => { const t = Date.parse(x.writtenAt); return t >= pd.start && t < pd.end + grace && z.done(x); });
+          const save = saves.find(x => { const t = Date.parse(x.writtenAt); return !claimed.has(x) && t >= pd.start && t < pd.end + grace && z.done(x); });
+          if (save) claimed.add(save);
           let state;
           if (save) state = Date.parse(save.writtenAt) >= pd.end ? 'done late' : 'done';
           else if (now < pd.end) state = 'due';
@@ -576,12 +578,17 @@
         const c = await FP.centers.get(x.center.id).catch(() => null);
         const same = x.series && openBySeries.get(x.series);
         if (c && c.ladder.length && same) {
-          same.misses = (same.misses || 1) + 1;
-          await recA('again', same.id, { misses: same.misses, lastMissedAt: new Date(x.end).toISOString() }, u ? u.id : undefined);
+          // Each miss is counted once, by its ID: a terminal that had not yet seen another's write must not count it again (F44).
+          const counted = Array.isArray(same.missIds) && same.missIds.length ? same.missIds : [same.id];
+          if (!counted.includes(x.id)) {
+            same.missIds = counted.concat(x.id);
+            same.misses = same.missIds.length;
+            await recA('again', same.id, { misses: same.misses, missIds: same.missIds, lastMissedAt: new Date(x.end).toISOString() }, u ? u.id : undefined);
+          }
         } else if (c && c.ladder.length) await recA('open', x.id, { misses: 1, center: c.id, centerName: c.name, title: x.title + (x.label ? ` · ${x.label}` : ''), form: x.formId,
           item: x.item ? `${x.item.id}` : '', where: x.scopeLabel, terminal: here, series: x.series || '', since: new Date(x.lateUntil).toISOString(),
           dueBy: new Date(x.end).toISOString(), critical: !!x.critical, responsible: await responsibleFor(x, u), level: 0, told: [] }, u ? u.id : undefined);
-        if (c && c.ladder.length && !same && x.series) openBySeries.set(x.series, { id: x.id, series: x.series, misses: 1 });
+        if (c && c.ladder.length && !same && x.series) openBySeries.set(x.series, { id: x.id, series: x.series, misses: 1, missIds: [x.id] });
       }
     }
     return fresh.length;
@@ -599,7 +606,7 @@
   const shapeAlert = it => {
     const v = it.values || {};
     return { id: it.id, center: v.center || '', centerName: v.centerName || '', title: v.title || '', form: v.form || '', item: v.item || '', where: v.where || '', terminal: v.terminal || '',
-      series: v.series || '', since: v.since || it.firstAt, dueBy: v.dueBy || null, misses: v.misses || 1, lastMissedAt: v.lastMissedAt || v.dueBy || null, critical: !!v.critical, responsible: v.responsible || '', level: v.level || 0, told: Array.isArray(v.told) ? v.told : [],
+      series: v.series || '', since: v.since || it.firstAt, dueBy: v.dueBy || null, misses: v.misses || 1, missIds: Array.isArray(v.missIds) ? v.missIds : [], lastMissedAt: v.lastMissedAt || v.dueBy || null, critical: !!v.critical, responsible: v.responsible || '', level: v.level || 0, told: Array.isArray(v.told) ? v.told : [],
       ackBy: v.ackBy || null, ackById: v.ackById || null, ackAt: v.ackAt || null, ackNote: v.ackNote || '', closedAt: v.closedAt || null, closedHow: v.closedHow || null, openedAt: it.firstAt };
   };
   async function allAlerts(fresh) {

@@ -199,7 +199,7 @@
     window.addEventListener('unhandledrejection', e => { const m = e.reason && e.reason.message || String(e.reason || ''); if (m) toast(`Something went wrong: ${m}`, true); });
     window.addEventListener('error', e => { if (e.message) toast(`Something went wrong: ${e.message}`, true); });
   }
-  function toast(text, bad) { const t = el('div', 'fpe-msg' + (bad ? ' bad' : ''), text); document.body.appendChild(t); setTimeout(() => t.remove(), bad ? 4000 : 2200); }
+  function toast(text, bad) { const t = el('div', 'fpe-msg' + (bad ? ' bad' : ''), text); document.body.appendChild(t); setTimeout(() => t.remove(), bad ? 9000 : 2200); }
 
   /* ---------- Sites: all, or a list ---------- */
   async function sitesPicker(def, onChange) {
@@ -635,7 +635,7 @@
     }
     async function act(what, fn) {
       try { const m = await fn(); if (m) toast(m); }
-      catch (e) { toast(`${what} failed: ${e.message}`, true); }
+      catch (e) { toast(`${what} failed: ${(e && e.message) || e || "unknown problem"}`, true); }
     }
     function reopen(message) { dirty = false; if (opts.reopen) opts.reopen(kind, id); return message; }
     async function publish(trial) {
