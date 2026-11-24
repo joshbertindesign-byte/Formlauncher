@@ -392,7 +392,7 @@
       },
       right(prev) {
         header(prev, 'About updates');
-        prev.appendChild(side('A new version of the platform comes as a release zip (kernel-0.67.0.zip). Put it in the data folder\'s updates folder (or use + put a release zip) and install it here. Installing checks every file, writes the release to runtime, and switches every page to it; each terminal reloads by itself once nothing unsaved is on its screen.',
+        prev.appendChild(side('A new version of the platform comes as a release zip (kernel-0.68.0.zip). Put it in the data folder\'s updates folder (or use + put a release zip) and install it here. Installing checks every file, writes the release to runtime, and switches every page to it; each terminal reloads by itself once nothing unsaved is on its screen.',
           el('h4', null, 'Going back'), `The three newest releases are kept. Using an older one switches every terminal back the same way. This editor runs ${FP.version}.`));
       },
     });
@@ -1485,7 +1485,7 @@
     c.appendChild(el('p', 'ffe-note', `Every record this browser saves goes into ${name ? `"${name}"` : 'the data folder'}. If that folder was moved or renamed, choose it again here. The terminal ID, site and sign-ins on this device are kept.`));
     if (!(await FP.users.can('admin'))) { c.appendChild(el('p', 'ffe-note', 'Only an admin can choose a different folder.')); return c; }
     const b = btn('Choose a different folder', 'small', async () => {
-      if (!confirm('Choose a different data folder?\n\nAnything waiting to save on this terminal will be saved into the new folder. The terminal ID and site are kept.')) return;
+      if (!confirm('Choose a different data folder?\n\nAnything waiting to save on this terminal will be saved into the new folder. Choose the same data in its new place (the folder that was moved or renamed). If it is a different or empty folder, this terminal will ask to be set up again.')) return;
       try { await FP.folder.change(); location.reload(); }
       catch (e) { if (!(e && e.name === 'AbortError')) toast(e.message, true); }
     });
@@ -2287,5 +2287,5 @@
   FP.editor.places = { pane: places };
 
   /* Registered last, so a module that failed partway never reports as loaded. */
-  (window.FP.modules = window.FP.modules || {})['fp-admin'] = '0.67.0';
+  (window.FP.modules = window.FP.modules || {})['fp-admin'] = '0.68.0';
 })();

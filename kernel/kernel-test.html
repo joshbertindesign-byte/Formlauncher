@@ -121,7 +121,7 @@ window.addEventListener('unhandledrejection', function (e) {
 (function () {
   if (window.__fpBootRetrying) return;   // runtime/kernel-test.html: boot.js is moving to another release
   /* Every kernel file must be present, fully loaded, and the same version as this page. */
-  const EXPECTED = '0.67.0';
+  const EXPECTED = '0.68.0';
   const NEEDED = ['fp-config', 'fp-theme', 'fp-fonts', 'fp-icons', 'fp-core', 'fp-identity', 'fp-entry', 'fp-session', 'fp-formula', 'fp-formula-tests', 'fp-current', 'fp-kinds', 'fp-sites', 'fp-lookup', 'fp-lookup-tests', 'fp-users'];
   const mods = (window.FP && window.FP.modules) || {};
   const wrong = NEEDED.filter(m => mods[m] !== EXPECTED).map(m => mods[m]

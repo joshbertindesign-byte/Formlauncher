@@ -1,6 +1,6 @@
 # Text to add to the User Guide and the Architecture Spec
 
-The two PDFs in `Forms b/` can't be edited from this repo, so here is the wording to add when you next revise them. It covers 0.64 to 0.67. Section
+The two PDFs in `Forms b/` can't be edited from this repo, so here is the wording to add when you next revise them. It covers 0.64 to 0.68. Section
 names are suggestions.
 
 ## Glossary (new terms)
@@ -47,3 +47,8 @@ names are suggestions.
 - **Spec:** remove the statement that an admin can move a terminal to another site from the Admin page. A terminal's site is chosen once, on that terminal's own launcher at set-up, and does not change afterwards. A terminal can be **renamed**; it is not moved. Its past entries keep the terminal ID and site they were made under.
 - **Guide:** say the same in the terminals chapter. A terminal placed wrongly is set up again as a new terminal, not moved.
 - **Retiring terminals and sites (0.67.0):** an admin can **Retire** a terminal or a site instead of removing it. Its record stays (who, when, a note) and its past entries keep naming it; it leaves the lists and pickers and sits on the map's **Retired** shelf until an admin **Reinstates** it. A retired terminal's ID is never reused; a retired terminal that is switched on shows a plain "retired" card and no forms. A site can be retired only when no active terminal or group is at it. Spec: the terminal registry file gains `retired: { at, by, note }`; `FP.identity.retire`, `reinstate`, `isRetired`; check-in preserves the mark. The old "Take it off the list" (which deleted the registry file) is no longer offered.
+
+## Changing the data folder (0.68.0)
+
+- **Guide, set-up and troubleshooting:** if the data folder moves or is renamed, choose it again: on the launcher, a supervisor or above taps **Change data folder**; in the editor an admin uses **Admin > Test folder > Data folder > Choose a different folder**; a terminal that cannot start has **Choose a different data folder** on its start screen. Choose the same data in its new place so the terminal keeps its ID and site.
+- **Spec:** `FP.folder.check()` and `FP.folder.change()`; the stored folder handle is the only thing replaced; the offline copies of users, sites and definitions are dropped with it.

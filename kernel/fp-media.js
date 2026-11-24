@@ -465,5 +465,5 @@
   };
 
   /* Registered last, so a module that failed partway never reports as loaded. */
-  (window.FP.modules = window.FP.modules || {})['fp-media'] = '0.67.0';
+  (window.FP.modules = window.FP.modules || {})['fp-media'] = '0.68.0';
 })();

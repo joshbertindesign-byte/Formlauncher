@@ -21,7 +21,7 @@
   const FP = window.FP;
   if (!FP || !FP.defs || !FP.forms) throw new Error('Load fp-defs.js before fp-launcher.js');
 
-  const VERSION = '0.67.0';
+  const VERSION = '0.68.0';
   /* The runtime, in load order. */
   const KERNEL = ['fp-config', 'fp-theme', 'fp-fonts', 'fp-icons', 'fp-core', 'fp-identity', 'fp-entry', 'fp-session', 'fp-formula', 'fp-current', 'fp-kinds', 'fp-sites', 'fp-lookup',
     'fp-users', 'fp-media', 'fp-sources', 'fp-forms', 'fp-controls', 'fp-visuals', 'fp-keyboard', 'fp-defs', 'fp-due', 'fp-launcher', 'fp-updates'];
@@ -218,7 +218,7 @@ window.addEventListener('unhandledrejection', function (e) { window.__fpReport('
     changeFolder.title = 'Choose a different data folder, for instance after it was moved or renamed';
     changeFolder.onclick = async () => {
       if (!(await FP.users.can('supervisor').catch(() => false))) return;
-      if (!confirm('Choose a different data folder?\n\nAnything waiting to save on this terminal will be saved into the new folder. The terminal ID and site are kept.')) return;
+      if (!confirm('Choose a different data folder?\n\nAnything waiting to save on this terminal will be saved into the new folder. Choose the same data in its new place (the folder that was moved or renamed). If it is a different or empty folder, this terminal will ask to be set up again.')) return;
       changeFolder.disabled = true;
       try { await FP.folder.change(); location.reload(); return; }
       catch (e) { if (!(e && e.name === 'AbortError')) outbox.title = e.message; }
@@ -1181,5 +1181,5 @@ ${preamble('Check the runtime folder (next to this file) has finished syncing.')
   FP.launcher = { start };
 
   /* Registered last, so a module that failed partway never reports as loaded. */
-  (window.FP.modules = window.FP.modules || {})['fp-launcher'] = '0.67.0';
+  (window.FP.modules = window.FP.modules || {})['fp-launcher'] = '0.68.0';
 })();

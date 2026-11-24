@@ -20,12 +20,18 @@
   const TYPE_TEXT = { text: 'text', name: 'a name (letters, digits, _)', number: 'a number', integer: 'a whole number', boolean: 'yes or no', choice: 'one of a list', formula: 'a formula', texts: 'a list of words', target: 'source.value', list: 'a list', map: 'names and values', any: 'see the note', control: 'a kind of field', form: 'a form\'s name', options: 'a list of options' };
 
   /* ---------- The chapters, as plain data ---------- */
-  /* What changed (0.67): short, plain, and who each change is for. Newest first. */
+  /* What changed (0.68): short, plain, and who each change is for. Newest first. */
   function changedChapter() {
     return {
       id: 'changed', title: 'What changed',
-      intro: 'What is different in the last four releases, in plain words. Each says who it is for: builders make the forms in the editor; operators fill them in on a terminal.',
+      intro: 'What is different in the last five releases, in plain words. Each says who it is for: builders make the forms in the editor; operators fill them in on a terminal.',
       blocks: [
+        { h: '0.68 · Change the data folder', who: 'Supervisors and admins on a terminal; admins in the editor', list: [
+          'If the data folder moved or was renamed, a terminal that still remembers the old one now says so ("The data folder is not there any more") and offers Choose the data folder again.',
+          'The Tap Start screen has Choose a different data folder, so a stale folder no longer traps the terminal.',
+          'On the launcher, supervisors and above have a quiet Change data folder button next to Reconnect; in the editor, Admin has a Data folder card (Test folder pane) with Choose a different folder (admins).',
+          'The terminal ID and site are kept when you choose the same data in its new place; anything waiting to save goes into the new folder.',
+        ] },
         { h: '0.67 · Retiring terminals and sites', who: 'Admins; operators only see a plain card on a retired terminal', list: [
           'Retire this terminal (Admin, the terminal) takes it out of use without deleting it: its record stays, with who retired it and when, and its past entries keep naming it.',
           'A retired terminal\'s ID can never be used again: setting up another device with it is refused.',
@@ -338,5 +344,5 @@ table{border-collapse:collapse;width:100%}td{border-top:1px solid gainsboro;padd
   FP.editor.help = help;
 
   /* Registered last, so a module that failed partway never reports as loaded. */
-  (window.FP.modules = window.FP.modules || {})['fp-help'] = '0.67.0';
+  (window.FP.modules = window.FP.modules || {})['fp-help'] = '0.68.0';
 })();
