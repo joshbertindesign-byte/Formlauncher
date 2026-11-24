@@ -220,6 +220,10 @@
   .fpe-dlg .use select{min-height:34px}
   .fpe-map .fpe-mrow.dim span,.fpe-map .fpe-mrow.dim small{color:var(--muted)}
   .fpe-map .fpe-mrow.dim .fpi-tile{opacity:.6}
+  .fpe-map .fpe-mpair{display:flex;align-items:center;gap:6px}.fpe-map .fpe-mpair .fpe-mrow{flex:1 1 auto;width:auto;min-width:0}
+  .fpe-map .fpe-mwho{font-size:12px;color:var(--muted);margin:-4px 0 6px}
+  .fpe-map .fpe-mreinstate{flex:none;font:inherit;font-size:13px;font-weight:600;min-height:48px;padding:6px 12px;border:1px solid var(--line-2);border-radius:10px;background:var(--surface);color:var(--fg);cursor:pointer;margin-bottom:2px}
+  .fpe-map .fpe-mreinstate:hover{background:var(--surface-2)}.fpe-map .fpe-mreinstate:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
   .fpe-showret{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);cursor:pointer;white-space:nowrap}
   .fpe-lib .fpe-showret input{width:auto;margin:0;padding:0}
   .fpe-update button.primary{font:inherit;font-weight:700;min-height:38px;padding:4px 16px;border:0;border-radius:10px;background:var(--accent);color:var(--accent-fg);cursor:pointer}`;
@@ -1173,11 +1177,12 @@
       // Plant (0.60, was Sites): each site, its terminal groups and the terminals in none, with what each is for.
       const sitesHead = { key: 'head:plant', head: 'Plant', note: `${md.sites.length} site${md.sites.length === 1 ? '' : 's'}`, dflt: true, children: [] };
       const forText = f => (f && f.items && f.items.length ? ` · for ${f.items.join(', ')}` : '');
-      md.sites.forEach(site => {
+      const liveTerm = t => !FP.identity.isRetired(t);
+      md.sites.filter(site => site.active).forEach(site => {
         const S = site.id;
         const groups = md.groups.filter(g => g.site === S);
         const inGroups = new Set(groups.flatMap(g => g.terminals));
-        const loneTerms = md.registry.filter(t => t.site === S && !inGroups.has(t.terminalId));
+        const loneTerms = md.registry.filter(t => liveTerm(t) && t.site === S && !inGroups.has(t.terminalId));
         const formCount = new Set(groups.flatMap(g => g.forms).concat(loneTerms.flatMap(t => ((md.termSet.get(t.terminalId) || {}).forms || [])))).size;
         const termCount = inGroups.size + loneTerms.length;
         const sn = { key: 'site:' + S, label: site.name, chips: [S], sub: `${S} · ${termCount} terminal${termCount === 1 ? '' : 's'} · ${formCount} form${formCount === 1 ? '' : 's'}`, color: site.active ? 'var(--t-teal-45)' : 'var(--t-n-83)', place: { kind: 'site', id: S }, dflt: true, children: [] };
@@ -1199,6 +1204,24 @@
         sitesHead.children.push(sn);
       });
       if (md.isAdmin) sitesHead.children.push({ key: 'add-site', label: '+ site', add: true, place: { kind: 'new-site' } });
+      // The Retired shelf of the plant (0.67): retired terminals and retired sites, collapsed, shown only when there are some.
+      {
+        const nameOfUser = id => { const u = (md.users || []).find(x => x.id === id); return u ? u.name : null; };
+        const dayOf = iso => (iso ? FP.identity.retiredOn({ retired: { at: iso } }) : null);
+        const reinstateRow = (what, run, done) => md.isAdmin ? async () => { try { await run(); toast(done); await refreshMap(); } catch (e) { toast(e.message, true); } } : null;
+        const goneTerms = md.registry.filter(t => FP.identity.isRetired(t)).map(t => ({ key: `gone-terminal:${t.terminalId}`, label: t.terminalId, tag: 'terminal', color: 'var(--d-n-66)', dim: true, retiredRow: true,
+          place: { kind: 'terminal', id: t.terminalId }, chips: [],
+          who: `Retired${t.retired.at ? ' ' + dayOf(t.retired.at) : ''}${t.retired.by ? ' by ' + t.retired.by : ''}${t.retired.note ? ' · ' + t.retired.note : ''}`,
+          sub: `Retired${t.retired.at ? ' ' + dayOf(t.retired.at) : ''}${t.retired.by ? ' by ' + t.retired.by : ''}${t.retired.note ? ': ' + t.retired.note : ''}. Its ID is never used again.`,
+          reinstate: reinstateRow('terminal', () => FP.identity.reinstate(t.terminalId), `${t.terminalId} is reinstated.`) }));
+        const goneSites = md.sites.filter(x => !x.active).map(x => ({ key: `gone-site:${x.id}`, label: x.name, tag: 'site', color: 'var(--d-n-66)', dim: true, retiredRow: true,
+          place: { kind: 'site', id: x.id }, chips: [x.id],
+          who: `Retired${x.retiredAt ? ' ' + dayOf(x.retiredAt) : ''}${nameOfUser(x.retiredBy) ? ' by ' + nameOfUser(x.retiredBy) : ''}`,
+          sub: `Retired${x.retiredAt ? ' ' + dayOf(x.retiredAt) : ''}${nameOfUser(x.retiredBy) ? ' by ' + nameOfUser(x.retiredBy) : ''}. Records saved there are kept.`,
+          reinstate: reinstateRow('site', () => FP.sites.setActive(x.id, true), `${x.name} is reinstated.`) }));
+        const gone = goneSites.concat(goneTerms);
+        if (gone.length) sitesHead.children.push({ key: 'shelf:plant', label: `Retired · ${gone.length}`, color: 'var(--d-n-66)', dim: true, shelf: true, dflt: false, sub: 'Retired: kept in the history, an admin can reinstate them', children: gone });
+      }
       nodes.push(sitesHead);
       // Structures, Formulas and Forms (0.53.1): each one once. Forms show under the sites only where a terminal runs
       // them; here each form says where it runs. Drafts not published yet sit in their own heading.
@@ -1420,7 +1443,15 @@
           else if (n.place) openPlace(n.place.kind, n.place.id, n.place);
           else if (hasKids) { openKeys[n.key] = !openNow; keepOpen(); paintLib(); }
         };
-        box.appendChild(b);
+        if (n.reinstate) {
+          const shelfRow = el('div', 'fpe-mshelf');
+          const pair = el('div', 'fpe-mpair');
+          const rb = btn('Reinstate', 'fpe-mreinstate', e => { e.stopPropagation(); rb.disabled = true; n.reinstate(); });
+          rb.setAttribute('aria-label', `Reinstate ${n.label}`);
+          pair.append(b, rb); shelfRow.appendChild(pair);
+          if (n.who) { const wl = el('div', 'fpe-mwho', n.who); wl.style.marginLeft = (depth * 14 + 38) + 'px'; shelfRow.appendChild(wl); }
+          box.appendChild(shelfRow);
+        } else box.appendChild(b);
         // Every row alike (0.60): what it is in a word or two on the row, the rest when hovered; nothing on a line below.
         if (n.sub && !n.add) b.title = n.sub;
         if (!openNow) return;

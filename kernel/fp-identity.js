@@ -112,15 +112,31 @@
     /* Registry entry for an ID, or null. */
     lookup: id => FP.files.readJson(REGISTRY, id + '.json'),
 
-    /* Entry if another device holds this ID, else null. Registry may lag by OneDrive sync time. */
+    /* A retired terminal (0.67): its registry entry is kept, marked retired: { at, by, note }. Nothing is deleted. */
+    isRetired: entry => !!(entry && entry.retired && typeof entry.retired === 'object'),
+    /* When it was retired, as "24 Nov 2026" (the same wherever the browser is set to another language). */
+    retiredOn(entry) {
+      const t = entry && entry.retired && Date.parse(entry.retired.at);
+      if (!t) return 'an earlier date';
+      const d = new Date(t);
+      return `${d.getDate()} ${['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][d.getMonth()]} ${d.getFullYear()}`;
+    },
+    /* The plain refusal for an ID that was retired: it is never used again. */
+    retiredMessage: entry => `${entry && entry.terminalId} was retired on ${FP.identity.retiredOn(entry)}; pick another ID.`,
+
+    /* Entry if another device holds this ID, else null. Registry may lag by OneDrive sync time.
+     * A retired terminal's ID is refused outright (0.67), for any device. */
     async conflict(id) {
       const entry = await FP.identity.lookup(id);
+      if (FP.identity.isRetired(entry)) throw new Error(FP.identity.retiredMessage(Object.assign({ terminalId: id }, entry)));
       return entry && entry.deviceKey !== FP.identity.deviceKey ? entry : null;
     },
 
     async assign(id) {
       id = FP.identity.normalize(id);
       if (!FP.identity.valid(id)) throw new Error('Use 1–16 letters, digits or dashes, e.g. T05.');
+      const was = await FP.identity.lookup(id).catch(() => null);
+      if (FP.identity.isRetired(was)) throw new Error(FP.identity.retiredMessage(Object.assign({ terminalId: id }, was)));
       await FP.kv.set('terminalId', id);
       FP.identity.terminalId = id;
       await FP.identity.checkIn();
@@ -138,7 +154,7 @@
     async checkIn() {
       const id = FP.identity.terminalId;
       if (!id || FP.identity.editor) return;
-      const before = await FP.identity.lookup(id).catch(() => null);
+      const before = await FP.identity.lookup(id);   // a read that fails stops here: the registry is never rewritten blind (it could lose a retired mark)
       const same = before && before.deviceKey === FP.identity.deviceKey ? before : {};
       const later = (a, b) => (!a ? b || null : !b ? a : a > b ? a : b);
       await FP.files.writeJson(REGISTRY, id + '.json', {
@@ -153,6 +169,7 @@
         keysSeenAt: later(device.keysSeenAt, same.keysSeenAt),
         scannerSeenAt: later(device.scannerSeenAt, same.scannerSeenAt),
         checkpoints: same.checkpoints === false ? false : undefined,   // the per-terminal opt-out is kept (F2)
+        retired: FP.identity.isRetired(same) ? same.retired : undefined,   // a retired mark is kept, never cleared by a check-in (0.67)
       });
       device.written = { screen: JSON.stringify(sizeKey()), keys: device.keysSeenAt, scanner: device.scannerSeenAt, at: Date.now() };
     },
@@ -176,7 +193,32 @@
       await FP.files.remove(REGISTRY, id + '.json');
     },
 
-    /* All registry entries, newest first. */
+    /* Retire a terminal (0.67): the registry file is kept and marked { at, by, note }; its ID is never used again.
+     * Admins only; not the terminal you are on. Reinstate takes the mark off. */
+    async retire(id, note) {
+      if (FP.users && !(await FP.users.can('admin'))) throw new Error('Only an admin can retire a terminal.');
+      id = FP.identity.normalize(id);
+      if (id === FP.identity.terminalId) throw new Error('This is the terminal you are on; retire it from another computer.');
+      const entry = await FP.identity.lookup(id);
+      if (!entry) throw new Error(`There is no terminal ${id} on the list.`);
+      if (FP.identity.isRetired(entry)) return entry;
+      const u = FP.users ? await FP.users.current().catch(() => null) : null;
+      const next = Object.assign({}, entry, { terminalId: entry.terminalId || id, retired: { at: new Date().toISOString(), by: (u && (u.name || u.id)) || null, note: String(note || '').trim() } });
+      await FP.files.writeJson(REGISTRY, id + '.json', next);
+      return next;
+    },
+    async reinstate(id) {
+      if (FP.users && !(await FP.users.can('admin'))) throw new Error('Only an admin can reinstate a terminal.');
+      id = FP.identity.normalize(id);
+      const entry = await FP.identity.lookup(id);
+      if (!entry) throw new Error(`There is no terminal ${id} on the list.`);
+      if (!FP.identity.isRetired(entry)) return entry;
+      const next = Object.assign({}, entry); delete next.retired;
+      await FP.files.writeJson(REGISTRY, id + '.json', next);
+      return next;
+    },
+
+    /* All registry entries, newest first (retired ones too: callers filter with isRetired). */
     async all() {
       const names = (await FP.files.list(REGISTRY)).filter(n => n.endsWith('.json'));
       const entries = [];
@@ -289,7 +331,7 @@
             await FP.identity.assign(id);
             next();
           };
-          input.onkeydown = e => { if (e.key === 'Enter') assign(false); };
+          input.onkeydown = e => { if (e.key === 'Enter') assign(false).catch(err => message(String(err && err.message || err), 'bad')); };
           render('Name this terminal',
             'Each device needs its own terminal ID. It is kept on this device until an admin changes it.',
             [input, button('Save terminal ID', () => assign(false))]);
@@ -353,6 +395,14 @@
             }
           }
           if (!FP.identity.terminalId) { askTerminalId(); return; }
+          // A retired terminal (0.67) shows one card: no forms, no sign-in, no saves, nothing written.
+          const mine = await FP.identity.lookup(FP.identity.terminalId).catch(() => null);
+          if (FP.identity.isRetired(mine)) {
+            render(`${FP.identity.terminalId} is retired`,
+              `This terminal was retired on ${FP.identity.retiredOn(mine)} and shows no forms. An admin can reinstate it from Admin.`,
+              [button('Check again', () => next(), true)]);
+            return;
+          }
           if (FP.sites && !FP.identity.site) { await askSite(); return; }
           // Its site is gone from the data folder: the data was purged (0.44.5), so this terminal is set up again.
           if (FP.sites && FP.identity.site) {
