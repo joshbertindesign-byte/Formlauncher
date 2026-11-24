@@ -260,6 +260,12 @@
     s.onchange = () => onPick(s.value);
     return s;
   }
+  function fullscreenSelect(value, onPick, ro) {
+    const s = select([['no', 'Normal'], ['yes', 'Full screen on the first tap']], value === true ? 'yes' : 'no');
+    s.disabled = !!ro;
+    s.onchange = () => onPick(s.value === 'yes');
+    return s;
+  }
   async function act(fn, ok, after) {
     try { const r = await fn(); if (ok) toast(typeof ok === 'function' ? ok(r) : ok); if (after) await after(r); return r; }
     catch (e) { toast(e.message, true); return null; }
@@ -2179,6 +2185,7 @@
       card.appendChild(set('Who signs in', 'supervisors only: a shared terminal; its forms need a Who did it field', signInSelect(g.signIn, v => act(() => FP.groups.update(id, { signIn: v }), 'Saved: the terminals pick it up when they next load their settings.', again), ro)));
       card.appendChild(set('Home form', 'shown open on the home page, e.g. a line board whose buttons open the other forms', homeSelect(g.homeForm, g.forms, v => act(() => FP.groups.update(id, { homeForm: v }), 'Saved: the terminals show it when they next go home.', again), ro)));
       card.appendChild(set('View', 'kiosk for a line or a press; admin for a desk PC with a wide screen', viewSelect(g.view, v => act(() => FP.groups.update(id, { view: v }), 'Saved: the terminals show it when they next go home.', again), ro)));
+      card.appendChild(set('Full screen', 'a browser only goes full screen after a tap, so the first tap does it; the launcher also has a Full screen button', fullscreenSelect(g.fullscreen, v => act(() => FP.groups.update(id, { fullscreen: v }), 'Saved: the terminals pick it up when they next load their settings.', again), ro)));
       card.appendChild(set('For', 'the lines (or other list items) these terminals work on: forms read it as HERE(); for several, the launcher asks which', forPicker(g.for, v => act(() => FP.groups.update(id, { for: v }), 'Saved: the terminals pick it up when they next load their settings.', again), ro)));
       if (await FP.folder.isTest()) card.appendChild(simulateRow(g.terminals, ro ? null : async id => { await FP.groups.update(g.id, { terminals: g.terminals.concat(id) }); }));
       else card.appendChild(set('Simulate', 'opening the launcher as one of these terminals, from this computer', el('div', 'lead', 'Only on a test folder: Admin > Test folder marks one.')));
@@ -2266,10 +2273,11 @@
       else if (await FP.folder.isTest()) card.appendChild(simulateRow([id], null));
       else card.appendChild(set('Simulate', null, el('div', 'lead', 'Only on a test folder: Admin > Test folder marks one.')));
       card.appendChild(set(g ? `Its forms · from ${g.name}` : 'Its forms', g ? null : 'in this order; users see only these', formList(g ? g.forms : ts.forms, t.site, list => act(() => FP.groups.setTerminal(id, { forms: list }), null, again), ro || !!g)));
-      if (g) card.appendChild(set('Home form and view', `from ${g.name}`, el('div', null, `${g.homeForm && g.homeForm !== 'none' ? formTitle(g.homeForm) : 'No home form'} · ${g.view === 'admin' ? 'Admin view' : 'Kiosk view'}`)));
+      if (g) card.appendChild(set('Home form and view', `from ${g.name}`, el('div', null, `${g.homeForm && g.homeForm !== 'none' ? formTitle(g.homeForm) : 'No home form'} · ${g.view === 'admin' ? 'Admin view' : 'Kiosk view'}${g.fullscreen === true ? ' · Full screen on the first tap' : ''}`)));
       else {
         card.appendChild(set('Home form', 'shown open on the home page, e.g. a line board whose buttons open the other forms', homeSelect(ts.homeForm, ts.forms, v => act(() => FP.groups.setTerminal(id, { homeForm: v }), 'Saved: it shows it when it next goes home.', again), ro)));
         card.appendChild(set('View', 'kiosk for a line or a press; admin for a desk PC with a wide screen', viewSelect(ts.view, v => act(() => FP.groups.setTerminal(id, { view: v }), 'Saved: it shows it when it next goes home.', again), ro)));
+        card.appendChild(set('Full screen', 'a browser only goes full screen after a tap, so the first tap does it; the launcher also has a Full screen button', fullscreenSelect(ts.fullscreen, v => act(() => FP.groups.setTerminal(id, { fullscreen: v }), 'Saved: it picks it up when it next loads its settings.', again), ro)));
       }
       // What it is for (0.60): its own setting wins over its group's (one terminal of a group on one line).
       card.appendChild(set('For', g ? `its own, or as ${g.name}` : 'the lines (or other list items) it works on: forms read it as HERE(); for several, the launcher asks which',

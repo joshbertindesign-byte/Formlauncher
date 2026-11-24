@@ -78,6 +78,7 @@ window.addEventListener('unhandledrejection', function (e) { window.__fpReport('
   .fpl-meta{font-size:var(--fs-sm);color:var(--head-fg);white-space:nowrap;display:inline-flex;align-items:center;gap:8px}
   .fpl-bar button{white-space:nowrap;font:inherit;font-size:var(--fs-md);font-weight:600;min-height:var(--touch);padding:6px 16px;border-radius:12px;border:1px solid var(--head-line);background:transparent;color:var(--head-fg);cursor:pointer;display:inline-flex;align-items:center;gap:8px}
   .fpl-bar button:hover{background:var(--head-line)}
+  .fpl-bar button.fpl-fullscreen{border-color:transparent;font-size:var(--fs-sm);font-weight:500}
   .fpl-bar button.fpl-changefolder{border-color:transparent;font-size:var(--fs-sm);font-weight:500}
   .fpl-bar button[hidden]{display:none}
   .fpl-dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--s-green-68);margin-right:0;vertical-align:middle}
@@ -224,7 +225,38 @@ window.addEventListener('unhandledrejection', function (e) { window.__fpReport('
       catch (e) { if (!(e && e.name === 'AbortError')) outbox.title = e.message; }
       changeFolder.disabled = false;
     };
-    saved.append(dot, outbox, reconnect, changeFolder);
+    // Full screen (0.69): a quiet toggle; hidden where the browser has no Fullscreen API. It only changes the display.
+    const fsEl = () => document.fullscreenElement || document.webkitFullscreenElement || null;
+    const fsCan = () => !!(document.documentElement.requestFullscreen || document.documentElement.webkitRequestFullscreen);
+    const fsEnter = () => {
+      try {
+        const d = document.documentElement, r = d.requestFullscreen ? d.requestFullscreen() : (d.webkitRequestFullscreen ? d.webkitRequestFullscreen() : null);
+        if (r && r.catch) r.catch(() => {});
+      } catch (_) { /* not allowed here: stay as it is */ }
+    };
+    const fsExit = () => {
+      try {
+        const r = document.exitFullscreen ? document.exitFullscreen() : (document.webkitExitFullscreen ? document.webkitExitFullscreen() : null);
+        if (r && r.catch) r.catch(() => {});
+      } catch (_) { /* nothing to leave */ }
+    };
+    const fsBtn = button('Full screen', 'fpl-fullscreen'); fsBtn.id = 'fullscreen-toggle'; fsBtn.hidden = !fsCan();
+    fsBtn.title = 'Fill the screen with the launcher; tap again to go back';
+    const fsPaint = () => { const on = !!fsEl(); fsBtn.textContent = on ? 'Exit full screen' : 'Full screen'; fsBtn.setAttribute('aria-pressed', on ? 'true' : 'false'); };
+    fsBtn.onclick = () => { if (fsEl()) fsExit(); else fsEnter(); };
+    document.addEventListener('fullscreenchange', fsPaint); document.addEventListener('webkitfullscreenchange', fsPaint);
+    fsPaint();
+    // The setting: the first tap or key anywhere goes full screen; after that only a tap brings it back (not a key press, which may be typing).
+    // The tap itself is never held up. Not in the editor, on a simulated terminal or in print.
+    let fsWanted = false, fsFirst = true;
+    const fsGesture = ev => {
+      if (!fsWanted || fsEl() || !fsCan()) return;
+      if (ev.type === 'keydown' && !fsFirst) return;
+      fsFirst = false; fsEnter();
+    };
+    document.addEventListener('pointerdown', fsGesture, { capture: true, passive: true });
+    document.addEventListener('keydown', fsGesture, { capture: true, passive: true });
+    saved.append(dot, outbox, reconnect, changeFolder, fsBtn);
     const term = el('span', 'fpl-meta term');
     const printBtn = button('Print'); printBtn.hidden = true;
     const editorBtn = button('Editor'); editorBtn.hidden = true;
@@ -347,7 +379,8 @@ window.addEventListener('unhandledrejection', function (e) { window.__fpReport('
       const setUp = !!ft.group || groups.some(g => g.site === site) || Array.from(ts.entries()).some(([id, t]) => t.forms && t.forms.length && (id === tid || siteOf(id) === site));
       const usable = id => { const d = FP.defs.get('form', id); return !!(d && !d.retired && FP.defs.usedHere('form', id)); };
       place = { group: ft.group, name: ft.name, forms: ft.forms.filter(usable), setUp, signedInFor: ft.signedInFor || 15, signIn: ft.signIn || 'anyone',
-        homeForm: ft.homeForm || null, view: ft.view === 'admin' ? 'admin' : 'kiosk' };
+        homeForm: ft.homeForm || null, view: ft.view === 'admin' ? 'admin' : 'kiosk', fullscreen: ft.fullscreen === true };
+      fsWanted = place.fullscreen && !FP.identity.editor && !FP.simulated && fsCan();
       setView();
       if (FP.keyboard) FP.keyboard.setMode(ft.keyboard || 'auto');   // this terminal's on-screen keyboard (0.43)
       termText = `${ft.group ? ft.group.name + ' · ' : ''}${tid}${ft.name ? ' ' + ft.name : ''}`;
