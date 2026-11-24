@@ -59,7 +59,8 @@ A test counts as failed if it crashes, times out, prints `pageerror`, or prints 
 - `dev/packs/test-pack/build.js` builds `test-pack.json`: the pilot's functionality with made-up data (a guard refuses plant-specific words). `l150` installs it.
 - `dev/tools/build-package.js <out dir>` builds the end-user package with the platform's own installer and opens the result from disk; it is the
   last step of a release (`node dev/tools/build-package.js ../dist`). `l151` tests the update path (an installed 0.60.0 folder updated by this kernel's zip).
-- Last full run from nothing (0.65.0, 95 tests): 94 passed, 1 failed. The failure was `l175`, which wrote a browser preference, reloaded and expected the browser to have kept it; headless Chromium sometimes drops `file://` storage across a reload (an unrelated key vanishes too). The test now restores the saved value before the reload and passes 5 of 5 alone; `l160` had the same fix. Two earlier test selectors (`l44`, `l179`) matched the new Retire UI first and were corrected.
+- Last full run (0.66.0, on GitHub Actions, commit 768243b): every step passed, including the whole suite from freshly built seeds. Release B also adds a touch-target audit (`dev/shots/shots.js`: no interactive element under 48 px on the operator screens). Two test fixes on the way: `l60` waits for Save to enable, and the sign-in watcher no longer reopens a form after a sign-in made on the page itself.
+- **The regression runs on GitHub** (`.github/workflows/regression.yml`) on every push and pull request that touches `kernel/`, and by hand from the Actions tab; GitHub emails whoever pushed if it fails. Running it in a cloud session is unreliable (the container restarts about every 45 minutes, killing a 40 minute run).
 
 ## Screenshots, colours and night mode
 
