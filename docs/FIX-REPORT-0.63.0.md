@@ -5,7 +5,7 @@ verified here. `docs/FIX-LIST.md` is the list it worked from; `docs/REVIEW-0.60-
 
 ## Result
 
-- **43 of the 44 fix-list items are done.** The one left is **F20** (the Admin "move a terminal" control), which needs your decision.
+- **All 44 fix-list items are resolved.** F20 (the Admin "move a terminal" control) was decided by you: no control is added; the spec is corrected instead (a terminal's site is set on that terminal and does not change).
 - **Regression, from nothing: 85 passed, 0 known failing, 0 failed.** 17 new tests were added, each written to fail on the old code first.
   The lost `snap15b` seed was worked out and is rebuilt by a script, so `l60` and `l78` pass too (`docs/SNAP15B.md`). The 78-passed, 2-known-failing
   result was the run before that.
@@ -41,7 +41,7 @@ verified here. `docs/FIX-LIST.md` is the list it worked from; `docs/REVIEW-0.60-
 
 | # | Question | Default taken |
 |---|---|---|
-| F20 | Add an admin "move a terminal to another site" on the Admin page? Recommended: writes the target site to the terminal registry and the terminal applies it at its next check-in. Needs a rule for whether a central setting overrides a terminal's own site. Otherwise correct the spec. | Not implemented |
+| F20 | Add an admin "move a terminal to another site" on the Admin page? Recommended: writes the target site to the terminal registry and the terminal applies it at its next check-in. Needs a rule for whether a central setting overrides a terminal's own site. Otherwise correct the spec. | Decided: change the spec, no code (a terminal keeps its site; it can be renamed) |
 | F2 | Checkpoint timing | 90 s after first load, then hourly |
 | F10 | A rule or limit that is *Waiting* blocks saving ("Waiting for what its rule needs") | Blocks |
 | F9 | While a read-first list waits on a field, only Save and Apply are held, not the other buttons (`l56` relies on it) | Save and Apply only |

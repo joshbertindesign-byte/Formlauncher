@@ -41,3 +41,9 @@ names are suggestions.
   No colour is written in code outside `fp-theme.js`. The release is checked by `dev/tools/release.py` (no `eval`, a counted number of HTML-from-string assignments).
 - **Look:** UI semantic palette (`--bg --surface --line --fg --muted --accent --head`, the six kind colours), day, night and print values; the screens never name a colour.
 - **Build plan:** steps 17, 20 and 27 are no longer "Built, testing"; script (0.57), library (0.48), sessions (0.36) and the old media library (0.42) are removed; see `docs/FIX-LIST.md` for the full list of text that no longer matches the code.
+
+## Terminals and sites (decision on F20)
+
+- **Spec:** remove the statement that an admin can move a terminal to another site from the Admin page. A terminal's site is chosen once, on that terminal's own launcher at set-up, and does not change afterwards. A terminal can be **renamed**; it is not moved. Its past entries keep the terminal ID and site they were made under.
+- **Guide:** say the same in the terminals chapter. A terminal placed wrongly is set up again as a new terminal, not moved.
+- **Later (not built):** retiring a terminal, so it leaves the lists and pickers but its past entries and registration remain. Retiring covers forms, structures, functions and lookups today (0.65.0); containers such as terminals and sites cannot be retired yet.
