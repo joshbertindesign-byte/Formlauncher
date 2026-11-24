@@ -78,6 +78,7 @@ window.addEventListener('unhandledrejection', function (e) { window.__fpReport('
   .fpl-meta{font-size:var(--fs-sm);color:var(--head-fg);white-space:nowrap;display:inline-flex;align-items:center;gap:8px}
   .fpl-bar button{white-space:nowrap;font:inherit;font-size:var(--fs-md);font-weight:600;min-height:var(--touch);padding:6px 16px;border-radius:12px;border:1px solid var(--head-line);background:transparent;color:var(--head-fg);cursor:pointer;display:inline-flex;align-items:center;gap:8px}
   .fpl-bar button:hover{background:var(--head-line)}
+  .fpl-bar button.fpl-changefolder{border-color:transparent;font-size:var(--fs-sm);font-weight:500}
   .fpl-bar button[hidden]{display:none}
   .fpl-dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--s-green-68);margin-right:0;vertical-align:middle}
   .fpl-dot.wait{background:var(--s-amber-70)}.fpl-dot.bad{background:var(--s-red-54)}
@@ -212,7 +213,18 @@ window.addEventListener('unhandledrejection', function (e) { window.__fpReport('
       reconnect.disabled = false;
       if (FP.outbox) showOutbox();
     };
-    saved.append(dot, outbox, reconnect);
+    // Change the data folder (0.68): a supervisor or higher; it redirects where every save on this terminal goes.
+    const changeFolder = button('Change data folder', 'fpl-changefolder'); changeFolder.id = 'change-folder'; changeFolder.hidden = true;
+    changeFolder.title = 'Choose a different data folder, for instance after it was moved or renamed';
+    changeFolder.onclick = async () => {
+      if (!(await FP.users.can('supervisor').catch(() => false))) return;
+      if (!confirm('Choose a different data folder?\n\nAnything waiting to save on this terminal will be saved into the new folder. The terminal ID and site are kept.')) return;
+      changeFolder.disabled = true;
+      try { await FP.folder.change(); location.reload(); return; }
+      catch (e) { if (!(e && e.name === 'AbortError')) outbox.title = e.message; }
+      changeFolder.disabled = false;
+    };
+    saved.append(dot, outbox, reconnect, changeFolder);
     const term = el('span', 'fpl-meta term');
     const printBtn = button('Print'); printBtn.hidden = true;
     const editorBtn = button('Editor'); editorBtn.hidden = true;
@@ -312,6 +324,7 @@ window.addEventListener('unhandledrejection', function (e) { window.__fpReport('
         who.title = 'What is saved on this terminal is under this sign-in. The people doing the work tap their name on each form. Tap to hand over to another supervisor.';
       } else who.title = u ? 'Tap to switch who is signed in' : '';
       editorBtn.hidden = shared() || !(u && await FP.users.can(FP.defs.publishRole));
+      changeFolder.hidden = !(u && await FP.users.can('supervisor').catch(() => false));
     }
     const say = (text, kind, btn) => {
       const n = el('div', 'fpl-notice' + (kind ? ' ' + kind : ''), text);

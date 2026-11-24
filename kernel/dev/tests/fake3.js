@@ -19,14 +19,18 @@ const FAKE = `
     createWritable: async (o) => { await slow(); let buf = o && o.keepExistingData ? data : new Blob([]), pos = 0;
       return { seek: async p => { pos = p; }, write: async s => { const part = s instanceof Blob ? s : new Blob([s]); buf = new Blob([buf.slice(0, pos), part]); pos = buf.size; },
         close: async () => { if (flip()) throw busy(); data = buf; mtime = Date.now(); }, abort: async () => {} }; } }; };
-  const mkDir = (name) => { const kids = new Map(); return { kind: 'directory', name,
-    queryPermission: async () => 'granted', requestPermission: async () => 'granted',
-    getDirectoryHandle: async (n, o) => { await slow(0.2); if (!kids.has(n)) { if (!(o && o.create)) throw Object.assign(new Error('nf'), { name: 'NotFoundError' }); kids.set(n, mkDir(n)); } return kids.get(n); },
-    getFileHandle: async (n, o) => { if (!kids.has(n)) { if (!(o && o.create)) throw Object.assign(new Error('nf'), { name: 'NotFoundError' }); kids.set(n, mkFile(n)); } return kids.get(n); },
+  /* d.dead = true: the folder was moved or renamed, so this stored handle no longer reaches anything (window.__newDir makes another folder). */
+  const nf = () => Object.assign(new Error('nf'), { name: 'NotFoundError' });
+  const mkDir = (name) => { const kids = new Map(); const d = { kind: 'directory', name, dead: false, prompt: false,
+    queryPermission: async () => d.prompt ? 'prompt' : 'granted', requestPermission: async () => { if (d.dead) throw nf(); return 'granted'; },
+    getDirectoryHandle: async (n, o) => { if (d.dead) throw nf(); await slow(0.2); if (!kids.has(n)) { if (!(o && o.create)) throw Object.assign(new Error('nf'), { name: 'NotFoundError' }); kids.set(n, mkDir(n)); } return kids.get(n); },
+    getFileHandle: async (n, o) => { if (d.dead) throw nf(); if (!kids.has(n)) { if (!(o && o.create)) throw Object.assign(new Error('nf'), { name: 'NotFoundError' }); kids.set(n, mkFile(n)); } return kids.get(n); },
     removeEntry: async n => { kids.delete(n); },
-    entries: async function* () { await slow(); for (const e of kids) yield e; } }; };
+    entries: async function* () { if (d.dead) throw nf(); await slow(); for (const e of kids) yield e; } }; return d; };
   window.__root = mkDir('Fake data');
-  window.showDirectoryPicker = async () => window.__root;
+  window.__newDir = mkDir;
+  window.__pick = null;   // the folder the picker hands out next; null = the root
+  window.showDirectoryPicker = async () => window.__pick || window.__root;
   const mem = new Map();
   window.__memkv = { get: async k => mem.get(k), set: async (k, v) => { mem.set(k, v); }, del: async k => { mem.delete(k); } };
 })();`;
