@@ -148,6 +148,7 @@
 
   /* ---------- Signed-in user ---------- */
   let signedIn = null, signinGate = null;
+  let pageShown;   // who this page itself last signed in (or out): the watcher must not treat that as a change made elsewhere
 
   async function currentUser() {
     const open = await FP.session.current();
@@ -284,7 +285,7 @@
     async signIn(userId, pin) {
       const { user, mustChange } = await FP.users.verify(userId, pin);
       if (mustChange) throw new Error('This PIN must be changed first.');
-      await FP.session.open('user', { userId: user.id, name: user.name, roles: user.roles });
+      await FP.session.open('user', { userId: user.id, name: user.name, roles: user.roles }); pageShown = user.id;
       return currentUser();
     },
 
@@ -299,7 +300,7 @@
       const cur = await currentUser();
       if (cur && cur.id === user.id) return cur;
       if (cur) await FP.users.signOut('rehearsal');
-      await FP.session.open('user', { userId: user.id, name: user.name, roles: user.roles });
+      await FP.session.open('user', { userId: user.id, name: user.name, roles: user.roles }); pageShown = user.id;
       return currentUser();
     },
 
@@ -307,7 +308,7 @@
       const u = await currentUser();
       if (!u) return null;
       await FP.session.close('user', { reason: reason || 'signed-out' });
-      signedIn = null;
+      signedIn = null; pageShown = null;
       return u;
     },
 
@@ -338,6 +339,7 @@
       const check = async () => {
         if (busy) return; busy = true;
         try {
+          if (pageShown !== undefined) { shown = pageShown; pageShown = undefined; }   // signed in or out on this page: it already knows
           const u = await currentUser();
           const id = u ? u.id : null;
           if (id !== shown) { const before = shown; shown = id; await onChange(u, before); shown = signedIn ? signedIn.id : null; }

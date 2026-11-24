@@ -27,7 +27,8 @@ const start = require('./dummies/base.js');
     await p.fill('[data-name="dieNo"] input', no); await p.fill('[data-name="description"] input', desc);
     await p.click(`[data-name="press"] button:has-text("${press}")`);
     await p.fill('[data-name="lowTemp"] input', lo); await p.fill('[data-name="highTemp"] input', hi); await w(400);
-    await p.click('#form button:has-text("Save")'); await w(1800);
+    for (let k = 0; k < 10 && await p.$eval('#form button.fpf-save', x => x.disabled); k++) await w(300);   // the page clock is ours: let it tick until validation has enabled Save
+     await p.click('#form button:has-text("Save")'); await w(1800);
     say('toast', await p.$$eval('.fpf-toast, .toast, [class*="toast"]', l => l.map(x => x.innerText).join(' | ')).catch(() => '?'));
   };
   await addDie('D-2001', '3 in. channel', 'Press 1', '870', '920');
