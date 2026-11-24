@@ -131,6 +131,44 @@
       FP.folder.handle = null;
     },
 
+    /* Does the stored or connected folder still work? No prompt (0.68). Resolves
+     * { ok: true, name } or { ok: false, reason: 'none' | 'gone' | 'denied' | 'prompt', name }.
+     * 'gone' = the folder was moved, renamed or deleted since the browser stored its handle. */
+    async check() {
+      let h = FP.folder.handle;
+      if (!h) { try { h = await FP.kv.get('dataFolder'); } catch (_) { h = null; } }
+      if (!h) return { ok: false, reason: 'none', name: '' };
+      const name = h.name || '';
+      const notThere = e => !!e && (e.name === 'NotFoundError' || e.name === 'TypeMismatchError');
+      let perm;
+      try { perm = await h.queryPermission({ mode: 'readwrite' }); }
+      catch (e) { return { ok: false, reason: notThere(e) ? 'gone' : 'denied', name }; }
+      if (perm === 'denied') return { ok: false, reason: 'denied', name };
+      if (perm !== 'granted') return { ok: false, reason: 'prompt', name };
+      try { const it = h.entries(); await it.next(); if (it.return) await it.return(); }
+      catch (e) {
+        if (notThere(e)) return { ok: false, reason: 'gone', name };
+        if (e && (e.name === 'NotAllowedError' || e.name === 'SecurityError')) return { ok: false, reason: 'denied', name };
+        // Anything else (a busy sync folder, say) is not proof the folder is gone.
+      }
+      return { ok: true, name };
+    },
+
+    /* Choose a different data folder (0.68). Must be called from a click or tap.
+     * Replaces the stored handle only: the terminal ID, site and device key stay. Everything
+     * this page or device kept from the old folder (loaded records, the offline copies of
+     * users, sites and definitions) is dropped; the outbox is kept and saves into the new folder.
+     * The page should be reloaded afterwards; callers get the new folder's name. */
+    async change() {
+      const h = await window.showDirectoryPicker({ id: 'fp-data', mode: 'readwrite' });
+      await FP.kv.set('dataFolder', h);
+      FP.folder.handle = h;
+      for (const k of ['usersCache', 'sitesCache', 'defsCache']) { try { await FP.kv.del(k); } catch (_) { /* nothing kept */ } }
+      try { if (FP.current && FP.current.clearCache) FP.current.clearCache(); } catch (_) { /* not loaded */ }
+      FP.folder.changed = true;
+      return h.name;
+    },
+
     /* A copy of the data for trying things out: a file of this name at the top of the folder (0.44.5). */
     TEST_MARK: 'THIS IS A TEST FOLDER.txt',
     async isTest() {

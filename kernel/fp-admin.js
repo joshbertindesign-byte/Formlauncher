@@ -122,6 +122,7 @@
   .fpa .fpa-reh-steps{margin:0;padding-left:20px;line-height:1.6}
   .fpa .fpa-test{display:flex;flex-direction:column;gap:var(--sp-2);align-items:flex-start;max-width:760px}.fpa .fpa-test h3{margin-top:0}
   .fpa .fpa-test .fpa-state{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-3);margin:0 0 var(--sp-2)}.fpa .fpa-test .fpa-state h3{margin:0;font-size:var(--fs-lg);font-weight:650;letter-spacing:0;text-transform:none;color:var(--fg)}
+  .fpa.fpe .fpa-datafolder button.small{min-height:48px;padding:6px 18px}
 
   /* the media library, people, sites and terminals */
   .fpa .fpa-lib-make{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--sp-4);align-items:start;margin:10px 0}
@@ -1474,10 +1475,30 @@
     return d;
   }
 
+  /* Data folder (0.68): which folder this browser saves into, and a way to choose another (a moved or renamed folder) without clearing browser data. */
+  async function dataFolderCard() {
+    const name = FP.folder.handle ? FP.folder.handle.name : '';
+    const c = el('div', 'fpa-test fpa-datafolder');
+    const state = el('div', 'fpa-state');
+    state.append(FP.icons.tile({ glyph: 'box', tone: 'rec', shape: 'place', fill: 'tint', size: 40 }), el('h3', null, 'Data folder'), pill(name || 'none chosen', name ? 'good' : 'warn', { mono: true }));
+    c.appendChild(state);
+    c.appendChild(el('p', 'ffe-note', `Every record this browser saves goes into ${name ? `"${name}"` : 'the data folder'}. If that folder was moved or renamed, choose it again here. The terminal ID, site and sign-ins on this device are kept.`));
+    if (!(await FP.users.can('admin'))) { c.appendChild(el('p', 'ffe-note', 'Only an admin can choose a different folder.')); return c; }
+    const b = btn('Choose a different folder', 'small', async () => {
+      if (!confirm('Choose a different data folder?\n\nAnything waiting to save on this terminal will be saved into the new folder. The terminal ID and site are kept.')) return;
+      try { await FP.folder.change(); location.reload(); }
+      catch (e) { if (!(e && e.name === 'AbortError')) toast(e.message, true); }
+    });
+    b.id = 'fpa-change-folder';
+    c.appendChild(b);
+    return c;
+  }
+
   async function testPart(again) {
     const isTest = await isTestFolder();
     const name = FP.folder.handle ? FP.folder.handle.name : '';
     const d = el('div', 'fpa-test');
+    d.appendChild(await dataFolderCard());
     const state = el('div', 'fpa-state');
     state.append(FP.icons.tile({ glyph: isTest ? 'alert' : 'lock', tone: isTest ? 'inv' : null, shape: 'place', fill: isTest ? 'tint' : 'plain', size: 40 }),
       el('h3', null, isTest ? `${name} is a test folder` : `${name} is an ordinary data folder`), pill(isTest ? 'test folder' : 'ordinary folder', isTest ? 'warn' : 'good'));

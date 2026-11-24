@@ -370,15 +370,33 @@
               [button('Choose data folder', async () => { await FP.folder.connect(); next(); })]);
             return;
           }
+          // The browser's stored folder may no longer exist (moved, renamed): choose another without clearing browser data (0.68).
+          const chooseOther = label => button(label, async () => { await FP.folder.change(); next(); }, true);
           if (state !== 'granted') {
             const who = FP.identity.terminalId ? ` on ${FP.identity.terminalId}` : '';
             render(title, `Tap Start to connect to the data folder${who}.`,
               [button('Start', async () => {
-                const p = await FP.folder.reauthorize();
+                let p;
+                try { p = await FP.folder.reauthorize(); }
+                catch (err) {
+                  if (err && err.name === 'AbortError') throw err;
+                  message('The data folder was not found. It may have moved or been renamed.', 'bad');
+                  return;
+                }
                 if (p === 'granted') next();
                 else message('Permission was not granted. Tap Start and choose Allow.', 'bad');
-              })]);
+              }), chooseOther('Choose a different data folder')]);
             return;
+          }
+          // Allowed, but is the folder still there?
+          {
+            const c = await FP.folder.check();
+            if (!c.ok && c.reason === 'gone') {
+              render('The data folder is not there any more',
+                `${c.name ? `The folder "${c.name}"` : 'The data folder'} was moved, renamed or deleted. Choose it again to carry on. Nothing on this terminal is lost: the terminal ID and site are kept.`,
+                [chooseOther('Choose the data folder again'), button('Try again', () => next(), true)]);
+              return;
+            }
           }
           if (FP.identity.editor) { finish(); return; }
           // A simulated terminal (0.52.1): only on a test folder; its site is the one it already has here, if any.
