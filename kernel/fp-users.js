@@ -528,5 +528,5 @@
   }
 
   /* Registered last, so a module that failed partway never reports as loaded. */
-  (window.FP.modules = window.FP.modules || {})['fp-users'] = '0.66.0';
+  (window.FP.modules = window.FP.modules || {})['fp-users'] = '0.67.0';
 })();

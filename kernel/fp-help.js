@@ -20,12 +20,20 @@
   const TYPE_TEXT = { text: 'text', name: 'a name (letters, digits, _)', number: 'a number', integer: 'a whole number', boolean: 'yes or no', choice: 'one of a list', formula: 'a formula', texts: 'a list of words', target: 'source.value', list: 'a list', map: 'names and values', any: 'see the note', control: 'a kind of field', form: 'a form\'s name', options: 'a list of options' };
 
   /* ---------- The chapters, as plain data ---------- */
-  /* What changed (0.66): short, plain, and who each change is for. Newest first. */
+  /* What changed (0.67): short, plain, and who each change is for. Newest first. */
   function changedChapter() {
     return {
       id: 'changed', title: 'What changed',
-      intro: 'What is different in the last three releases, in plain words. Each says who it is for: builders make the forms in the editor; operators fill them in on a terminal.',
+      intro: 'What is different in the last four releases, in plain words. Each says who it is for: builders make the forms in the editor; operators fill them in on a terminal.',
       blocks: [
+        { h: '0.67 · Retiring terminals and sites', who: 'Admins; operators only see a plain card on a retired terminal', list: [
+          'Retire this terminal (Admin, the terminal) takes it out of use without deleting it: its record stays, with who retired it and when, and its past entries keep naming it.',
+          'A retired terminal\'s ID can never be used again: setting up another device with it is refused.',
+          'A retired terminal that is switched on shows one card saying it was retired, and no forms.',
+          'Reinstate (admins) brings a terminal or a site back from the Retired shelf on the map.',
+          'A site can be retired only when no active terminal or group is still at it; the message says which.',
+          'A terminal is never moved to another site from Admin: its site is chosen on that terminal. Terminals and sites can still be renamed.',
+        ] },
         { h: '0.66 · The new look', who: 'Builders and operators', list: [
           'Colour shows the kind of data: green is Runs, amber is Inventory, blue is Records, red is Cases, violet is Orders, grey is Lists. A form takes the colour of the structure it mainly saves to.',
           'Shape shows the kind of thing: a rounded square is a form, a hexagon is a structure, a circle is a function. Terminals and sites stay plain.',
@@ -330,5 +338,5 @@ table{border-collapse:collapse;width:100%}td{border-top:1px solid gainsboro;padd
   FP.editor.help = help;
 
   /* Registered last, so a module that failed partway never reports as loaded. */
-  (window.FP.modules = window.FP.modules || {})['fp-help'] = '0.66.0';
+  (window.FP.modules = window.FP.modules || {})['fp-help'] = '0.67.0';
 })();

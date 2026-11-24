@@ -323,5 +323,5 @@
     look, formLook, mainStructure,
   };
 
-  (window.FP.modules = window.FP.modules || {})['fp-kinds'] = '0.66.0';
+  (window.FP.modules = window.FP.modules || {})['fp-kinds'] = '0.67.0';
 })();

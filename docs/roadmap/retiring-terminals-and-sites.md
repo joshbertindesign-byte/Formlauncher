@@ -1,6 +1,6 @@
 # Roadmap: Retiring terminals and sites
 
-Status: **Agreed (design decided), not built.** Follows `docs/RETIRING-DEFINITIONS.md` (0.65.0), which left containers such as terminals and sites out.
+Status: **Built in 0.67.0**, see `docs/RETIRING-TERMINALS-AND-SITES.md`. Original status: Agreed (design decided). Follows `docs/RETIRING-DEFINITIONS.md` (0.65.0), which left containers such as terminals and sites out.
 Decided with the owner when F20 was closed: *terminals are what they are; they can be renamed but never changed; retiring one must not lose the record of its past existence.*
 
 ## Today
