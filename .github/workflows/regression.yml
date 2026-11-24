@@ -44,6 +44,15 @@ jobs:
           TZ: America/Chicago
         run: ./regress.sh
 
+      - name: Show what failed
+        if: failure()
+        working-directory: kernel/dev/tests
+        run: |
+          for t in $(grep -E '^FAIL' out/results.txt | awk '{print $2}'); do
+            echo "=================== $t (last 60 lines of its log)"
+            tail -60 "out/$t.log"
+          done
+
       - name: Summary
         if: always()
         working-directory: kernel/dev/tests

@@ -745,5 +745,5 @@
   FP.alerts = { noticeFor, STRUCTURE: ALERTS, list: allAlerts, forUser: alertsFor, climb, ack, words: alertWords, whoIsTold, tellText };
 
   /* Registered last, so a module that failed partway never reports as loaded. */
-  (window.FP.modules = window.FP.modules || {})['fp-due'] = '0.68.0';
+  (window.FP.modules = window.FP.modules || {})['fp-due'] = '0.69.0';
 })();

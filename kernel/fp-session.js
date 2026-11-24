@@ -212,5 +212,5 @@
   };
 
   /* Registered last, so a module that failed partway never reports as loaded. */
-  (window.FP.modules = window.FP.modules || {})['fp-session'] = '0.68.0';
+  (window.FP.modules = window.FP.modules || {})['fp-session'] = '0.69.0';
 })();

@@ -207,5 +207,5 @@
     },
   };
 
-  (window.FP.modules = window.FP.modules || {})['fp-formula-tests'] = '0.68.0';
+  (window.FP.modules = window.FP.modules || {})['fp-formula-tests'] = '0.69.0';
 })();

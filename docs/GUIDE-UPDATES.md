@@ -1,6 +1,6 @@
 # Text to add to the User Guide and the Architecture Spec
 
-The two PDFs in `Forms b/` can't be edited from this repo, so here is the wording to add when you next revise them. It covers 0.64 to 0.68. Section
+The two PDFs in `Forms b/` can't be edited from this repo, so here is the wording to add when you next revise them. It covers 0.64 to 0.69. Section
 names are suggestions.
 
 ## Glossary (new terms)
@@ -52,3 +52,8 @@ names are suggestions.
 
 - **Guide, set-up and troubleshooting:** if the data folder moves or is renamed, choose it again: on the launcher, a supervisor or above taps **Change data folder**; in the editor an admin uses **Admin > Test folder > Data folder > Choose a different folder**; a terminal that cannot start has **Choose a different data folder** on its start screen. Choose the same data in its new place so the terminal keeps its ID and site.
 - **Spec:** `FP.folder.check()` and `FP.folder.change()`; the stored folder handle is the only thing replaced; the offline copies of users, sites and definitions are dropped with it.
+
+## Full screen (0.69.0)
+
+- **Guide, Admin and terminals:** a terminal or group can be set to **Full screen on the first tap** (Admin, next to View). The first tap on the launcher fills the screen; Esc or F11 leaves it and the next tap goes back in. Every launcher has a **Full screen / Exit full screen** button. A page cannot start full screen with no tap; for a kiosk with no tap, start Edge from a shortcut with `--kiosk` (see `docs/FULL-SCREEN.md`).
+- **Spec:** terminal and group settings gain `fullscreen` (boolean, default false, resolved like `view`).

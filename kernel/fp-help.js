@@ -20,12 +20,18 @@
   const TYPE_TEXT = { text: 'text', name: 'a name (letters, digits, _)', number: 'a number', integer: 'a whole number', boolean: 'yes or no', choice: 'one of a list', formula: 'a formula', texts: 'a list of words', target: 'source.value', list: 'a list', map: 'names and values', any: 'see the note', control: 'a kind of field', form: 'a form\'s name', options: 'a list of options' };
 
   /* ---------- The chapters, as plain data ---------- */
-  /* What changed (0.68): short, plain, and who each change is for. Newest first. */
+  /* What changed (0.69): short, plain, and who each change is for. Newest first. */
   function changedChapter() {
     return {
       id: 'changed', title: 'What changed',
-      intro: 'What is different in the last five releases, in plain words. Each says who it is for: builders make the forms in the editor; operators fill them in on a terminal.',
+      intro: 'What is different in the last six releases, in plain words. Each says who it is for: builders make the forms in the editor; operators fill them in on a terminal.',
       blocks: [
+        { h: '0.69 · Full screen on a terminal', who: 'Admins set it; operators see a Full screen button', list: [
+          'Full screen (Admin, next to View, on a terminal or a terminal group) can be set to Full screen on the first tap. The first tap anywhere on the launcher then fills the screen; the tap still does what it was meant to do. A page cannot go full screen on its own, so the first tap does it.',
+          'If someone leaves full screen (Esc or F11), the next tap goes back in.',
+          'Every terminal has a Full screen / Exit full screen button on the launcher bar, whatever the setting says. It is hidden where the browser cannot do full screen.',
+          'The editor never goes full screen on its own.',
+        ] },
         { h: '0.68 · Change the data folder', who: 'Supervisors and admins on a terminal; admins in the editor', list: [
           'If the data folder moved or was renamed, a terminal that still remembers the old one now says so ("The data folder is not there any more") and offers Choose the data folder again.',
           'The Tap Start screen has Choose a different data folder, so a stale folder no longer traps the terminal.',
@@ -344,5 +350,5 @@ table{border-collapse:collapse;width:100%}td{border-top:1px solid gainsboro;padd
   FP.editor.help = help;
 
   /* Registered last, so a module that failed partway never reports as loaded. */
-  (window.FP.modules = window.FP.modules || {})['fp-help'] = '0.68.0';
+  (window.FP.modules = window.FP.modules || {})['fp-help'] = '0.69.0';
 })();

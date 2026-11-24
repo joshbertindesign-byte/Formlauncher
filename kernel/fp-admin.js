@@ -398,7 +398,7 @@
       },
       right(prev) {
         header(prev, 'About updates');
-        prev.appendChild(side('A new version of the platform comes as a release zip (kernel-0.68.0.zip). Put it in the data folder\'s updates folder (or use + put a release zip) and install it here. Installing checks every file, writes the release to runtime, and switches every page to it; each terminal reloads by itself once nothing unsaved is on its screen.',
+        prev.appendChild(side('A new version of the platform comes as a release zip (kernel-0.69.0.zip). Put it in the data folder\'s updates folder (or use + put a release zip) and install it here. Installing checks every file, writes the release to runtime, and switches every page to it; each terminal reloads by itself once nothing unsaved is on its screen.',
           el('h4', null, 'Going back'), `The three newest releases are kept. Using an older one switches every terminal back the same way. This editor runs ${FP.version}.`));
       },
     });
@@ -760,7 +760,7 @@
     return p;
   }
   const hasSetup = p => !!(p.setup && (p.setup.sites.length || p.setup.groups.length || p.setup.terminals.length || p.setup.people.length || (p.setup.centers || []).length));
-  const SETTINGS = ['homeForm', 'view', 'signIn', 'signedInFor', 'keyboard', 'for'];   // for (0.60): the list items it is for
+  const SETTINGS = ['homeForm', 'view', 'fullscreen', 'signIn', 'signedInFor', 'keyboard', 'for'];   // for (0.60): the list items it is for
   const pick = (o, keys) => Object.fromEntries(keys.filter(k => o[k] != null).map(k => [k, o[k]]));
   /* What installing the setup would do, one row each: new | changes | same | skipped (and why). */
   async function setupPlan(p) {
@@ -2295,5 +2295,5 @@
   FP.editor.places = { pane: places };
 
   /* Registered last, so a module that failed partway never reports as loaded. */
-  (window.FP.modules = window.FP.modules || {})['fp-admin'] = '0.68.0';
+  (window.FP.modules = window.FP.modules || {})['fp-admin'] = '0.69.0';
 })();

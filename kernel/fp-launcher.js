@@ -21,7 +21,7 @@
   const FP = window.FP;
   if (!FP || !FP.defs || !FP.forms) throw new Error('Load fp-defs.js before fp-launcher.js');
 
-  const VERSION = '0.68.0';
+  const VERSION = '0.69.0';
   /* The runtime, in load order. */
   const KERNEL = ['fp-config', 'fp-theme', 'fp-fonts', 'fp-icons', 'fp-core', 'fp-identity', 'fp-entry', 'fp-session', 'fp-formula', 'fp-current', 'fp-kinds', 'fp-sites', 'fp-lookup',
     'fp-users', 'fp-media', 'fp-sources', 'fp-forms', 'fp-controls', 'fp-visuals', 'fp-keyboard', 'fp-defs', 'fp-due', 'fp-launcher', 'fp-updates'];
@@ -1214,5 +1214,5 @@ ${preamble('Check the runtime folder (next to this file) has finished syncing.')
   FP.launcher = { start };
 
   /* Registered last, so a module that failed partway never reports as loaded. */
-  (window.FP.modules = window.FP.modules || {})['fp-launcher'] = '0.68.0';
+  (window.FP.modules = window.FP.modules || {})['fp-launcher'] = '0.69.0';
 })();
