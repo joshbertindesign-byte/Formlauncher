@@ -308,7 +308,7 @@
       const u = await currentUser();
       if (!u) return null;
       await FP.session.close('user', { reason: reason || 'signed-out' });
-      signedIn = null; pageShown = null;
+      signedIn = null;
       return u;
     },
 
