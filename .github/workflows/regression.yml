@@ -1,0 +1,69 @@
+# The full regression (kernel/dev/tests/regress.sh): the real platform pages in headless Chromium against a fake data folder.
+# It builds its own seeds, so it needs no SharePoint and no stored data. About 50 minutes.
+#
+# It runs on every push to a branch, on pull requests, and by hand (Actions > Regression > Run workflow).
+# GitHub emails whoever pushed (and shows a notification in the GitHub mobile app) when it fails; nothing else is needed.
+# Results: the run's Summary page lists every test; the full logs are in the "regression-results" download.
+name: Regression
+
+on:
+  push:
+    branches: ['**']
+    paths: ['kernel/**', '.github/workflows/regression.yml']
+  pull_request:
+    paths: ['kernel/**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: regression-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  regress:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Playwright and Chromium
+        run: |
+          npm install --prefix "$RUNNER_TEMP/pw" playwright@1.63.0
+          echo "NODE_PATH=$RUNNER_TEMP/pw/node_modules" >> "$GITHUB_ENV"
+          "$RUNNER_TEMP/pw/node_modules/.bin/playwright" install --with-deps chromium
+
+      - name: Run the regression
+        working-directory: kernel/dev/tests
+        env:
+          TZ: America/Chicago
+        run: ./regress.sh
+
+      - name: Summary
+        if: always()
+        working-directory: kernel/dev/tests
+        run: |
+          {
+            echo "## Regression"
+            echo
+            echo "$(tail -1 out/results.txt 2>/dev/null)"
+            echo
+            echo '```'
+            cat out/results.txt 2>/dev/null
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Keep the logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: regression-results
+          path: |
+            kernel/dev/tests/out/*.txt
+            kernel/dev/tests/out/*.log
+          retention-days: 14
