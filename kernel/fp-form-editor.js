@@ -381,7 +381,7 @@
   async function recordedScreens(sites, formId, formKeyboard) {
     const out = [];
     for (const e of await FP.identity.all().catch(() => [])) {
-      if (!e || e.unreadable || !e.screen || !e.terminalId) continue;
+      if (!e || e.unreadable || !e.screen || !e.terminalId || FP.identity.isRetired(e)) continue;
       if (!(sites.includes('all') || sites.includes(e.site))) continue;
       const t = FP.groups ? await FP.groups.forTerminal(e.terminalId).catch(() => null) : null;
       const sc = e.screen;

@@ -28,7 +28,7 @@
   async function list() {
     try {
       const r = await FP.current.load(STRUCTURE, { fresh: true });
-      const sites = Array.from(r.items.values()).map(it => ({ id: it.id, name: it.values.name || it.id, active: it.values.active !== false }))
+      const sites = Array.from(r.items.values()).map(it => Object.assign({ id: it.id, name: it.values.name || it.id, active: it.values.active !== false }, it.values.active === false ? { retiredAt: it.lastAt || null, retiredBy: it.lastUserId || null } : {}))
         .sort((a, b) => a.name.localeCompare(b.name));
       await FP.kv.set('sitesCache', sites);
       return sites;
@@ -41,6 +41,16 @@
 
   async function mustAdmin() {
     if (FP.users && !(await FP.users.can('admin'))) throw new Error('Only an admin can change sites.');
+  }
+
+  /* A site is retired only when nothing active is at it (0.67): each active terminal and group that is, named with what to do. */
+  async function mustBeEmpty(id) {
+    const terms = (await FP.identity.all()).filter(t => t && !t.unreadable && t.site === id && !FP.identity.isEditor(t.terminalId) && !FP.identity.isRetired(t));
+    const groups = FP.groups ? (await FP.groups.list()).filter(g => g.site === id) : [];
+    if (!terms.length && !groups.length) return;
+    const lines = terms.map(t => `terminal ${t.terminalId}: retire it first (Admin > the terminal > Retire this terminal)`)
+      .concat(groups.map(g => `group ${g.name}: break it up first (Admin > the group > Break up the group)`));
+    throw new Error(`${id} can't be retired while these are still at it: ${lines.join('; ')}.`);
   }
 
   FP.sites = {
@@ -80,13 +90,14 @@
       FP.current.clearCache();
     },
 
-    /* Turn a site off (it can't be picked for a terminal, and Used at pickers grey it) or back on. Never deleted:
-     * entries and definitions keep naming it. */
+    /* Retire a site (setActive(id, false); it can't be picked for a terminal, and Used at pickers grey it) or reinstate it.
+     * Refused while an active terminal or group is at it. Never deleted: entries and definitions keep naming it. */
     async setActive(id, active) {
       await mustAdmin();
       id = normalize(id);
       if (!(await list()).some(s => s.id === id)) throw new Error(`There is no site ${id}.`);
       if (!active && FP.identity.site === id) throw new Error(`This terminal is at ${id}: move it to another site before turning ${id} off.`);
+      if (!active) await mustBeEmpty(id);
       await FP.entry.record({ entry: `${STRUCTURE}.${active ? 'reinstate' : 'retire'}`, item: { structure: STRUCTURE, id }, form: { id: 'sites', version: 1 }, values: { active: !!active } });
       FP.current.clearCache();
     },

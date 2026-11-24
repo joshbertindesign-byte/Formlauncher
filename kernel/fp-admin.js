@@ -160,6 +160,9 @@
   .fpa .fpa-for{display:flex;flex-direction:column;gap:var(--sp-2);align-items:flex-start}
   .fpa.fpe .fpa-forchip{font:inherit;font-size:var(--fs-md);font-weight:550;min-height:40px;padding:4px 14px;border-radius:var(--r-pill);border:1px solid var(--line-2);background:var(--surface);color:var(--fg);cursor:pointer}
   .fpa.fpe .fpa-forchip.on{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+  .fpa .fpa-retired-bar{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-2) var(--sp-3);background:var(--surface-2);color:var(--fg);border:1px solid var(--line-2);border-radius:var(--r-lg);padding:var(--sp-3) var(--sp-4);font-size:var(--fs-md);margin:0 0 var(--sp-3)}
+  .fpa .fpa-retired-bar .fpa-retired-what{flex:1 1 240px}
+  .fpa.fpe button.fpa-tall{min-height:48px}
   .fpa .fpa-chip{display:inline-flex;align-items:center;gap:4px;padding:2px 4px 2px 10px;border:1px solid var(--line-2);border-radius:var(--r-pill);background:var(--surface);font-size:var(--fs-sm)}`;
   function injectCss() { if (document.getElementById('fp-admin-css')) return; const s = el('style'); s.id = 'fp-admin-css'; s.textContent = CSS; document.head.appendChild(s); }
 
@@ -1363,7 +1366,7 @@
     const c = withLadder.find(x => x.id === reh.center);
     const groups = await FP.groups.list().catch(() => []);
     const ts = await FP.groups.terminals().catch(() => new Map());
-    const reg = (await FP.identity.all().catch(() => [])).filter(t => !FP.identity.isEditor(t.terminalId));
+    const reg = (await FP.identity.all().catch(() => [])).filter(t => !FP.identity.isEditor(t.terminalId) && !FP.identity.isRetired(t));
     const dutyForms = new Set(c.duties.flatMap(x => x.forms || []));
     // Terminals that run the duty's forms: in a group whose forms include one, or on their own.
     const runs = reg.map(t => t.terminalId).filter(tid => { const g = groups.find(x => x.terminals.includes(tid)); const f = g ? g.forms : ((ts.get(tid) || {}).forms || []); return f.some(x => dutyForms.has(x)); });
@@ -1899,7 +1902,7 @@
         di.oninput = () => { m.departments = fromCsv(di.value); touch(); };
         mem.append(set('Role', 'everyone with this role or above (with a department below: both)', rs), set('Departments', 'as written on each person; several with commas', di));
         const placeOpts = sites.filter(x => x.active !== false).map(x => [`site:${x.id}`, `Site ${x.name || x.id}`])
-          .concat(groups.map(g => [`group:${g.id}`, `Group ${g.name}`])).concat(registry.map(t => [`terminal:${t.terminalId}`, `Terminal ${t.terminalId}`]));
+          .concat(groups.map(g => [`group:${g.id}`, `Group ${g.name}`])).concat(registry.filter(t => !FP.identity.isRetired(t)).map(t => [`terminal:${t.terminalId}`, `Terminal ${t.terminalId}`]));
         const at = m.signedInAt.map(x => `${x.kind}:${x.id}`);
         mem.appendChild(set('Whoever is signed in at', 'responsibility follows the sign-in: each person while they are signed in there (a shift)', chips(at, placeOpts, () => { m.signedInAt = at.map(v => { const i = v.indexOf(':'); return { kind: v.slice(0, i), id: v.slice(i + 1) }; }); touch(); paintMembers(); }, '+ site, group or terminal…')));
       };
@@ -1985,7 +1988,7 @@
             li.append(el('span', null, `${x.kind === 'group' ? 'Group' : x.kind === 'terminal' ? 'Terminal' : 'Person'} ${placeName(x.kind, x.id)}`), el('small', null, 'from'), f, el('small', null, 'to'), t, btn('✕', null, () => { d.exclude.splice(k, 1); touch(); paintDuties(); }));
             ex.appendChild(li);
           });
-          const xo = [['', '+ leave out…']].concat(groups.map(g => [`group:${g.id}`, `Group ${g.name}`]), registry.map(t => [`terminal:${t.terminalId}`, `Terminal ${t.terminalId}`]), users.filter(u => u.active).map(u => [`person:${u.id}`, u.name]));
+          const xo = [['', '+ leave out…']].concat(groups.map(g => [`group:${g.id}`, `Group ${g.name}`]), registry.filter(t => !FP.identity.isRetired(t)).map(t => [`terminal:${t.terminalId}`, `Terminal ${t.terminalId}`]), users.filter(u => u.active).map(u => [`person:${u.id}`, u.name]));
           const xp = select(xo, '');
           xp.onchange = () => { if (!xp.value) return; const i2 = xp.value.indexOf(':'); d.exclude.push({ kind: xp.value.slice(0, i2), id: xp.value.slice(i2 + 1) }); touch(); paintDuties(); };
           ex.appendChild(xp);
@@ -2073,28 +2076,42 @@
       const site = sites.find(x => x.id === id);
       if (!site) { head('Sites', 'Not found', `There is no site ${id}.`); return { isDirty: () => false }; }
       const groups = ((md && md.groups) || await FP.groups.list()).filter(g => g.site === id);
-      const terms = ((md && md.registry) || await FP.identity.all()).filter(t => t.site === id);
+      const termsAll = ((md && md.registry) || await FP.identity.all()).filter(t => t.site === id);
+      const terms = termsAll.filter(t => !FP.identity.isRetired(t));
       const defs = FP.defs.list().filter(d => !d.retired && Array.isArray(d.def && d.def.sites) && d.def.sites.includes(id));
-      head('Sites', site.name, `${id} · ${terms.length} terminal${terms.length === 1 ? '' : 's'} · ${groups.length} group${groups.length === 1 ? '' : 's'} · ${defs.length} definition${defs.length === 1 ? '' : 's'} for it alone${site.active ? '' : ' · turned off'}`);
+      const who = site.retiredBy ? (((md && md.users) || []).find(u => u.id === site.retiredBy) || {}).name : null;
+      const when = site.retiredAt ? FP.identity.retiredOn({ retired: { at: site.retiredAt } }) : null;
+      head('Sites', site.name, `${id} · ${terms.length} terminal${terms.length === 1 ? '' : 's'} · ${groups.length} group${groups.length === 1 ? '' : 's'} · ${defs.length} definition${defs.length === 1 ? '' : 's'} for it alone${site.active ? '' : ' · retired'}`);
+      if (!site.active) {
+        const bar = el('div', 'fpa-retired-bar'); bar.setAttribute('role', 'status');
+        if (FP.icons) bar.appendChild(FP.icons.chip('Retired', { glyph: 'lock' }));
+        bar.appendChild(el('span', 'fpa-retired-what', `${site.name} was retired${when ? ' on ' + when : ''}${who ? ' by ' + who : ''}. It takes no new terminals; records saved there are kept.`));
+        if (isAdmin) bar.appendChild(btn('Reinstate this site', 'small fpa-tall', () => act(() => FP.sites.setActive(id, true), `${site.name} is reinstated.`, again)));
+        card.appendChild(bar);
+      }
       if (isAdmin) {
         const ni = input(site.name, { autocomplete: 'off' });
         const nr = el('div', 'fpa-row'); nr.append(ni, btn('Rename', 'small', () => act(() => { if (!ni.value.trim()) throw new Error('Give the site a name.'); return FP.sites.rename(id, ni.value); }, 'Renamed.', again)));
         card.appendChild(set('Name', `its code, ${id}, never changes: saved records and definitions name it`, nr));
       }
-      if (canPublish) card.appendChild(btn('+ terminal group here', 'small', () => ctx.openPlace && ctx.openPlace('new-group', id)));
-      if (isAdmin) {
-        if (site.active) {
-          if (terms.length || defs.length) {
-            const w = el('div', 'fpa-warn'); w.appendChild(el('b', null, 'Before turning it off: these still name it'));
-            const ul = el('ul');
-            terms.forEach(x => ul.appendChild(el('li', null, `terminal ${x.terminalId}`)));
-            defs.forEach(x => ul.appendChild(el('li', null, `${FP.defs.LABELS[x.kind]} ${(x.def && (x.def.title || x.def.label)) || x.id}`)));
-            w.appendChild(ul); card.appendChild(w);
-          }
-          card.appendChild(btn('Turn this site off', 'small', () => { if (!confirm(`Turn ${site.name} off? It can't be picked for a terminal and is greyed in Used at. Records saved there are kept.`)) return; act(() => FP.sites.setActive(id, false), `${site.name} is off.`, again); }));
-        } else card.appendChild(btn('Turn this site back on', 'small', () => act(() => FP.sites.setActive(id, true), `${site.name} is on.`, again)));
+      if (canPublish && site.active) card.appendChild(btn('+ terminal group here', 'small', () => ctx.openPlace && ctx.openPlace('new-group', id)));
+      if (isAdmin && site.active) {
+        if (terms.length || groups.length) {
+          const w = el('div', 'fpa-warn'); w.appendChild(el('b', null, `Before retiring ${site.name}: these are still at it`));
+          const ul = el('ul');
+          terms.forEach(x => ul.appendChild(el('li', null, `terminal ${x.terminalId}: retire it (open it, Retire this terminal)`)));
+          groups.forEach(x => ul.appendChild(el('li', null, `group ${x.name}: break it up (open it, Break up the group)`)));
+          w.appendChild(ul); card.appendChild(w);
+        }
+        if (defs.length) {
+          const w = el('div', 'fpa-warn'); w.appendChild(el('b', null, 'These definitions are for this site alone; they are kept, but no terminal will use them'));
+          const ul = el('ul');
+          defs.forEach(x => ul.appendChild(el('li', null, `${FP.defs.LABELS[x.kind]} ${(x.def && (x.def.title || x.def.label)) || x.id}`)));
+          w.appendChild(ul); card.appendChild(w);
+        }
+        card.appendChild(btn('Retire this site', 'small fpa-tall', () => { if (!confirm(`Retire ${site.name}? Nothing is deleted: records saved there are kept, and an admin can reinstate it. It can't be picked for a terminal and is greyed in Used at.`)) return; act(() => FP.sites.setActive(id, false), `${site.name} is retired.`, again); }));
       }
-      card.appendChild(el('p', 'lead', 'A terminal is put at a site on that terminal, when it is set up; moving it is done there too. A site is never deleted: saved records and definitions name it.'));
+      card.appendChild(el('p', 'lead', 'A terminal is put at a site on that terminal, when it is set up; moving it is done there too. A site is retired, never deleted: saved records and definitions name it.'));
       return { isDirty: () => false };
     }
 
@@ -2129,7 +2146,7 @@
         tc.appendChild(c);
       });
       if (!ro) {
-        const others = registry.filter(t => t.site === g.site && !g.terminals.includes(t.terminalId));
+        const others = registry.filter(t => t.site === g.site && !g.terminals.includes(t.terminalId) && !FP.identity.isRetired(t));
         const inGroup = t => { const o = groups.find(x => x.terminals.includes(t)); return o ? ` (now in ${o.name})` : ''; };
         const pick = select([['', others.length ? '+ terminal…' : `no other terminal at ${siteName(g.site)}`]].concat(others.map(t => [t.terminalId, t.terminalId + inGroup(t.terminalId)])), '');
         pick.onchange = () => { if (pick.value) act(() => FP.groups.update(id, { terminals: g.terminals.concat(pick.value) }), `${pick.value} is in ${g.name}.`, again); };
@@ -2169,8 +2186,16 @@
       const t = registry.find(x => x.terminalId === id) || { terminalId: id };
       const ts = tset.get(id) || { name: '', forms: [] };
       const g = groups.find(x => x.terminals.includes(id)) || null;
-      const ro = !canPublish;
-      head(`${siteName(t.site)}${g ? ' › ' + g.name : ''} › terminal`, id, [t.lastSeen ? `seen ${ago(t.lastSeen)}` : 'never seen', t.kernel ? `kernel ${t.kernel}` : null].filter(Boolean).join(' · '));
+      const retired = FP.identity.isRetired(t);
+      const ro = !canPublish || retired;
+      head(`${siteName(t.site)}${g ? ' › ' + g.name : ''} › terminal`, id, [t.lastSeen ? `seen ${ago(t.lastSeen)}` : 'never seen', t.kernel ? `kernel ${t.kernel}` : null, retired ? 'retired' : null].filter(Boolean).join(' · '));
+      if (retired) {
+        const bar = el('div', 'fpa-retired-bar'); bar.setAttribute('role', 'status');
+        if (FP.icons) bar.appendChild(FP.icons.chip('Retired', { glyph: 'lock' }));
+        bar.appendChild(el('span', 'fpa-retired-what', `${id} was retired on ${FP.identity.retiredOn(t)}${t.retired.by ? ' by ' + t.retired.by : ''}${t.retired.note ? ': ' + t.retired.note : ''}. It shows no forms, and its ID is never used again.`));
+        if (isAdmin) bar.appendChild(btn('Reinstate this terminal', 'small fpa-tall', () => act(() => FP.identity.reinstate(id), `${id} is reinstated.`, again)));
+        card.appendChild(bar);
+      }
       // What it is, as it last told us (0.43): its screen, touch, keys and scanner.
       {
         const sc = t.screen;
@@ -2216,7 +2241,8 @@
         }
       }
       card.appendChild(set('Group', null, gb));
-      if (await FP.folder.isTest()) card.appendChild(simulateRow([id], null));
+      if (retired) card.appendChild(set('Simulate', null, el('div', 'lead', 'A retired terminal cannot be opened: reinstate it first.')));
+      else if (await FP.folder.isTest()) card.appendChild(simulateRow([id], null));
       else card.appendChild(set('Simulate', null, el('div', 'lead', 'Only on a test folder: Admin > Test folder marks one.')));
       card.appendChild(set(g ? `Its forms · from ${g.name}` : 'Its forms', g ? null : 'in this order; users see only these', formList(g ? g.forms : ts.forms, t.site, list => act(() => FP.groups.setTerminal(id, { forms: list }), null, again), ro || !!g)));
       if (g) card.appendChild(set('Home form and view', `from ${g.name}`, el('div', null, `${g.homeForm && g.homeForm !== 'none' ? formTitle(g.homeForm) : 'No home form'} · ${g.view === 'admin' ? 'Admin view' : 'Kiosk view'}`)));
@@ -2228,9 +2254,9 @@
       card.appendChild(set('For', g ? `its own, or as ${g.name}` : 'the lines (or other list items) it works on: forms read it as HERE(); for several, the launcher asks which',
         forPicker(ts.for, v => act(() => FP.groups.setTerminal(id, { for: v }), 'Saved: it picks it up when it next loads its settings.', again), ro, g && g.for ? g.for : null)));
       card.appendChild(set('Site', null, el('div', 'lead', `${siteName(t.site)}. A terminal's site is kept on that machine; moving it to another site is done on that terminal, and takes it out of its group.`)));
-      if (isAdmin && t.lastSeen) card.appendChild(btn('Take it off the list', 'small', () => {
-        if (!confirm(`Take ${id} off the list? Do this for a terminal that is gone or replaced; its ID can then be used again.`)) return;
-        act(async () => { if (g) await FP.groups.leave(id); await FP.identity.forget(id); }, `${id} is off the list.`, async () => { if (ctx.refresh) await ctx.refresh(); host.replaceChildren(el('div', 'fpe-empty', `${id} is off the list.`)); });
+      if (isAdmin && t.lastSeen && !retired) card.appendChild(btn('Retire this terminal', 'small fpa-tall', () => {
+        if (!confirm(`Retire ${id}? Do this for a terminal that is gone or replaced. Nothing is deleted: its record stays, and the ID ${id} can never be used again. It leaves its group${g ? ` (${g.name})` : ''} and the lists, and shows no forms if it is switched on. An admin can reinstate it.`)) return;
+        act(async () => { await FP.identity.retire(id); if (g) await FP.groups.leave(id); }, `${id} is retired.`, again);
       }));
       return { isDirty: () => false };
     }
