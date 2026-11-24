@@ -158,7 +158,7 @@
     if (p.length) throw new Error(p.join('; '));
     values.for = { list: changes.for.list, items: changes.for.items.slice() };
   }
-  const display = v => ({ for: forOf(v.for), homeForm: homeOk(v.homeForm) ? v.homeForm : null, view: VIEWS.includes(v.view) ? v.view : null });
+  const display = v => ({ for: forOf(v.for), homeForm: homeOk(v.homeForm) ? v.homeForm : null, view: VIEWS.includes(v.view) ? v.view : null, fullscreen: typeof v.fullscreen === 'boolean' ? v.fullscreen : null });
   function displayChanges(changes, values) {
     if (changes.homeForm !== undefined) {
       const h = changes.homeForm === null || changes.homeForm === '' ? 'none' : changes.homeForm;
@@ -166,6 +166,8 @@
       values.homeForm = h;
     }
     if (changes.view != null) { if (!VIEWS.includes(changes.view)) throw new Error('The view is kiosk or admin.'); values.view = changes.view; }
+    // Full screen on the first tap (0.69): true or false; unset is false.
+    if (changes.fullscreen != null) { if (typeof changes.fullscreen !== 'boolean') throw new Error('Full screen is on or off.'); values.fullscreen = changes.fullscreen; }
   }
   async function mustPublisher() {
     if (FP.users && !(await FP.users.can('publisher'))) throw new Error('Only a publisher or an admin can change groups and terminals.');
@@ -198,7 +200,7 @@
     STRUCTURE: GROUPS, TERMINALS: TERMS, KEYBOARDS, SIGNED_IN_FOR, VIEWS,
     list: allGroups,
     async get(id) { return (await allGroups()).find(g => g.id === id) || null; },
-    async create({ name, site, terminals, forms, homeForm, view, for: forSetting }) {
+    async create({ name, site, terminals, forms, homeForm, view, fullscreen, for: forSetting }) {
       await mustPublisher();
       if (!name || !String(name).trim()) throw new Error('Give the group a name, e.g. Production presses.');
       site = normalize(site);
@@ -206,7 +208,7 @@
       terminals = arr(terminals); forms = arr(forms);
       if (terminals.length) await pull(terminals, null);
       const values = { name: String(name).trim(), site, terminals, forms, active: true };
-      displayChanges({ homeForm: homeForm === undefined ? undefined : homeForm, view }, values);
+      displayChanges({ homeForm: homeForm === undefined ? undefined : homeForm, view, fullscreen }, values);
       forChange({ for: forSetting }, values);
       const e = await recG('create', null, values, site);
       FP.current.clearCache();
@@ -241,7 +243,7 @@
       await mustPublisher();
       const g = await FP.groups.get(id);
       if (!g) return;
-      for (const t of g.terminals) await FP.groups.setTerminal(t, Object.assign({ forms: g.forms }, g.homeForm ? { homeForm: g.homeForm } : {}, g.view ? { view: g.view } : {}, g.for ? { for: g.for } : {}), true);
+      for (const t of g.terminals) await FP.groups.setTerminal(t, Object.assign({ forms: g.forms }, g.homeForm ? { homeForm: g.homeForm } : {}, g.view ? { view: g.view } : {}, typeof g.fullscreen === 'boolean' ? { fullscreen: g.fullscreen } : {}, g.for ? { for: g.for } : {}), true);
       await recG('remove', id, { active: false }, g.site);
       FP.current.clearCache();
     },
@@ -277,7 +279,7 @@
         signedInFor: (g && g.signedInFor) || own.signedInFor || 15,
         signIn: (g && g.signIn) || own.signIn || 'anyone',
         // The home form and the view: the group's when in one (0.51).
-        homeForm: g ? g.homeForm : (own.homeForm || null), view: (g ? g.view : own.view) || 'kiosk',
+        homeForm: g ? g.homeForm : (own.homeForm || null), view: (g ? g.view : own.view) || 'kiosk', fullscreen: (g ? g.fullscreen : own.fullscreen) === true,
         // What it is for (0.60): the terminal's own setting, else its group's.
         for: own.for || (g && g.for) || null };
     },
