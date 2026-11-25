@@ -29,7 +29,7 @@ Image processing (drawing overlays, mapping failures) is **future work and not p
 | # | Conflict | Resolution |
 |---|---|---|
 | 1 | **Volume.** About 2,400 measurement rows a day as entries would pass the platform's 60,000-entry slow threshold within weeks (a 60-day live window would hold about 145,000). | **Decided: one entry per scan** (about 120 a day, roughly 7,000 in a 60-day window) carrying that scan's measurements inside it. The raw CSVs stay as read-only files for reports and Power BI. |
-| 2 | **Who writes entries.** Only the platform, in a browser, writes entries (validation and the per-line fingerprint chain); a script writing entry files directly would break the chain, and a browser cannot schedule itself. | The export script writes CSVs into an `inbox/` folder on the host. A dedicated **importer page** (a launcher kept open) turns them into entries. Same pattern as the email intake. |
+| 2 | **Who writes entries.** (Revised 25 Nov 2026.) The first review said only a browser page could write entries. That was too strong: a platform entry is one line of plain JSON (`v`, `entryId`, `entry`, `item`, `refs`, `form`, `writtenAt`, `terminalId`, `site`, `values`, optional `prev` = SHA-256 of the previous line) in `data/<structure>/<date>/<terminal>.jsonl`, and the platform skips and logs a line that fails validation. | **Decided: the export script writes the entry lines itself**, as a terminal of its own (for example `SCANPC`, one writer per file, one file per day). No importer page and no one keeping a window open. It also writes the raw CSVs for reports. **Guard against drift:** the entry format is a written contract (`docs/roadmap/scan-import.md` build step 1), and a test on GitHub (which has PowerShell) runs the script's converter on sample CSVs and has the platform's own validator and loader read the output. |
 | 3 | **Backup size.** The nightly backup copies the whole data folder into dated copies and a zip for SharePoint. Images would swell it by 5 GB a year, 30 times over. | **Decided: scan files live inside the data folder** (the platform can only read inside the folder the browser was given), **in their own `scans/` folder, not in the media library**, excluded from the nightly backup copy and given their own backup and retention. |
 | 4 | **Time.** Imported rows arrive late, with the scanner's local time and no zone. | The entry is stamped at import time. The **scan time is a value on the entry**, never the entry time, and is not compared with the universal clock. A rule is needed for the repeated hour in autumn and for a back-filled history (open question). |
 | 5 | **Credentials and network.** The scanning PC must write to the host over file sharing. | A separate account that can **only write to `inbox/` and `scans/`**, kept in the Windows credential store; IT confirms the scanning PC (same network as the host) can reach the host on port 445. IT is told before anything is scheduled on that PC. |
@@ -40,14 +40,14 @@ The media library is for documents people choose in forms: each file is register
 
 ## Proposed platform design (to settle at build time)
 
-- **Structure `scans`:** one item per scan: scan ID (base part and time), part, variant list, scanner, scan time (a value), the scanner's comment, the measurements as a list inside it (tool, actual, nominal, delta, lower and upper limit, pass or fail, counts-in-stats), the manifest entry (image and companion file names and sizes), and the import batch. A live window and an open rule set so loads stay small.
+- **Structure `scans`** (published in the editor like any structure; the script writes entries for it as terminal `SCANPC`): one item per scan: scan ID (base part and time), part, variant list, scanner, scan time (a value), the scanner's comment, the measurements as a list inside it (tool, actual, nominal, delta, lower and upper limit, pass or fail, counts-in-stats), the manifest entry (image and companion file names and sizes), and the import batch. A live window and an open rule set so loads stay small.
 - **Corrections:** an edited comment arrives as a new version of the scan; the **newest file wins**, recorded as a correction entry (the platform already supports corrections).
 - **Spec records:** a structure (or lookup) of part, tool, nominal, lower and upper limit, first and last seen, with a new item when any value changes; snapshots of the part and option tables as read-only data.
 - **Health:** the platform's data health report shows "no scan data for yesterday", "importer silent", rows with `countInStats` 0 and Pass or Fail that disagrees with the limits, and a **heartbeat** from the export script. This shares one convention with the email sender (a `heartbeat.json`, status files and job IDs per bridge script) so the health check reads them the same way.
 
 ## Build order (revised)
 
-1. **Structures and the importer page** for the scan CSVs (one entry per scan), ignoring repeated IDs; tests on synthetic data (no real part numbers in tests).
+1. **The `scans` structure, the entry-format contract and the script's converter** (CSV to one entry per scan, ignoring repeated IDs, with the optional chain hash), with a test that runs the converter in PowerShell on synthetic CSVs and has the platform validate and load the output (no real part numbers in tests).
 2. **Health checks** and the shared bridge heartbeat convention.
 3. **Extend the script** to copy scan files and overlays into `scans/` with a manifest; exclude `scans/` from the nightly backup and set up its own retention.
 4. **Schedule it** with catch-up, once IT agrees, and the delivery step to the host share.
@@ -56,8 +56,8 @@ The media library is for documents people choose in forms: each file is register
 
 ## Open questions
 
-- Which PC runs the **importer page**: the always-on host, or the scanning and QC PC itself? (The host is preferable: the scanning PC is also used by operators.)
-- A **back-filled history** (from 2026-11-01 as the handoff proposes): import with the original scan time as the entry time, or the import time? How to treat the repeated autumn hour?
+- ~~Which PC runs the importer page?~~ **Dropped (25 Nov 2026):** the script writes the entries, so there is no importer page. The script runs only on the scanning PC, as before.
+- Should the script's entries carry the **scan time** as their `writtenAt` (a back-filled history reads as it happened) or the export time? And how is the repeated autumn hour treated? (The scan time is also kept as a value either way.)
 - Do image names use a 24-hour or 12-hour hour in the afternoon, and does every scan have an image? Does each variant have its own companion file? (A check script exists and has not been run.)
 - What does the settings text file contain (the one not yet read), and should it transfer?
 - What do Invalid and Saved mean to the operators? How can a scan be tied to a physical part or lot (nothing in the database does)?
