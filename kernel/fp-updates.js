@@ -346,5 +346,5 @@ window.FP_RELEASES = ${JSON.stringify(cfg)};
   FP.updates = { KEEP, cmp, readZip, inspect, installed, complete, pending, install, installShown, useRelease, watch, releasesText, installing: () => busy };
 
   /* Registered last, so a module that failed partway never reports as loaded. */
-  (window.FP.modules = window.FP.modules || {})['fp-updates'] = '0.69.0';
+  (window.FP.modules = window.FP.modules || {})['fp-updates'] = '0.70.0';
 })();

@@ -1,6 +1,6 @@
 # Text to add to the User Guide and the Architecture Spec
 
-The two PDFs in `Forms b/` can't be edited from this repo, so here is the wording to add when you next revise them. It covers 0.64 to 0.69. Section
+The two PDFs in `Forms b/` can't be edited from this repo, so here is the wording to add when you next revise them. It covers 0.64 to 0.70. Section
 names are suggestions.
 
 ## Glossary (new terms)
@@ -64,3 +64,8 @@ names are suggestions.
 - **Spec, overview:** "No server, no third-party libraries" means no application server software; a host PC with a file share is expected.
 - **Spec, Power Automate section:** the flows need their folders to be reachable from the cloud; with the data on a host PC they work only through a one-way copy to SharePoint or a data gateway.
 - **Guide, set-up and troubleshooting:** replace "make the data folder in the team's SharePoint library, synced with OneDrive" with sharing a folder on the host PC and mapping it as a drive; remove the OneDrive sync status (green tick, Always keep on this device) advice; add nightly backup and "the host must be on".
+
+## Email groundwork (0.70.0)
+
+- **Guide, Admin:** a new **Email** tab: the approved domains (admins only, with history) and a read-only list of email jobs. A person can have an email address (Admin > People), which must be in an approved domain. Nothing is sent yet.
+- **Spec, Automation dispatcher:** the email job file is version 1: `version, action:'email', jobId, createdAt, mailbox, to, cc, subject, bodyHtml, bodyText, attachments, runAfter, source`, written to `outbox/email/<jobId>.json`; states move through `outbox/processing`, `outbox/done`, `outbox/failed`, and `status/<jobId>.json` reports `sent`, `failed` or `rejected`. Approved domains are a built-in structure `approved-domains`.

@@ -1685,5 +1685,5 @@
   FP.editor = { start, editStructure, editFunction, panel, ui: { el, btn, input, select, formulaInput, chips, toast, sitesPicker } };
 
   /* Registered last, so a module that failed partway never reports as loaded. */
-  (window.FP.modules = window.FP.modules || {})['fp-editor'] = '0.69.0';
+  (window.FP.modules = window.FP.modules || {})['fp-editor'] = '0.70.0';
 })();

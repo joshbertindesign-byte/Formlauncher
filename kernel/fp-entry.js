@@ -408,5 +408,5 @@
   document.addEventListener('visibilitychange', () => { if (!document.hidden) FP.outbox.flush().catch(() => {}); });
 
   /* Registered last, so a module that failed partway never reports as loaded. */
-  (window.FP.modules = window.FP.modules || {})['fp-entry'] = '0.69.0';
+  (window.FP.modules = window.FP.modules || {})['fp-entry'] = '0.70.0';
 })();

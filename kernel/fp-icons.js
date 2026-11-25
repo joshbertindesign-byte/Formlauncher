@@ -128,5 +128,5 @@
   FP.icons = { svg, tile, chip, toneClass, add, forControl: control => FOR_CONTROL[control] || 'text', get names() { return Object.keys(G); }, tones: TONES.slice() };
 
   /* Registered last, so a module that failed partway never reports as loaded. */
-  (window.FP.modules = window.FP.modules || {})['fp-icons'] = '0.69.0';
+  (window.FP.modules = window.FP.modules || {})['fp-icons'] = '0.70.0';
 })();

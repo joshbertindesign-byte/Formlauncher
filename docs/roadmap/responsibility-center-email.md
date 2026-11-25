@@ -1,6 +1,6 @@
 # Roadmap: Responsibility-center email
 
-Status: **Proposed. Design handed over 25 Nov 2026; reality-checked against kernel 0.69.0 below. Decisions marked open need the owner.** The handoff text follows the reality check, with the parts that changed since it was written corrected and marked.
+Status: **Steps 1 and 2 built in 0.70.0 (`docs/EMAIL-GROUNDWORK.md`); step 3 onward proposed. Design handed over 25 Nov 2026; reality-checked against kernel 0.69.0 below. Decisions marked open need the owner.** The handoff text follows the reality check, with the parts that changed since it was written corrected and marked.
 
 ## Reality check against the code (0.69.0)
 

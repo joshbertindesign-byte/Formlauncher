@@ -20,12 +20,17 @@
   const TYPE_TEXT = { text: 'text', name: 'a name (letters, digits, _)', number: 'a number', integer: 'a whole number', boolean: 'yes or no', choice: 'one of a list', formula: 'a formula', texts: 'a list of words', target: 'source.value', list: 'a list', map: 'names and values', any: 'see the note', control: 'a kind of field', form: 'a form\'s name', options: 'a list of options' };
 
   /* ---------- The chapters, as plain data ---------- */
-  /* What changed (0.69): short, plain, and who each change is for. Newest first. */
+  /* What changed (0.70): short, plain, and who each change is for. Newest first. */
   function changedChapter() {
     return {
       id: 'changed', title: 'What changed',
-      intro: 'What is different in the last six releases, in plain words. Each says who it is for: builders make the forms in the editor; operators fill them in on a terminal.',
+      intro: 'What is different in the last seven releases, in plain words. Each says who it is for: builders make the forms in the editor; operators fill them in on a terminal.',
       blocks: [
+        { h: '0.70 · Email groundwork', who: 'Admins', list: [
+          'Admin has a new Email tab: the list of domains email may go to (only admins can change it; every change is kept in its history) and a read-only list of email jobs waiting to go. Nothing is sent yet: a sender script on the host will deliver them, and it is not built yet.',
+          'A person can have an email address (Admin > People, optional). It must be a single plain address in an approved domain; it is never shown on the sign-in screen.',
+          'An address only counts if its domain is on the list exactly: a similar-looking domain does not match.',
+        ] },
         { h: '0.69 · Full screen on a terminal', who: 'Admins set it; operators see a Full screen button', list: [
           'Full screen (Admin, next to View, on a terminal or a terminal group) can be set to Full screen on the first tap. The first tap anywhere on the launcher then fills the screen; the tap still does what it was meant to do. A page cannot go full screen on its own, so the first tap does it.',
           'If someone leaves full screen (Esc or F11), the next tap goes back in.',
@@ -350,5 +355,5 @@ table{border-collapse:collapse;width:100%}td{border-top:1px solid gainsboro;padd
   FP.editor.help = help;
 
   /* Registered last, so a module that failed partway never reports as loaded. */
-  (window.FP.modules = window.FP.modules || {})['fp-help'] = '0.69.0';
+  (window.FP.modules = window.FP.modules || {})['fp-help'] = '0.70.0';
 })();

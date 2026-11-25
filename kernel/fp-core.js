@@ -9,7 +9,7 @@
   'use strict';
 
   const FP = (window.FP = window.FP || {});
-  FP.version = '0.69.0';
+  FP.version = '0.70.0';
 
   /* ---------- Locks ----------
    * Web Locks serialize across every tab on the device. Where they are missing,
@@ -98,8 +98,8 @@
   };
 
   /* ---------- Data folder access ----------
-   * The user picks the data folder once (a OneDrive-synced folder today,
-   * possibly a mapped drive later). The handle is stored in IndexedDB.
+   * The user picks the data folder once: a shared Windows folder on the always-on host PC, mapped as a drive
+   * (docs/DEPLOYMENT.md). The handle is stored in IndexedDB; Change data folder replaces it.
    * connect() and reauthorize() must be called from a click or tap.
    */
   FP.folder = {
@@ -576,5 +576,5 @@
   setInterval(() => { FP.testClock.load().catch(() => {}); }, 4000);
 
   /* Registered last, so a module that failed partway never reports as loaded. */
-  (window.FP.modules = window.FP.modules || {})['fp-core'] = '0.69.0';
+  (window.FP.modules = window.FP.modules || {})['fp-core'] = '0.70.0';
 })();

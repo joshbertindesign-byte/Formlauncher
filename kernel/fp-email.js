@@ -268,5 +268,5 @@
     domains, setDomains, checkDomain, checkAddress, checkAddressNow, queue, status, list,
   };
 
-  (window.FP.modules = window.FP.modules || {})['fp-email'] = '0.69.0';
+  (window.FP.modules = window.FP.modules || {})['fp-email'] = '0.70.0';
 })();
