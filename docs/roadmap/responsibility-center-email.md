@@ -18,7 +18,7 @@ Status: **Proposed. Design handed over 25 Nov 2026; reality-checked against kern
 1. **Host: decided.** An always-on host PC (the same one that holds the shared folder). Azure is not needed for this.
 2. **Flow-up: decided (25 Nov 2026).** Email follows the existing ladder: a level emails when it fires, after its delay, until acknowledged. No separate parent field and no all-ancestors-at-once.
 3. **Template ownership: decided (25 Nov 2026).** Templates stay tied to a structure; the center owns recipients, the email on/off flag and an optional footer.
-4. **Approved mailbox list (who may be the sender): open.** Needed before the sender script (step 3).
+4. **Approved mailbox list: answered in principle (25 Nov 2026).** One sender mailbox, delivered by Microsoft 365 direct send (port 25, no credentials) to the tenant's mail-protection endpoint; a test with `Send-MailMessage` from a PC on the company network arrived in the inbox. The platform refers to it by a short name (for example `forms-notifications`); the real sender address and mail endpoint are **host configuration owned by IT and are not kept in this repository**. Still to confirm: that the sender address is a real mailbox (who owns it, where replies go), and a test from the actual host PC on a wired connection.
 5. **Script ownership (who maintains it, updates its domain list, watches the heartbeat): open.** Needed before step 3.
 
 Steps 1 and 2 of the build order do not depend on decisions 4 and 5. Step 3 (the sender script) waits for them.
