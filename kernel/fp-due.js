@@ -607,7 +607,7 @@
     const v = it.values || {};
     return { id: it.id, center: v.center || '', centerName: v.centerName || '', title: v.title || '', form: v.form || '', item: v.item || '', where: v.where || '', terminal: v.terminal || '',
       series: v.series || '', since: v.since || it.firstAt, dueBy: v.dueBy || null, misses: v.misses || 1, missIds: Array.isArray(v.missIds) ? v.missIds : [], lastMissedAt: v.lastMissedAt || v.dueBy || null, critical: !!v.critical, responsible: v.responsible || '', level: v.level || 0, told: Array.isArray(v.told) ? v.told : [],
-      ackBy: v.ackBy || null, ackById: v.ackById || null, ackAt: v.ackAt || null, ackNote: v.ackNote || '', closedAt: v.closedAt || null, closedHow: v.closedHow || null, openedAt: it.firstAt };
+      kind: v.kind || '', ackBy: v.ackBy || null, ackById: v.ackById || null, ackAt: v.ackAt || null, ackNote: v.ackNote || '', closedAt: v.closedAt || null, closedHow: v.closedHow || null, openedAt: it.firstAt };
   };
   async function allAlerts(fresh) {
     const r = await FP.current.load(ALERTS, fresh ? { fresh: true } : {}).catch(() => null);
@@ -655,7 +655,35 @@
   /* The open alerts this person was told of, or that are at this terminal (where it was missed). */
   async function alertsFor(user, ctx) {
     const list = (await allAlerts(false)).filter(a => !a.closedAt);
-    return list.filter(a => (user && a.told.some(t => (t.ids || []).includes(user.id))) || (ctx && ctx.terminalId && a.terminal === ctx.terminalId));
+    // A notice for admins (a terminal's clock, 0.71) is shown to every admin, not only the ones who were there when it was raised.
+    const isAdmin = user && FP.users.topRole(user.roles) === 'admin';
+    return list.filter(a => (user && a.told.some(t => (t.ids || []).includes(user.id))) || (isAdmin && a.kind === 'clock') || (ctx && ctx.terminalId && a.terminal === ctx.terminalId));
+  }
+  /* A notice for admins that belongs to no duty and no responsibility center (0.71: a terminal's clock far from the host's). It is
+   * an alert like the others (kept on the record, told, acknowledged, closed), with no ladder: every admin is told at once and it
+   * shows to every admin. One open at a time per series; asking again while one is open does nothing. Returns the alert's ID. */
+  async function openNotice(o) {
+    const series = String(o.series || '');
+    if (!series) throw new Error('A notice needs a series.');
+    const open = (await allAlerts(true)).find(a => a.series === series && !a.closedAt);
+    if (open) return open.id;
+    const now = new Date();
+    const people = await whoIsTold({ role: 'admin' }, now.getTime());
+    const id = await FP.entry.newId(now).catch(() => 'N-' + now.getTime());
+    await recA('open', id, { kind: o.kind || 'notice', misses: 1, center: '', centerName: 'Admins', title: String(o.title || ''), form: '', item: '', where: String(o.where || ''), terminal: '',
+      series, since: now.toISOString(), dueBy: null, critical: false, responsible: '', level: 1,
+      told: [{ level: 1, at: now.toISOString(), to: 'admins', people: people.map(u => u.name), ids: people.map(u => u.id), passed: null, ack: false }] });
+    FP.current.clearCache();
+    return id;
+  }
+  /* Close the open notice of a series (the problem is gone). True if one was open. */
+  async function closeNotice(series, how) {
+    const open = (await allAlerts(true)).find(a => a.series === series && !a.closedAt);
+    if (!open) return false;
+    // After the alert's own opening, so a clock that moved between the two can't put the close before the open.
+    await FP.entry.record({ entry: `${ALERTS}.close`, item: { structure: ALERTS, id: open.id }, form: { id: 'alerts', version: 1 }, values: { closedAt: new Date().toISOString(), closedHow: how || 'put right' }, after: open.openedAt });
+    FP.current.clearCache();
+    return true;
   }
   /* Acknowledge: someone told (or a supervisor) stops the climb, with a note. The alert stays until put right. */
   async function ack(id, note) {
@@ -742,7 +770,7 @@
     const climbed = await climb(list);
     return { list, recorded, climbed };
   }
-  FP.alerts = { noticeFor, STRUCTURE: ALERTS, list: allAlerts, forUser: alertsFor, climb, ack, words: alertWords, whoIsTold, tellText };
+  FP.alerts = { openNotice, closeNotice, noticeFor, STRUCTURE: ALERTS, list: allAlerts, forUser: alertsFor, climb, ack, words: alertWords, whoIsTold, tellText };
 
   /* Registered last, so a module that failed partway never reports as loaded. */
   (window.FP.modules = window.FP.modules || {})['fp-due'] = '0.71.0';

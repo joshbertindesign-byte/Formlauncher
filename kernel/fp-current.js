@@ -466,11 +466,11 @@
     // Each with the form that saved it, what it first held, and its corrections (for viewing and correcting records).
     const fixes = new Map();
     corrections.forEach(c => { const root = rootFor.get(c.entryId) || c.corrects; if (!fixes.has(root)) fixes.set(root, []); fixes.get(root).push({ entryId: c.entryId, at: c.writtenAt, reason: (c.values || {}).reason || '', userId: c.userId, terminalId: c.terminalId, values: c.values }); });
-    const rows = counted.map(e => ({
+    const rows = counted.map(e => Object.assign({
       entryId: e.entryId, entry: e.entry, action: actionOf(e), item: e.item, refs: e.refs || {},
       values: effective.get(e.entryId), writtenAt: e.writtenAt, terminalId: e.terminalId, site: e.site || null, userId: e.userId,
       form: e.form || null, saved: e.values || {}, corrections: fixes.get(e.entryId) || [],
-    }));
+    }, e.clockWarn ? { clockWarn: e.clockWarn } : {}));
     return { items: out, rows };
   }
 

@@ -307,6 +307,8 @@
 
         async function finish() {
           try { await FP.identity.checkIn(); } catch (_) { /* registry is best-effort */ }
+          // The universal clock (0.71): measure against the host now, not waited for; the page follows host time from here on.
+          try { if (FP.clock && FP.clock.start) FP.clock.start(); } catch (_) { /* best effort */ }
           // Write anything saved on this device while the folder was unavailable.
           if (FP.outbox) FP.outbox.flush().catch(() => {});
           gate.remove();
