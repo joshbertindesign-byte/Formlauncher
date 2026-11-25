@@ -1,6 +1,6 @@
 # Text to add to the User Guide and the Architecture Spec
 
-The two PDFs in `Forms b/` can't be edited from this repo, so here is the wording to add when you next revise them. It covers 0.64 to 0.71. Section
+The two PDFs in `Forms b/` can't be edited from this repo, so here is the wording to add when you next revise them. It covers 0.64 to 0.72. Section
 names are suggestions.
 
 ## Glossary (new terms)
@@ -74,3 +74,8 @@ names are suggestions.
 
 - **Guide, terminals and typing:** the number pad now comes up along the bottom, like the text keyboard, in three rows (7 8 9, 4 5 6, 1 2 3 0 with Backspace, Clear, plus or minus, the point and Next). The form scrolls the box you are typing in to the middle of the space above the keyboard. If the box is still hidden, the top of the keyboard becomes a typing card showing its name, what you have typed in large letters, its unit and message, with Back and Next; it disappears when the box is in view. A form set to always show the keyboard keeps a thin bar at the bottom until a box is tapped.
 - **Spec, on-screen keyboard:** remove the number pad docked at the right and its reserved place (`--fp-kb-right` is 0); add `FP.keyboard.hidden(field)` and the typing card; the keyboard keeps the page room through `--fp-kb-bottom`.
+
+## Universal clock (0.72.0)
+
+- **Spec, Clocks:** replace "terminal clocks should agree (Windows time sync)" with: terminals follow the host's clock, measured through a probe file in `_clock/` (the host stamps its modified time), median of three, offsets within 2 s ignored, re-measured at start-up, every 5 minutes and when the window returns; on by default, admin-switchable; a terminal whose own clock is over a minute off still saves, its entries carry `clockWarn`, and an admin alert is raised once per episode. Windows time sync on the host is still required. Not applied on a test folder that is using the test clock.
+- **Guide, Admin > Speed > Clock:** the switch, this PC's difference from the host, and the table of terminals with off clocks flagged.

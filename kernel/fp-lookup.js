@@ -209,5 +209,5 @@
   FP.fn.evaluateAsync = async (formula, inputs, ctx) => FP.fn.evaluate(formula, inputs, await FP.lookup.prepare(formula, ctx));
 
   /* Registered last, so a module that failed partway never reports as loaded. */
-  (window.FP.modules = window.FP.modules || {})['fp-lookup'] = '0.71.0';
+  (window.FP.modules = window.FP.modules || {})['fp-lookup'] = '0.72.0';
 })();

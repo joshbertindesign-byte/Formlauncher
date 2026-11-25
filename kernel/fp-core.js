@@ -9,7 +9,7 @@
   'use strict';
 
   const FP = (window.FP = window.FP || {});
-  FP.version = '0.71.0';
+  FP.version = '0.72.0';
 
   /* ---------- Locks ----------
    * Web Locks serialize across every tab on the device. Where they are missing,
@@ -596,5 +596,5 @@
   setInterval(() => { FP.testClock.load().catch(() => {}); }, 4000);
 
   /* Registered last, so a module that failed partway never reports as loaded. */
-  (window.FP.modules = window.FP.modules || {})['fp-core'] = '0.71.0';
+  (window.FP.modules = window.FP.modules || {})['fp-core'] = '0.72.0';
 })();

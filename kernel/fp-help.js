@@ -20,12 +20,18 @@
   const TYPE_TEXT = { text: 'text', name: 'a name (letters, digits, _)', number: 'a number', integer: 'a whole number', boolean: 'yes or no', choice: 'one of a list', formula: 'a formula', texts: 'a list of words', target: 'source.value', list: 'a list', map: 'names and values', any: 'see the note', control: 'a kind of field', form: 'a form\'s name', options: 'a list of options' };
 
   /* ---------- The chapters, as plain data ---------- */
-  /* What changed (0.71): short, plain, and who each change is for. Newest first. */
+  /* What changed (0.72): short, plain, and who each change is for. Newest first. */
   function changedChapter() {
     return {
       id: 'changed', title: 'What changed',
-      intro: 'What is different in the last eight releases, in plain words. Each says who it is for: builders make the forms in the editor; operators fill them in on a terminal.',
+      intro: 'What is different in the last nine releases, in plain words. Each says who it is for: builders make the forms in the editor; operators fill them in on a terminal.',
       blocks: [
+        { h: '0.72 · One clock for every terminal', who: 'Everyone (it works by itself); admins see the details', list: [
+          'Terminals now follow the host PC\'s clock instead of their own, so entries, due times and alerts agree even if a terminal\'s own clock is wrong. A terminal checks the host at start-up, every five minutes and when you come back to its window. It is on by default; an admin can switch it off (Admin > Speed > Clock).',
+          'If a terminal\'s own clock is more than a minute off, it still saves normally. Each entry it saves carries a note ("this terminal\'s clock was 4 min off; host time was used"), shown in the record and in Admin > Records, and an admin gets an alert that clears itself when the clock is right.',
+          'Admin > Speed > Clock shows each terminal\'s difference from the host and flags the ones more than a minute off, so IT can fix them.',
+          'It needs the host PC\'s own clock to be right (Windows time sync). On a test folder that is using the test clock, the test clock wins.',
+        ] },
         { h: '0.71 · Keyboard at the bottom, and a typing card', who: 'Operators on a terminal', list: [
           'The number pad now comes up along the bottom of the screen, like the text keyboard, instead of at the right. It is wide and low, three rows of keys: 7 8 9, 4 5 6 and 1 2 3 0, with Backspace, Clear, plus or minus, the point and Next at the right.',
           'The form scrolls the box you are typing in to the middle of the space left above the keyboard, so you can see it and its name.',
@@ -361,5 +367,5 @@ table{border-collapse:collapse;width:100%}td{border-top:1px solid gainsboro;padd
   FP.editor.help = help;
 
   /* Registered last, so a module that failed partway never reports as loaded. */
-  (window.FP.modules = window.FP.modules || {})['fp-help'] = '0.71.0';
+  (window.FP.modules = window.FP.modules || {})['fp-help'] = '0.72.0';
 })();

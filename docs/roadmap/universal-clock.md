@@ -1,6 +1,6 @@
 # Roadmap: A universal clock
 
-Status: **Agreed (all decisions made 25 Nov 2026), ready to build.** Raised 25 Nov 2026.
+Status: **Built in 0.72.0** (see `docs/UNIVERSAL-CLOCK.md`). All decisions made 25 Nov 2026. Raised 25 Nov 2026.
 
 ## Problem
 

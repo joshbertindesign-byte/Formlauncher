@@ -196,5 +196,5 @@
   FP.clock = { measure, refresh, state, setEnabled, terminals, warnNote, start, WARN_MS, GRAIN_MS, MAX_RT_MS, DIR, SETTINGS };
 
   /* Registered last, so a module that failed partway never reports as loaded. */
-  (window.FP.modules = window.FP.modules || {})['fp-clock'] = '0.71.0';
+  (window.FP.modules = window.FP.modules || {})['fp-clock'] = '0.72.0';
 })();

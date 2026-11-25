@@ -859,5 +859,5 @@
   });
 
   /* Registered last, so a module that failed partway never reports as loaded. */
-  (window.FP.modules = window.FP.modules || {})['fp-controls'] = '0.71.0';
+  (window.FP.modules = window.FP.modules || {})['fp-controls'] = '0.72.0';
 })();
