@@ -1,6 +1,6 @@
 # Form Platform
 
-A forms and data platform that runs in Edge from a shared SharePoint folder: no server, no third-party libraries.
+A forms and data platform that runs in Edge from a shared Windows folder on an always-on host PC (see `docs/DEPLOYMENT.md`): no server software, no third-party libraries.
 
 | Folder | What it is |
 |---|---|

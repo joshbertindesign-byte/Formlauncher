@@ -57,3 +57,10 @@ names are suggestions.
 
 - **Guide, Admin and terminals:** a terminal or group can be set to **Full screen on the first tap** (Admin, next to View). The first tap on the launcher fills the screen; Esc or F11 leaves it and the next tap goes back in. Every launcher has a **Full screen / Exit full screen** button. A page cannot start full screen with no tap; for a kiosk with no tap, start Edge from a shortcut with `--kiosk` (see `docs/FULL-SCREEN.md`).
 - **Spec:** terminal and group settings gain `fullscreen` (boolean, default false, resolved like `view`).
+
+## Where the data folder lives (decision, see `docs/DEPLOYMENT.md`)
+
+- **Spec, "Storage" and "Open questions":** replace "Today the data folder is a OneDrive-synced SharePoint folder; a shared Windows folder is being considered" with: the data folder is a shared Windows folder on an always-on host PC, mapped as a drive on every terminal; SharePoint holds the nightly backup zip. Remove the open question "Move the data folder to a shared Windows folder?" (answered: yes; backups are the scripts in `ops/backup/`; the path must be the same on every terminal).
+- **Spec, overview:** "No server, no third-party libraries" means no application server software; a host PC with a file share is expected.
+- **Spec, Power Automate section:** the flows need their folders to be reachable from the cloud; with the data on a host PC they work only through a one-way copy to SharePoint or a data gateway.
+- **Guide, set-up and troubleshooting:** replace "make the data folder in the team's SharePoint library, synced with OneDrive" with sharing a folder on the host PC and mapping it as a drive; remove the OneDrive sync status (green tick, Always keep on this device) advice; add nightly backup and "the host must be on".

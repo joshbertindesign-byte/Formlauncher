@@ -7,8 +7,8 @@ not see it in the code, I say so.
 ## The idea
 
 One platform replaces a family of separate apps (production terminal, QC, holding, returns). Everything is a **form** that
-saves **entries** into **structures**, and any form can be published as its own **launcher**. There is **no server**: it
-is HTML and JavaScript running in Edge from a shared Windows folder (a SharePoint library synced by OneDrive), with JSON
+saves **entries** into **structures**, and any form can be published as its own **launcher**. There is **no server software**: it
+is HTML and JavaScript running in Edge from a shared Windows folder on an always-on host PC (mapped as a drive on every terminal; see `docs/DEPLOYMENT.md`), with JSON
 files for storage and no third-party libraries.
 
 ## The pieces
@@ -27,7 +27,7 @@ files for storage and no third-party libraries.
 | **Media library** (0.61) | Files forms show (setup sheets…), each with an internal name, tags, a folder and versions. |
 | **Pack** | A bundle of definitions (and, on a test folder, people) installed in one go. |
 
-## The folder (what is on SharePoint)
+## The folder (what is on the shared drive)
 
 ```
 launch.html                  the home page (opens launchers)
@@ -41,8 +41,8 @@ updates/                     drop a release zip here; an admin installs it
 _terminals/ _stats/          each terminal checks in; health numbers
 ```
 
-**Terminals never overwrite each other's files**: each appends only to its own `<terminal>.jsonl`. Because of that, SharePoint
-sync can merge safely. Reading means reading every terminal's files and folding them. Monthly **checkpoints** keep that
+**Terminals never overwrite each other's files**: each appends only to its own `<terminal>.jsonl`. Because of that, a shared folder (or a
+synced one) can merge safely. Reading means reading every terminal's files and folding them. Monthly **checkpoints** keep that
 fast (F2: currently never triggered).
 
 ## Releases and updating
