@@ -18,6 +18,10 @@ or went stale). A shared folder gives every PC the same files at once. The Spec 
 - **The host must be on, awake and reachable.** Terminals keep what they cannot save in the outbox and write it when the folder returns. Anything that assumes the folder is always reachable is wrong; anything that assumes it is synced and slow is also wrong.
 - **Choosing the folder:** use **Choose data folder** (first start) or **Change data folder** (launcher, for supervisors and above; editor Admin > Test folder > Data folder). Pick the folder that holds `data`, `library` and `runtime`. The browser refuses Desktop, Documents, Downloads and drive roots, so use a subfolder of the share.
 
+## Current host (25 Nov 2026)
+
+The host is currently a **laptop**. That works for testing, but a laptop sleeps when its lid closes, moves between networks and restarts for updates. Before relying on it for production: set the lid to do nothing and sleep to never when plugged in, keep it on the terminals' network (a wired adapter is best), and set Windows active hours. The intended host is a wired, always-on PC; moving is a copy of the shared folder plus sharing it under the same name. The direct-send email test (see `docs/roadmap/responsibility-center-email.md`) was run from this laptop on Wi-Fi; repeat it on the final host.
+
 ## Older documents
 
 Documents written before this decision (the Spec and Guide PDFs, `docs/FIX-LIST.md`, `docs/REVIEW-0.60-0.62.md`, older notes in `docs/`) describe a OneDrive-synced SharePoint folder. Treat those passages as history. Where a current document and an older one disagree about where the data lives, this document wins.
