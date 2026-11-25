@@ -1,6 +1,6 @@
 # Roadmap: A universal clock
 
-Status: **Proposed (not agreed or built).** Raised 25 Nov 2026.
+Status: **Agreed (decisions made 25 Nov 2026), not built.** Raised 25 Nov 2026.
 
 ## Problem
 
@@ -30,8 +30,19 @@ Now that the data folder is on one always-on host (`docs/DEPLOYMENT.md`), **the 
 3. The launcher and Admin messages; the clock-warning pane lists terminals by measured offset.
 4. Spec and Guide text; Help.
 
-## Open questions for the owner
+## Decisions (owner, 25 Nov 2026)
 
-- Should it be **on by default** for the folder, or off until an admin turns it on?
-- Is a one-second timestamp granularity from the share acceptable, or should the host also run a small service that reports the time? (Today the platform has no host software; this keeps it that way.)
-- What should happen when a terminal's own clock is far off: only warn, or also block saving on that terminal?
+1. **On by default** for the folder (an admin can turn it off).
+2. **One-second timestamps from the share are good enough.** No host software is added.
+3. **A terminal with a badly wrong own clock only gets a warning; saving is never blocked.** The warning is **recorded with the record**: when a terminal's own clock differs from the host's by more than a threshold (proposed: one minute), every entry it saves carries a small clock note (`clockWarn`: how far its own clock was off, and the offset that was applied), so a reader of the record or a report can see that the time came from a corrected clock. Entries from a terminal within the threshold carry no note.
+
+## Build order additions from the decisions
+
+- Step 2 (apply the offset) sets the folder setting to **on** by default.
+- A new step between 2 and 3: the entry layer adds the `clockWarn` note when the measured difference passes the threshold (it is part of the entry, so it appears in history, records and exports; it never changes the entry's values or its ordering rules).
+- The Records and Find views show the note on an entry ("this terminal's clock was 4 min off; host time was used").
+
+## Open questions left
+
+- The threshold (proposed one minute): right for the plant's duties and shifts?
+- Should the warning also reach an admin as an alert (a ladder level), or only be recorded and shown in the Clock warning and Admin?
