@@ -42,7 +42,11 @@ Now that the data folder is on one always-on host (`docs/DEPLOYMENT.md`), **the 
 - A new step between 2 and 3: the entry layer adds the `clockWarn` note when the measured difference passes the threshold (it is part of the entry, so it appears in history, records and exports; it never changes the entry's values or its ordering rules).
 - The Records and Find views show the note on an entry ("this terminal's clock was 4 min off; host time was used").
 
+## Decisions, second round (owner, 25 Nov 2026)
+
+4. **The threshold is one minute.** A terminal whose own clock differs from the host's by more than one minute gets the clock note on its entries and counts as "badly off".
+5. **A badly off clock alerts an admin.** It raises an alert (through the existing alerts and ladder, `FP.alerts`) naming the terminal and how far off it is, so it reaches an admin as well as being recorded and shown in Admin. The alert closes itself when the terminal's clock is back within a minute. It is raised once per terminal and episode, not on every entry.
+
 ## Open questions left
 
-- The threshold (proposed one minute): right for the plant's duties and shifts?
-- Should the warning also reach an admin as an alert (a ladder level), or only be recorded and shown in the Clock warning and Admin?
+- Which responsibility center or role receives the alert (proposed: admins; a center can be chosen later)?
