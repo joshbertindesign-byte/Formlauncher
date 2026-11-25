@@ -40,7 +40,7 @@
 
   // Defined in kernel code before this file ran: built in, can't be published over. Built-ins are used at every site.
   const BUILT_IN = {
-    structure: new Set(FP.structures.list().map(s => s.id).concat(['sites', 'terminal-groups', 'terminal-settings', 'approvals', 'dues', 'centers'])),
+    structure: new Set(FP.structures.list().map(s => s.id).concat(['sites', 'terminal-groups', 'terminal-settings', 'approvals', 'dues', 'centers', 'approved-domains'])),
     'session-type': new Set(FP.session.types().map(t => t.name)),
   };
 

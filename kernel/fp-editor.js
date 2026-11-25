@@ -1158,7 +1158,7 @@
           const pin = list.filter(u => u.mustChange).length;
           people.children.push({ key: 'role:' + r, label: t, color: 'var(--d-violet-45)', sub: list.length ? list.map(u => u.name).join(', ') : 'nobody yet',
             chips: [String(list.length)].concat(pin ? [`${pin} choosing a PIN`] : []), dflt: false,
-            children: list.map(u => ({ key: 'person:' + u.id, label: u.name, tag: u.department || null, sub: u.department || '', color: 'var(--d-violet-45)', place: { kind: 'person', id: u.id } })) });
+            children: list.map(u => ({ key: 'person:' + u.id, label: u.name, tag: u.department || null, sub: [u.department, u.email].filter(Boolean).join(' · '), color: 'var(--d-violet-45)', place: { kind: 'person', id: u.id } })) });
         });
         const gone = md.isAdmin ? md.users.filter(u => !u.active) : [];
         if (gone.length) people.children.push({ key: 'role:retired', label: 'Retired', color: 'var(--d-n-83)', chips: [String(gone.length)], sub: gone.map(u => u.name).join(', '), dflt: false, children: gone.map(u => ({ key: 'person:' + u.id, label: u.name, sub: 'retired', color: 'var(--d-n-83)', place: { kind: 'person', id: u.id } })) });
