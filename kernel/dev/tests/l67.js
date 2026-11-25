@@ -22,7 +22,7 @@ const start = require('./dummies/base.js');
   await w(1500);
   const pin = await p.$eval('[data-name="grid"] .fpc-pin', x => ({ max: x.style.maxHeight, cls: x.className, sticky: getComputedStyle(x.querySelector('th')).position, scrolls: x.scrollHeight > x.clientHeight }));
   say('pinned', JSON.stringify(pin));
-  // auto: a mouse click shows nothing; a finger tap shows the number pad beside the form
+  // auto: a mouse click shows nothing; a finger tap shows the number pad along the bottom (0.71: no right-hand dock any more)
   await p.click('[data-name="len"] input'); await w(300);
   say('mouse', JSON.stringify(await p.evaluate(() => FP.keyboard.showing())));
   await p.evaluate(() => document.activeElement.blur());
@@ -31,10 +31,13 @@ const start = require('./dummies/base.js');
     await p.$eval('[data-name="len"] input', x => { x.dispatchEvent(new PointerEvent('pointerdown', { pointerType: 'touch', bubbles: true })); x.focus(); });
   });
   await w(400);
-  say('touch', JSON.stringify(await p.evaluate(() => { const s = FP.keyboard.showing(); return s && { kind: s.kind, cls: document.querySelector('.fpk').className, right: getComputedStyle(document.documentElement).getPropertyValue('--fp-kb-right'), inputMode: document.activeElement.inputMode }; })));
+  say('touch', JSON.stringify(await p.evaluate(() => { const s = FP.keyboard.showing(); return s && { kind: s.kind, cls: document.querySelector('.fpk').className, rect: (r => ({ bottom: r.bottom, w: r.width, h: r.height, vh: innerHeight }))(document.querySelector('.fpk').getBoundingClientRect()), right: getComputedStyle(document.documentElement).getPropertyValue('--fp-kb-right'), inputMode: document.activeElement.inputMode }; })));
   for (const k of ['1', '7', '9', '.', '2', '5']) await p.click(`.fpk-keys button:text-is("${k}")`);
   await p.click('.fpk-keys button:text-is("±")');
   say('typed', await p.$eval('[data-name="len"] input', x => x.value) + ' form sees ' + JSON.stringify(await p.evaluate(() => window.__kt.values().len)));
+  const pad = await p.evaluate(() => { const r = document.querySelector('.fpk').getBoundingClientRect(); return { atBottom: Math.abs(r.bottom - innerHeight) < 1.5, full: Math.abs(r.width - innerWidth) < 1.5, h: r.height, right: getComputedStyle(document.documentElement).getPropertyValue('--fp-kb-right').trim(), cls: document.querySelector('.fpk').className }; });
+  say('pad', JSON.stringify(pad));
+  if (!pad.atBottom || !pad.full || pad.h < 240 || pad.h > 260 || pad.right !== '0px' || /right/.test(pad.cls)) throw new Error('the number pad is not along the bottom: ' + JSON.stringify(pad));
   await p.screenshot({ path: 'l67-numpad.png' });
   await p.click('.fpk-keys button:text-is("Next")'); await w(400);
   say('next', JSON.stringify(await p.evaluate(() => ({ field: document.activeElement.closest('[data-name]').dataset.name, kb: FP.keyboard.showing() && FP.keyboard.showing().kind, cls: document.querySelector('.fpk') && document.querySelector('.fpk').className, bottom: getComputedStyle(document.documentElement).getPropertyValue('--fp-kb-bottom') }))));
