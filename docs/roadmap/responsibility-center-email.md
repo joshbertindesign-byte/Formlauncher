@@ -16,12 +16,12 @@ Status: **Proposed. Design handed over 25 Nov 2026; reality-checked against kern
 ## Decisions
 
 1. **Host: decided.** An always-on host PC (the same one that holds the shared folder). Azure is not needed for this.
-2. **Flow-up: open.** Recommended: use the existing ladder (email at a level when it fires, after its delay, until acknowledged), no separate ancestor walk. Alternative: send to all ancestors at once.
-3. **Template ownership: open.** Recommended in the handoff and here: templates stay tied to a structure; the center owns recipients, the email on/off flag and an optional footer.
+2. **Flow-up: decided (25 Nov 2026).** Email follows the existing ladder: a level emails when it fires, after its delay, until acknowledged. No separate parent field and no all-ancestors-at-once.
+3. **Template ownership: decided (25 Nov 2026).** Templates stay tied to a structure; the center owns recipients, the email on/off flag and an optional footer.
 4. **Approved mailbox list (who may be the sender): open.** Needed before the sender script (step 3).
 5. **Script ownership (who maintains it, updates its domain list, watches the heartbeat): open.** Needed before step 3.
 
-Steps 1 and 2 of the build order do not depend on decisions 2 to 5.
+Steps 1 and 2 of the build order do not depend on decisions 4 and 5. Step 3 (the sender script) waits for them.
 
 ---
 
