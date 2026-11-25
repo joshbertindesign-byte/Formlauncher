@@ -28,7 +28,7 @@
   const target = w => { const i = String(w || '').indexOf('.'); return i > 0 ? { structure: w.slice(0, i).split('~')[0], container: w.slice(i + 1) } : null; };
   const builtins = () => new Set(FP.fn.builtins());
   const catOf = control => { const d = FP.forms.describe(control); return d ? d.category : null; };
-  const BUILT_IN_STRUCTURES = ['users', 'sites', 'submissions', 'acknowledgments', 'approvals', 'dues', 'centers', 'media-library', 'media-tags'];
+  const BUILT_IN_STRUCTURES = ['users', 'sites', 'submissions', 'acknowledgments', 'approvals', 'dues', 'centers', 'approved-domains', 'media-library', 'media-tags'];
 
   function describeWindow(r) {
     const w = r.window == null ? 'form' : r.window;

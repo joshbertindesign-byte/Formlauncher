@@ -168,7 +168,7 @@
   function injectCss() { if (document.getElementById('fp-admin-css')) return; const s = el('style'); s.id = 'fp-admin-css'; s.textContent = CSS; document.head.appendChild(s); }
 
   // People, sites and terminals are on the editor's map (0.41); their settings open from it (FP.editor.places).
-  const SECTIONS = [['launchers', 'Launchers'], ['updates', 'Updates'], ['records', 'Records'], ['due', 'Responsibility'], ['speed', 'Speed'], ['packs', 'Packs'], ['cleanup', 'Clean-up'], ['test', 'Test folder'], ['stress', 'Stress test'], ['purge', 'Purge all data']];
+  const SECTIONS = [['launchers', 'Launchers'], ['updates', 'Updates'], ['records', 'Records'], ['due', 'Responsibility'], ['email', 'Email'], ['speed', 'Speed'], ['packs', 'Packs'], ['cleanup', 'Clean-up'], ['test', 'Test folder'], ['stress', 'Stress test'], ['purge', 'Purge all data']];
   const NEVER = /^$never/;
   const set = (label, help, node) => { const w = el('div', 'ffe-set'); const h = el('span', null, label + ' '); if (help) h.appendChild(el('em', null, '· ' + help)); w.append(h, node); return w; };
   const ago = iso => {
@@ -1278,7 +1278,7 @@
     if (!shown.some(([k]) => k === section)) section = shown[0][0];
     const recState = {};
     const packState = {};
-    const BUILD = { launchers: launchersPart, updates: updatesPart, records: again => recordsPart(again, recState), due: duePart, speed: speedPart, packs: again => packsPart(again, packState), cleanup: cleanupPart, purge: purgePart, stress: stressPart, test: testPart };
+    const BUILD = { launchers: launchersPart, updates: updatesPart, records: again => recordsPart(again, recState), due: duePart, email: emailPart, speed: speedPart, packs: again => packsPart(again, packState), cleanup: cleanupPart, purge: purgePart, stress: stressPart, test: testPart };
     let seq = 0;
     async function paint() {
       tabs.replaceChildren(...shown.map(([k, t]) => btn(t, k === section ? 'on' : '', () => { section = k; try { localStorage.setItem('fpa-section', k); } catch (_) { /* best effort */ } if (opts.onSection) opts.onSection(k); paint(); })));
@@ -1342,6 +1342,60 @@
         act.append(why, btn('Excuse', 'small', () => act(async () => { await FP.due.excuse({ id: m.id, formId: m.form, recorded: true }, why.value); }, 'Excused: it stays on record, marked excused.', again)));
       }
       tr.appendChild(act);
+      t.appendChild(tr);
+    });
+    box.appendChild(t);
+    return box;
+  }
+
+  /* ---------- Email (0.69): who email may go to, and the jobs waiting for the sender ----------
+   * Nothing sends yet: a sender script on the host will deliver the jobs (not built yet). The approved domains are the
+   * built-in structure approved-domains: every change is an entry, so who changed what and when is kept. */
+  async function emailPart(again) {
+    const box = el('div');
+    if (!FP.email) { box.appendChild(el('div', 'fpe-warn', 'This release has no email support.')); return box; }
+    const ro = !(await FP.users.can('admin'));
+    box.appendChild(el('div', 'fpe-note', 'Nothing sends yet: a sender script on the host delivers these (not built yet). Until it is, a queued email waits in the outbox folder.'));
+    const list = await FP.email.domains(true);
+    const it = await FP.current.item(FP.email.STRUCTURE, 'domains', { fresh: true }).catch(() => null);
+    const who = it && it.lastUserId ? ((await FP.users.list().catch(() => [])).find(u => u.id === it.lastUserId) || {}).name : null;
+    box.appendChild(el('h3', null, 'Approved domains'));
+    box.appendChild(el('p', 'ffe-note', `Email may only go to addresses in these domains, matched exactly (a subdomain must be listed itself). ${list.length ? '' : 'The list is empty, so no email can be sent. '}${it && it.lastAt ? `Last changed ${new Date(it.lastAt).toLocaleString()}${who ? ' by ' + who : ''}; every change is kept.` : ''}`));
+    const save = (next, ok) => act(() => FP.email.setDomains(next), ok, again);
+    list.forEach(d => {
+      const card = el('div', 'fpa-card');
+      const ch = el('div', 'fpa-ch'); ch.append(FP.icons.tile({ glyph: 'doc', shape: 'place', fill: 'plain', size: 32 }), el('b', null, d));
+      if (!ro) ch.appendChild(btn('Remove', 'small fpa-tall', () => save(list.filter(x => x !== d), `${d} is removed.`)));
+      card.appendChild(ch);
+      box.appendChild(card);
+    });
+    if (!list.length) box.appendChild(el('p', 'ffe-note', 'None yet.'));
+    if (ro) box.appendChild(el('p', 'ffe-note', 'Only an admin can change this list.'));
+    else {
+      const di = input('', { placeholder: 'e.g. company.com', autocomplete: 'off' });
+      di.id = 'fpa-email-domain';
+      const add = () => {
+        const c = FP.email.checkDomain(di.value);
+        if (!c.ok) { toast(c.problem, true); return; }
+        if (list.includes(c.domain)) { toast(`${c.domain} is already on the list.`, true); return; }
+        save(list.concat([c.domain]), `${c.domain} is added.`);
+      };
+      di.onkeydown = e => { if (e.key === 'Enter') add(); };
+      const row = el('div', 'fpa-row'); row.append(di, btn('Add domain', 'primary fpa-tall', add));
+      box.appendChild(row);
+    }
+    // The queue: read-only, newest first.
+    const jobs = await FP.email.list().catch(e => { box.appendChild(el('div', 'fpe-warn', `The email queue can't be read: ${e.message}`)); return []; });
+    box.appendChild(el('h3', null, `Email queue: ${jobs.length}${jobs.length >= FP.email.LIST_CAP ? ' (the newest ' + FP.email.LIST_CAP + ')' : ''}`));
+    if (!jobs.length) { box.appendChild(el('p', 'ffe-note', 'Nothing is queued.')); return box; }
+    const t = el('table', 'fpa-table');
+    const hr = el('tr'); ['Job', 'To', 'Subject', 'State'].forEach(x => hr.appendChild(el('th', null, x))); t.appendChild(hr);
+    jobs.forEach(j => {
+      const tr = el('tr'); tr.dataset.job = j.jobId;
+      const mood = j.state === 'sent' || j.state === 'done' ? 'good' : j.state === 'failed' || j.state === 'rejected' ? 'bad' : '';
+      const state = el('td'); state.appendChild(pill(j.state, mood));
+      if (j.detail) state.appendChild(el('div', 'ffe-note', j.detail));
+      tr.append(el('td', null, j.jobId), el('td', null, `${j.to.length + j.cc.length} recipient${j.to.length + j.cc.length === 1 ? '' : 's'}`), el('td', null, j.readable ? j.subject : '(unreadable)'), state);
       t.appendChild(tr);
     });
     box.appendChild(t);
@@ -1853,16 +1907,19 @@
       const ni = input(u ? u.name : '', { placeholder: 'e.g. Maria Lopez', autocomplete: 'off' });
       const di = input(u ? u.department : '', { placeholder: 'e.g. Extrusion', autocomplete: 'off' });
       const rs = select(ROLE_PICK, u ? FP.users.topRole(u.roles) : 'user');
+      const ei = FP.email ? input(u ? u.email : '', { placeholder: 'e.g. maria@company.com', autocomplete: 'off', type: 'email' }) : null;
       card.append(set('Name', null, ni), set('Department', 'optional', di), set('Role', 'each role can do what the ones above it can', rs));
+      if (ei) card.appendChild(set('Email', 'optional; one address in an approved domain (Admin › Email); used only for email sent by the platform', ei));
       if (!u) {
         const pi = input('', { inputmode: 'numeric', maxlength: 6, placeholder: '6 digits', autocomplete: 'off' });
         card.appendChild(set('Temporary PIN', 'they sign in with it once, then choose their own', pi));
-        card.appendChild(btn('Add this person', 'primary', () => act(() => FP.users.create({ name: ni.value, department: di.value, roles: [rs.value], tempPin: pi.value.trim() }), `${ni.value.trim()} is added.`, async newId => { if (ctx.refresh) await ctx.refresh(); if (newId && ctx.openPlace) ctx.openPlace('person', newId); })));
+        card.appendChild(btn('Add this person', 'primary', () => act(() => FP.users.create({ name: ni.value, department: di.value, roles: [rs.value], tempPin: pi.value.trim(), email: ei ? ei.value : '' }), `${ni.value.trim()} is added.`, async newId => { if (ctx.refresh) await ctx.refresh(); if (newId && ctx.openPlace) ctx.openPlace('person', newId); })));
         return { isDirty: () => false };
       }
       card.appendChild(btn('Save', 'primary', () => act(async () => {
         if (ni.value.trim() !== u.name || di.value.trim() !== u.department) await FP.users.rename(u.id, { name: ni.value, department: di.value });
         if (rs.value !== FP.users.topRole(u.roles)) await FP.users.setRoles(u.id, [rs.value]);
+        if (ei && ei.value.trim() !== u.email) await FP.users.setEmail(u.id, ei.value);
       }, `${ni.value.trim()} is saved.`, again)));
       // Away (0.56, vacation mode): left out of every responsibility center for those days, then back with nothing to undo.
       const af = input(u.awayFrom || '', { type: 'date' }), at2 = input(u.awayTo || '', { type: 'date' }), an = input(u.awayNote || '', { placeholder: 'e.g. vacation', autocomplete: 'off' });

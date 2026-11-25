@@ -69,6 +69,8 @@
       id: it.id, name: v.name || '(no name)', department: v.department || '',
       roles: normRoles(v.roles), active: v.active !== false,
       mustChange: !!v.mustChange, pin: v.pin || null,
+      // Email (0.69): optional, one plain address in an approved domain; 'none' is how it is cleared. Never shown at sign-in.
+      email: typeof v.email === 'string' && v.email !== 'none' ? v.email : '',
       // Away (0.56, vacation mode): from and to are dates (YYYY-MM-DD, both days included), or empty.
       awayFrom: DATE_RE.test(v.awayFrom || '') ? v.awayFrom : null, awayTo: DATE_RE.test(v.awayTo || '') ? v.awayTo : null, awayNote: v.awayNote && v.awayNote !== 'none' ? v.awayNote : '',
     };
@@ -186,6 +188,16 @@
     userId: by || undefined,
   });
 
+  /* An email address for a person (0.69): empty is fine; otherwise one plain address in an approved domain (fp-email.js). */
+  async function emailOk(email) {
+    const t = email == null ? '' : String(email).trim();
+    if (!t) return '';
+    if (!FP.email) throw new Error('Email addresses are not available on this page.');
+    const c = await FP.email.checkAddressNow(t);
+    if (!c.ok) throw new Error(c.problem);
+    return c.address;
+  }
+
   FP.users = {
     ROLES, ROLE_LABEL, topRole, normRoles,
     pinProblem,
@@ -198,21 +210,30 @@
 
     /* Admin: create a user with a temporary PIN they must change at first sign-in.
      * With no users at all, the first one can be created without signing in (bootstrap). */
-    async create({ name, department, roles, tempPin }) {
+    async create({ name, department, roles, tempPin, email }) {
       const users = await allUsers(true);
       if (users.length) await requireRole('admin');
       if (!name || !name.trim()) throw new Error('Enter a name.');
+      const addr = await emailOk(email);
       roles = normRoles(roles);
       const bad = (roles || []).filter(r => !ROLES.includes(r));
       if (bad.length) throw new Error(`Unknown role ${bad.join(', ')}.`);
       if (!PIN_RE.test(tempPin || '')) throw new Error('The temporary PIN is exactly 6 digits.');
       const id = 'U-' + await FP.entry.newId();
-      await record('create', id, {
+      await record('create', id, Object.assign({
         name: name.trim(), department: (department || '').trim(), roles: roles && roles.length ? roles : ['user'],
         active: true, pin: await hashPin(tempPin), mustChange: users.length > 0,
-      }, users.length ? null : id);
+      }, addr ? { email: addr } : {}), users.length ? null : id);
       FP.current.clearCache();
       return id;
+    },
+
+    /* Admin: a person's email address (0.69): one plain address in an approved domain, or empty for none. */
+    async setEmail(userId, email) {
+      await requireRole('admin');
+      const addr = await emailOk(email);
+      await record('setEmail', userId, { email: addr || 'none' });
+      FP.current.clearCache();
     },
 
     /* Admin: give a user a new temporary PIN (they must change it at next sign-in). */
