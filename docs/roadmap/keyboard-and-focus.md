@@ -1,6 +1,6 @@
 # Roadmap: Keyboard at the bottom, and a focus mode when a field is hidden
 
-Status: **Proposed (not agreed or built).** Raised 25 Nov 2026.
+Status: **Agreed (decisions made 25 Nov 2026), being built.** Raised 25 Nov 2026.
 
 ## Problem
 
@@ -53,9 +53,14 @@ Status: **Proposed (not agreed or built).** Raised 25 Nov 2026.
 - Whether the Windows touch keyboard ever opens (it should not) and, if it does, that the detector sees it.
 - A gloved thumb on the pad keys, and the Next / Back keys.
 
-## Open questions for the owner
+## Decisions (owner, 25 Nov 2026)
 
-1. Which keyboard hides things today: the platform's own grey keyboard at the bottom, or the Windows touch keyboard?
-2. What is the smallest terminal screen (size in pixels, landscape or portrait)?
-3. Number pad layout along the bottom: a wide three-row pad (recommended), or the tall phone-style pad centred at the bottom?
-4. Focus mode: automatic only when a field is hidden (recommended), or always on for small screens?
+1. **The platform's own keyboard is what hides things** (not the Windows touch keyboard). The detector therefore works from our own keyboard's known size first; the VirtualKeyboard API and `visualViewport` stay as a fallback.
+2. **The design target is a 1200 x 800 landscape screen** (the smallest terminal). With a 344 px text keyboard that leaves about 456 px above it, less the form head and the save bar, so the form must be checked at that size.
+3. **The number pad is the wide, three-row pad along the bottom** (not the tall phone-style pad).
+4. **Focus mode shows only when the field is hidden** (or too little room is left), never always.
+
+### Consequences chosen for the build
+
+- With the pad at the bottom, a form that asks for the keyboard to be always shown (`keyboard: always`) no longer reserves a place on the right. While no field is focused its pad **rests as the 56 px bar only** ("Tap a box to type") and opens to the full pad when a field is tapped, so the form is not squeezed all the time.
+- Tests that checked the right-hand dock are rewritten for the bottom pad.
