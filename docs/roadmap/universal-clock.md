@@ -1,6 +1,6 @@
 # Roadmap: A universal clock
 
-Status: **Agreed (decisions made 25 Nov 2026), not built.** Raised 25 Nov 2026.
+Status: **Agreed (all decisions made 25 Nov 2026), ready to build.** Raised 25 Nov 2026.
 
 ## Problem
 
@@ -49,4 +49,4 @@ Now that the data folder is on one always-on host (`docs/DEPLOYMENT.md`), **the 
 
 ## Open questions left
 
-- Which responsibility center or role receives the alert (proposed: admins; a center can be chosen later)?
+- None. **Decided 25 Nov 2026:** the alert goes to admins; choosing a responsibility center to receive it is a later option, not part of the first build.
