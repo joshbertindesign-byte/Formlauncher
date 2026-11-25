@@ -129,6 +129,8 @@
         commit: spec.commit ? true : undefined,
         commitIn: spec.commitIn || undefined,
         clockAt: at !== clock ? clock.toISOString() : undefined,
+        // This terminal's own clock is more than a minute from the host's (0.71, fp-clock.js): { ownVsHostMs, appliedMs }. A note only; no value or order changes.
+        clockWarn: (FP.clock && FP.clock.warnNote && FP.clock.warnNote()) || undefined,
         // Values a form worked out (snapshots), with the formula and function versions used.
         derived: spec.derived && Object.keys(spec.derived).length ? spec.derived : undefined,
         values: spec.values || {},
@@ -262,6 +264,14 @@
       });
     },
   };
+
+  /* Entries being made (0.71): the universal clock moves the page clock only between them, never in the middle of a save. */
+  let making = 0;
+  ['build', 'submit', 'prepare'].forEach(k => {
+    const f = FP.entry[k];
+    FP.entry[k] = function (...a) { making++; return Promise.resolve(f.apply(this, a)).finally(() => { making--; }); };
+  });
+  FP.entry.inFlight = () => making;
 
   /* ---------- Waiting for a supervisor's approval (0.41) ----------
    * A form set to need a supervisor's approval doesn't save what a user fills in. The save is made (IDs,

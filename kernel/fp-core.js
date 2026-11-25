@@ -534,15 +534,18 @@
    * in real time. A folder that isn't a test folder never reads the file, and the clock is the computer's. */
   const RealDate = Date;
   let offset = 0, checked = null, isTestNow = false;
+  /* The universal clock (0.71, fp-clock.js) is a second, separate offset: the host's time less this PC's. The page clock is the
+   * PC's real clock plus the test offset plus the universal one. A test folder using the test clock never has a universal offset. */
+  let universal = 0;
   class TestDate extends RealDate {
-    constructor(...a) { if (a.length) super(...a); else super(RealDate.now() + offset); }
-    static now() { return RealDate.now() + offset; }
+    constructor(...a) { if (a.length) super(...a); else super(RealDate.now() + offset + universal); }
+    static now() { return RealDate.now() + offset + universal; }
   }
   const CLOCK = ['_test'];
   function applyOffset(ms) {
     const was = offset;
     offset = Number.isFinite(ms) ? ms : 0;
-    if (offset && window.Date !== TestDate) window.Date = TestDate;
+    if ((offset || universal) && window.Date !== TestDate) window.Date = TestDate;
     if (was !== offset) { try { window.dispatchEvent(new CustomEvent('fp-testclock', { detail: { offsetMs: offset, was } })); } catch (_) { /* no events */ } }
   }
   FP.testClock = {
@@ -556,6 +559,7 @@
       if (!isTestNow) { FP.testClock.used = false; applyOffset(0); return 0; }
       const j = await FP.files.readJson(CLOCK, 'clock.json').catch(() => null);
       FP.testClock.used = !!j;
+      if (j && universal) FP.pageClock.setUniversal(0);
       applyOffset(j && Number.isFinite(j.offsetMs) ? j.offsetMs : 0);
       return offset;
     },
@@ -565,12 +569,28 @@
       ms = Math.max(0, Math.round(ms || 0));
       await FP.files.writeJson(CLOCK, 'clock.json', { offsetMs: ms, setAt: new RealDate().toISOString(), by: by || null });
       FP.testClock.used = true; checked = null;
+      if (universal) FP.pageClock.setUniversal(0);
       applyOffset(ms);
       return ms;
     },
     jump: ms => FP.testClock.set(offset + ms),
     /* The offset in words: +2 h 15 min. */
     text(ms) { ms = ms == null ? offset : ms; const m = Math.round(ms / 60000); const h = Math.floor(m / 60); return m ? `+${h ? `${h} h` : ''}${h && m % 60 ? ' ' : ''}${m % 60 ? `${m % 60} min` : ''}` : 'real time'; },
+  };
+  /* The universal clock's hook (fp-clock.js): the PC's real clock, and the offset that moves the page clock to the host's. */
+  FP.pageClock = {
+    realNow: () => RealDate.now(),
+    universal: () => universal,
+    /* Returns the offset now applied: 0 whenever this is a test folder using the test clock, which always wins. */
+    setUniversal(ms) {
+      ms = FP.testClock.used || !Number.isFinite(ms) ? 0 : Math.round(ms);
+      if (ms === universal) return universal;
+      const was = universal;
+      universal = ms;
+      if (universal && window.Date !== TestDate) window.Date = TestDate;
+      try { window.dispatchEvent(new CustomEvent('fp-universalclock', { detail: { offsetMs: universal, was } })); } catch (_) { /* no events */ }
+      return universal;
+    },
   };
   // Every few seconds, so a jump made in one tab (or on another terminal) reaches this one.
   setInterval(() => { FP.testClock.load().catch(() => {}); }, 4000);

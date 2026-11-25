@@ -1223,6 +1223,8 @@
     const container = w => { const t = target(w); return t && t.structure === st ? (row.values || {})[t.container] : undefined; };
     const idOf = f => Object.entries(def.items || {}).some(([s2, c]) => s2 === st && c && c.field === f.name);
     const fixes = (row.corrections || []).map(c => `Corrected ${new Date(c.at).toLocaleString()}${c.reason ? `: ${c.reason}` : ''}`);
+    // The terminal's own clock was more than a minute from the host's when it saved this (0.71): a quiet line, the time is the host's.
+    if (row.clockWarn && Number.isFinite(row.clockWarn.ownVsHostMs)) fixes.push(`This terminal's clock was ${Math.max(1, Math.round(Math.abs(row.clockWarn.ownVsHostMs) / 60000))} min off; host time was used.`);
     return printPart(def, {
       mode: 'record', title: (doc && doc.def.title) || (row.form && row.form.id) || st,
       meta: [`${st} ${row.item.id}`, `Saved ${new Date(row.writtenAt).toLocaleString()}${row.action ? ` (${row.action})` : ''}`, [FP.identity.label(row.terminalId), row.site, opts.who].filter(Boolean).join(' · '), doc ? `Form version ${doc.version}` : null].concat(opts.more || []).filter(Boolean),

@@ -408,13 +408,13 @@
   /* ---------- Speed (0.49): how long each terminal takes to open its forms and load its structures ----------
    * Each terminal writes its own figures to _stats/{terminal}.json as it works (the median of its last five). */
   const FORM_BUDGET_MS = 2000, LOAD_BUDGET_MS = 1500;
-  async function speedPart() {
+  async function speedPart(again) {
     const files = await FP.files.list(['_stats']).catch(() => []);
     const terms = [];
     for (const n of files.filter(x => x.endsWith('.json'))) { const st = await FP.files.readJson(['_stats'], n).catch(() => null); if (st && st.terminalId) terms.push(st); }
     terms.sort((a, b) => String(a.terminalId).localeCompare(String(b.terminalId)));
     const ms = n => (n >= 1000 ? `${(n / 1000).toFixed(1)} s` : `${n} ms`);
-    return view({
+    const tree = view({
       build(a, box) {
         if (!terms.length) { a.head(box, 'No figures yet', 'terminals write theirs as they open forms'); return; }
         terms.forEach(t => {
@@ -435,6 +435,51 @@
           el('h4', null, 'When something is slow'), 'A structure that reads its whole history every time needs a live window (Structure › Loading). A form that reads many lookups over long windows loads them all before it is ready: shorten the windows.'));
       },
     });
+    const wrap = el('div');
+    wrap.append(await clockCard(again), tree);
+    return wrap;
+  }
+
+
+  /* The universal clock (0.71): the folder's on/off switch, this PC against the host, and every terminal's last measurement. */
+  async function clockCard(again) {
+    const card = el('div', 'fpa-card fpa-clock');
+    const ch = el('div', 'fpa-ch'); ch.append(FP.icons.tile({ glyph: 'refresh', shape: 'place', fill: 'plain', size: 32 }), el('b', null, 'Clock: every terminal follows the host'));
+    card.appendChild(ch);
+    if (!FP.clock) { card.appendChild(el('p', 'ffe-note', 'This release has no universal clock.')); return card; }
+    const isAdmin = await FP.users.can('admin');
+    const stt = FP.clock.state();
+    const min = ms => `${Math.max(1, Math.round(Math.abs(ms) / 60000))} min`;
+    const own = ms => (Math.abs(ms) <= 2000 ? 'right (within 2 s)' : Math.abs(ms) < 60000 ? `${Math.round(Math.abs(ms) / 1000)} s ${ms > 0 ? 'fast' : 'slow'}` : `${min(ms)} ${ms > 0 ? 'fast' : 'slow'}`);
+    card.appendChild(el('p', 'ffe-note', 'Terminals measure their own clock against the data folder\'s host (a small probe file in the _clock folder) and use the host\'s time for everything they save and check. A terminal more than a minute off is recorded with what it saves and raises an alert for admins; saving is never blocked.'));
+    const head = el('div', 'fpa-duty-row'); head.append(el('span', 'nm', stt.enabled ? 'On' : 'Off'), el('span', 'what', stt.enabled ? 'Every terminal uses the host\'s time.' : 'Every terminal uses its own PC\'s time.'));
+    if (isAdmin) {
+      head.appendChild(btn(stt.enabled ? 'Turn it off for this folder' : 'Turn it on for this folder', 'small fpa-tall fpa-clock-switch', () => {
+        if (stt.enabled && !confirm('Turn the universal clock off? Every terminal goes back to using its own PC\'s clock.')) return;
+        act(() => FP.clock.setEnabled(!stt.enabled), stt.enabled ? 'The universal clock is off: terminals use their own clocks.' : 'The universal clock is on: terminals follow the host.', again);
+      }));
+    }
+    card.appendChild(head);
+    if (!isAdmin) card.appendChild(el('p', 'ffe-note', 'Only an admin can change this.'));
+    const mine = el('div', 'fpa-duty-row fpa-clock-me');
+    const mineText = !stt.enabled ? 'not measured: the universal clock is off.' : !stt.measured ? `not measured yet${stt.reason ? `: ${stt.reason}` : ''}` : `this PC's own clock is ${own(stt.ownVsHostMs)}${stt.measuredAt ? `; measured ${new Date(stt.measuredAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}` : ''}${stt.stale ? '; the last measurement failed, so the earlier one is still used' : ''}`;
+    mine.append(el('span', 'nm', 'This PC'), el('span', 'what', mineText));
+    if (stt.enabled && stt.measured && stt.off) mine.appendChild(pill('more than a minute off', 'warn'));
+    card.appendChild(mine);
+    const list = await FP.clock.terminals().catch(() => []);
+    if (!list.length) card.appendChild(el('p', 'ffe-note', 'No terminal has written a measurement yet.'));
+    else {
+      const t = el('table', 'fpa-table');
+      const hr = el('tr'); ['Terminal', 'Own clock vs the host', 'Measured', ''].forEach(x => hr.appendChild(el('th', null, x))); t.appendChild(hr);
+      list.forEach(x => {
+        const tr = el('tr'); tr.dataset.terminal = x.terminalId; if (x.off) tr.dataset.off = '1';
+        const flag = el('td'); if (x.off) flag.appendChild(pill('more than a minute off', 'bad'));
+        tr.append(el('td', null, FP.identity.label ? FP.identity.label(x.terminalId) : x.terminalId), el('td', null, own(x.ownVsHostMs)), el('td', null, x.measuredAt ? new Date(x.measuredAt).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : ''), flag);
+        t.appendChild(tr);
+      });
+      card.appendChild(t);
+    }
+    return card;
   }
 
   async function recordsPart(again, st) {
@@ -536,8 +581,8 @@
         a.head(box, 'Saved', st.structure ? `${list.length} of ${rows.length}, newest first${list.length > 100 ? '; the first 100 shown' : ''}` : 'no structures yet');
         list.slice(0, 100).forEach(r => a.row(box, { key: 'r:' + r.entryId, depth: 1, color: r.corrections.length ? 'var(--d-amber-47)' : 'var(--d-blue-50)', tone: 'rec', glyph: 'doc', cls: st.sel === r.entryId ? 'on' : '',
           title: () => r.item.id,
-          sub: () => [formTitle(r), r.action, new Date(r.writtenAt).toLocaleString(), who(r), FP.identity.label(r.terminalId)].filter(Boolean).join(' · '),
-          tags: () => (r.corrections.length ? [a.tag(`corrected${r.corrections.length > 1 ? ` ×${r.corrections.length}` : ''}`, 'var(--d-amber-96b)')] : []),
+          sub: () => [formTitle(r), r.action, new Date(r.writtenAt).toLocaleString(), who(r), FP.identity.label(r.terminalId), r.clockWarn ? `this terminal's clock was ${Math.max(1, Math.round(Math.abs(r.clockWarn.ownVsHostMs) / 60000))} min off; host time was used` : ''].filter(Boolean).join(' · '),
+          tags: () => (r.corrections.length ? [a.tag(`corrected${r.corrections.length > 1 ? ` ×${r.corrections.length}` : ''}`, 'var(--d-amber-96b)')] : []).concat(r.clockWarn ? [a.tag('clock off', 'var(--d-amber-96b)')] : []),
           act: () => { st.sel = r.entryId; a.paint(); showRecord(); } }));
       },
       right(prev) {

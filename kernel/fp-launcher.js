@@ -23,7 +23,7 @@
 
   const VERSION = '0.71.0';
   /* The runtime, in load order. */
-  const KERNEL = ['fp-config', 'fp-theme', 'fp-fonts', 'fp-icons', 'fp-core', 'fp-identity', 'fp-entry', 'fp-session', 'fp-formula', 'fp-current', 'fp-kinds', 'fp-sites', 'fp-lookup',
+  const KERNEL = ['fp-config', 'fp-theme', 'fp-fonts', 'fp-icons', 'fp-core', 'fp-clock', 'fp-identity', 'fp-entry', 'fp-session', 'fp-formula', 'fp-current', 'fp-kinds', 'fp-sites', 'fp-lookup',
     'fp-users', 'fp-media', 'fp-sources', 'fp-forms', 'fp-controls', 'fp-visuals', 'fp-keyboard', 'fp-defs', 'fp-due', 'fp-email', 'fp-launcher', 'fp-updates'];
   const LAUNCHERS = ['launchers'];
 
@@ -686,12 +686,13 @@ window.addEventListener('unhandledrejection', function (e) { window.__fpReport('
         const told = u && a.told.some(t => (t.ids || []).includes(u.id));
         const c = el('div', 'fpl-acard' + (a.ackAt ? ' acked' : a.level >= 2 ? ' high' : ''));
         c.dataset.alert = a.id;
+        const clockNotice = a.kind === 'clock';   // a terminal's clock (0.71): for admins, no duty and no center
         c.append(el('b', null, `${a.title}${a.item ? ` · ${a.item}` : ''}`),
-          el('span', 'w', `Missed ${timeOf(a.dueBy || a.since)}${a.where && !a.item ? ` at ${a.where}` : ''} · ${a.centerName}${a.responsible ? ` · responsible: ${a.responsible}` : ''}`),
+          el('span', 'w', clockNotice ? `Since ${timeOf(a.since)}${a.where ? ` · ${a.where}` : ''} · it closes itself when the clock is right` : `Missed ${timeOf(a.dueBy || a.since)}${a.where && !a.item ? ` at ${a.where}` : ''} · ${a.centerName}${a.responsible ? ` · responsible: ${a.responsible}` : ''}`),
           el('span', 's', FP.alerts.words(a)));
         if (alertOpen[a.id]) {
           const ul = el('ul');
-          ul.appendChild(el('li', null, `${timeOf(a.since)}: missed, shown at the line`));
+          ul.appendChild(el('li', null, `${timeOf(a.since)}: ${clockNotice ? 'noticed' : 'missed, shown at the line'}`));
           a.told.forEach(t => ul.appendChild(el('li', null, `${timeOf(t.at)}: level ${t.level}, ${t.passed ? `${t.to}: everyone away, passed on` : `told ${t.to}${t.people.length ? ` (${t.people.join(', ')})` : ''}`}`)));
           if (a.ackAt) ul.appendChild(el('li', null, `${timeOf(a.ackAt)}: acknowledged by ${a.ackBy}${a.ackNote ? `: ${a.ackNote}` : ''}`));
           c.appendChild(ul);
@@ -701,7 +702,7 @@ window.addEventListener('unhandledrejection', function (e) { window.__fpReport('
         if (!a.ackAt && (told || (u && FP.users.topRole(u.roles) !== 'user'))) {
           const note = el('input'); note.placeholder = 'What is being done (e.g. line down, checking now)'; note.autocomplete = 'off';
           row.append(note, button('Acknowledge', 'primary', async () => {
-            try { await FP.alerts.ack(a.id, note.value); await paintAlerts(); say(`Acknowledged: ${a.title}. It stops climbing; it closes when the check is done again or excused.`, 'info'); }
+            try { await FP.alerts.ack(a.id, note.value); await paintAlerts(); say(clockNotice ? `Acknowledged: ${a.title}. It closes itself when that clock is right.` : `Acknowledged: ${a.title}. It stops climbing; it closes when the check is done again or excused.`, 'info'); }
             catch (e) { say(e.message, 'bad'); }
           }));
         }
@@ -1019,6 +1020,7 @@ window.addEventListener('unhandledrejection', function (e) { window.__fpReport('
       const showClock = () => { const o = FP.testClock ? FP.testClock.offset() : 0; clockChip.hidden = !o; clockChip.textContent = `Test clock ${FP.testClock ? FP.testClock.text() : ''} · ${new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`; };
       if (FP.testClock) { await FP.testClock.load().catch(() => {}); showClock(); setInterval(showClock, 15000); }
       window.addEventListener('fp-testclock', () => { showClock(); FP.current.clearCache(); if (FP.due && FP.due.poke) FP.due.poke(); });
+      window.addEventListener('fp-universalclock', () => { FP.current.clearCache(); if (FP.due && FP.due.poke) FP.due.poke(); });
       // A rehearsal (0.62, test folders only): launch.html?as=USER signs that person in without their PIN, while the
       // rehearsal allows it (Admin › Test folder › Rehearsal).
       const as = new URLSearchParams(location.search).get('as');
