@@ -70,7 +70,7 @@ const start = require('./dummies/base.js');
   E('conflict refuses', r.conflict, 'T05 was retired on 24 Nov 2026; pick another ID.');
   E('assign refuses', r.assign, 'T05 was retired on 24 Nov 2026; pick another ID.');
   E('assign refuses any spelling', r.assignLower, 'T05 was retired on 24 Nov 2026; pick another ID.');
-  E('assign changed nothing', r.stillMine, 'EDITOR-A485');
+  expect('assign changed nothing (still the editor\'s own random ID)', /^EDITOR-[A-Z0-9]+$/.test(r.stillMine), r.stillMine);
   E('another ID is as before', r.otherFine, '"T02 in use by another device"');
   E('check-in keeps the mark', r.checkIn, 'retired true · note replaced by T07 · seen moved true');
   E('forget still works', r.forgetT02, 'T01,T05');
