@@ -21,7 +21,7 @@ Image processing (drawing overlays, mapping failures) is **future work and not p
 - Rows have no serial or lot number: a scan is identified only by part and time. The scan's time is the scanning PC's local time, to the second, with no zone; the one hour that repeats when clocks go back is ambiguous.
 - Variants: a part can have alternative alignment variants. The export keeps every variant row and drops only variant rows that exactly duplicate a base row.
 - A row counts in pass-rate figures only when it is Pass or Fail (`countInStats` 1); Invalid (no feature found) and Saved (overlay marker) rows count 0.
-- Each run overlaps the last by a day, so rows repeat; the importer must ignore a repeated row ID. A repeated scan row whose comment was edited later arrives with different text.
+- Each run overlaps the last by a day, so rows repeat; the converter must ignore a repeated row ID. A repeated scan row whose comment was edited later arrives with different text.
 - Images are about 15 MB a working day (about 5 GB a year); each scan also has a small binary companion file. The overlays are about 1.6 MB in all. Licence key files and the scanning software's config must never be copied.
 
 ## Conflicts found against the platform, and how they are resolved
@@ -43,7 +43,7 @@ The media library is for documents people choose in forms: each file is register
 - **Structure `scans`** (published in the editor like any structure; the script writes entries for it as terminal `SCANPC`): one item per scan: scan ID (base part and time), part, variant list, scanner, scan time (a value), the scanner's comment, the measurements as a list inside it (tool, actual, nominal, delta, lower and upper limit, pass or fail, counts-in-stats), the manifest entry (image and companion file names and sizes), and the import batch. A live window and an open rule set so loads stay small.
 - **Corrections:** an edited comment arrives as a new version of the scan; the **newest file wins**, recorded as a correction entry (the platform already supports corrections).
 - **Spec records:** a structure (or lookup) of part, tool, nominal, lower and upper limit, first and last seen, with a new item when any value changes; snapshots of the part and option tables as read-only data.
-- **Health:** the platform's data health report shows "no scan data for yesterday", "importer silent", rows with `countInStats` 0 and Pass or Fail that disagrees with the limits, and a **heartbeat** from the export script. This shares one convention with the email sender (a `heartbeat.json`, status files and job IDs per bridge script) so the health check reads them the same way.
+- **Health:** the platform's data health report shows "no scan data for yesterday", "export script silent", rows with `countInStats` 0 and Pass or Fail that disagrees with the limits, and a **heartbeat** from the export script. This shares one convention with the email sender (a `heartbeat.json`, status files and job IDs per bridge script) so the health check reads them the same way.
 
 ## Build order (revised)
 
