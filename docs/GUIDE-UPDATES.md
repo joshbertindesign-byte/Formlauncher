@@ -1,6 +1,6 @@
 # Text to add to the User Guide and the Architecture Spec
 
-The two PDFs in `Forms b/` can't be edited from this repo, so here is the wording to add when you next revise them. It covers 0.64 to 0.70. Section
+The two PDFs in `Forms b/` can't be edited from this repo, so here is the wording to add when you next revise them. It covers 0.64 to 0.71. Section
 names are suggestions.
 
 ## Glossary (new terms)
@@ -69,3 +69,8 @@ names are suggestions.
 
 - **Guide, Admin:** a new **Email** tab: the approved domains (admins only, with history) and a read-only list of email jobs. A person can have an email address (Admin > People), which must be in an approved domain. Nothing is sent yet.
 - **Spec, Automation dispatcher:** the email job file is version 1: `version, action:'email', jobId, createdAt, mailbox, to, cc, subject, bodyHtml, bodyText, attachments, runAfter, source`, written to `outbox/email/<jobId>.json`; states move through `outbox/processing`, `outbox/done`, `outbox/failed`, and `status/<jobId>.json` reports `sent`, `failed` or `rejected`. Approved domains are a built-in structure `approved-domains`.
+
+## Keyboard at the bottom and focus mode (0.71.0)
+
+- **Guide, terminals and typing:** the number pad now comes up along the bottom, like the text keyboard, in three rows (7 8 9, 4 5 6, 1 2 3 0 with Backspace, Clear, plus or minus, the point and Next). The form scrolls the box you are typing in to the middle of the space above the keyboard. If the box is still hidden, the top of the keyboard becomes a typing card showing its name, what you have typed in large letters, its unit and message, with Back and Next; it disappears when the box is in view. A form set to always show the keyboard keeps a thin bar at the bottom until a box is tapped.
+- **Spec, on-screen keyboard:** remove the number pad docked at the right and its reserved place (`--fp-kb-right` is 0); add `FP.keyboard.hidden(field)` and the typing card; the keyboard keeps the page room through `--fp-kb-bottom`.

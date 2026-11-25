@@ -20,12 +20,18 @@
   const TYPE_TEXT = { text: 'text', name: 'a name (letters, digits, _)', number: 'a number', integer: 'a whole number', boolean: 'yes or no', choice: 'one of a list', formula: 'a formula', texts: 'a list of words', target: 'source.value', list: 'a list', map: 'names and values', any: 'see the note', control: 'a kind of field', form: 'a form\'s name', options: 'a list of options' };
 
   /* ---------- The chapters, as plain data ---------- */
-  /* What changed (0.70): short, plain, and who each change is for. Newest first. */
+  /* What changed (0.71): short, plain, and who each change is for. Newest first. */
   function changedChapter() {
     return {
       id: 'changed', title: 'What changed',
-      intro: 'What is different in the last seven releases, in plain words. Each says who it is for: builders make the forms in the editor; operators fill them in on a terminal.',
+      intro: 'What is different in the last eight releases, in plain words. Each says who it is for: builders make the forms in the editor; operators fill them in on a terminal.',
       blocks: [
+        { h: '0.71 · Keyboard at the bottom, and a typing card', who: 'Operators on a terminal', list: [
+          'The number pad now comes up along the bottom of the screen, like the text keyboard, instead of at the right. It is wide and low, three rows of keys: 7 8 9, 4 5 6 and 1 2 3 0, with Backspace, Clear, plus or minus, the point and Next at the right.',
+          'The form scrolls the box you are typing in to the middle of the space left above the keyboard, so you can see it and its name.',
+          'If the keyboard still hides the box (a very short screen, a tall box), the top of the keyboard turns into a typing card: the box\'s name, what you have typed in large letters, its unit and any message, with Back and Next. It goes away by itself as soon as the box is in view.',
+          'A form set to always show the keyboard keeps a thin bar at the bottom while no box is selected, and opens the full keys when you tap a box.',
+        ] },
         { h: '0.70 · Email groundwork', who: 'Admins', list: [
           'Admin has a new Email tab: the list of domains email may go to (only admins can change it; every change is kept in its history) and a read-only list of email jobs waiting to go. Nothing is sent yet: a sender script on the host will deliver them, and it is not built yet.',
           'A person can have an email address (Admin > People, optional). It must be a single plain address in an approved domain; it is never shown on the sign-in screen.',
@@ -355,5 +361,5 @@ table{border-collapse:collapse;width:100%}td{border-top:1px solid gainsboro;padd
   FP.editor.help = help;
 
   /* Registered last, so a module that failed partway never reports as loaded. */
-  (window.FP.modules = window.FP.modules || {})['fp-help'] = '0.70.0';
+  (window.FP.modules = window.FP.modules || {})['fp-help'] = '0.71.0';
 })();

@@ -1,6 +1,6 @@
 # Roadmap: Keyboard at the bottom, and a focus mode when a field is hidden
 
-Status: **Agreed (decisions made 25 Nov 2026), being built.** Raised 25 Nov 2026.
+Status: **Built in 0.71.0** (see `docs/KEYBOARD-AND-FOCUS.md`). Decisions made 25 Nov 2026. Raised 25 Nov 2026.
 
 ## Problem
 

@@ -1218,5 +1218,5 @@
   if (!FP.fn.listAll) { const all = FP.fn.list; FP.fn.listAll = all; FP.fn.list = () => all().filter(f => !f.retired); }
 
   /* Registered last, so a module that failed partway never reports as loaded. */
-  (window.FP.modules = window.FP.modules || {})['fp-defs'] = '0.70.0';
+  (window.FP.modules = window.FP.modules || {})['fp-defs'] = '0.71.0';
 })();

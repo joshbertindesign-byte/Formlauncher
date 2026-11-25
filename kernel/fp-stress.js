@@ -871,5 +871,5 @@
   FP.stress = { SUITES, tests: () => tests.map(t => ({ suite: t.suite, id: t.id, title: t.title })), run, results: () => new Map(results), report, render, stop: () => { cancelled = true; } };
 
   /* Registered last, so a module that failed partway never reports as loaded. */
-  (window.FP.modules = window.FP.modules || {})['fp-stress'] = '0.70.0';
+  (window.FP.modules = window.FP.modules || {})['fp-stress'] = '0.71.0';
 })();
